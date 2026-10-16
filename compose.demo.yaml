@@ -1,0 +1,40 @@
+services:
+  api:
+    ports: !reset []
+    environment:
+      APP_MODE: demo
+  web:
+    ports: !reset []
+  worker:
+    environment:
+      APP_MODE: demo
+  gateway:
+    image: python:3.12.14-slim-bookworm@sha256:392307d22300de8b5986851a12d9176dfc0fc073e65bf6523ebd7dcbeb23564e
+    user: "1000:1000"
+    command: [python, /gateway.py]
+    volumes: [./scripts/loopback_gateway.py:/gateway.py:ro]
+    networks: [default, gateway_access]
+    ports: [127.0.0.1:3000:3000, 127.0.0.1:8000:8000]
+    depends_on:
+      api: {condition: service_healthy}
+      web: {condition: service_started}
+  seed:
+    image: fincathon-api
+    environment:
+      DATABASE_URL: postgresql+psycopg://fincathon@postgres:5432/fincathon
+      DATABASE_PASSWORD_FILE: /run/secrets/db_password
+      APP_MODE: demo
+      STORAGE_PATH: /app/.local/files
+    secrets: [db_password]
+    volumes: [runtime:/app/.local]
+    command: [python, scripts/seed_demo.py]
+    profiles: [tools]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+
+# Runtime has no Internet route. Fixtures and verified OCR assets are built beforehand.
+networks:
+  default:
+    internal: true
+  gateway_access:
+    driver: bridge

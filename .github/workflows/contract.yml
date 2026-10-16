@@ -1,0 +1,66 @@
+name: Deterministic application checks
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  offline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.12.23'
+          enable-cache: true
+      - run: uv sync --frozen
+      - run: npm ci
+      - run: sudo apt-get update && sudo apt-get install -y tesseract-ocr poppler-utils
+      - run: .venv/bin/python scripts/install_ocr.py
+      - run: .venv/bin/python scripts/local_prepare.py
+      - run: .venv/bin/python -m alembic upgrade head
+      - run: .venv/bin/python scripts/validate_contract.py
+      - run: .venv/bin/python scripts/check_generated.py
+      - run: .venv/bin/python -m pytest -q
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: .venv/bin/python scripts/dev.py start --demo
+      - run: npx playwright test
+      - if: always()
+        run: .venv/bin/python scripts/dev.py stop
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: offline-browser-traces
+          path: test-results/
+  live-provider-probes:
+    if: github.event_name == 'workflow_dispatch' && vars.FINCATHON_LIVE_PROBES == 'enabled'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: live-provider-validation
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.12.23'
+      - run: uv sync --frozen
+      - run: .venv/bin/python scripts/probe_live_providers.py
+        env:
+          BRAVE_SEARCH_API_KEY: ${{ secrets.BRAVE_SEARCH_API_KEY }}
+          FINCATHON_MODEL_API_KEY: ${{ secrets.FINCATHON_MODEL_API_KEY }}
+          FINCATHON_MODEL_BASE_URL: ${{ vars.FINCATHON_MODEL_BASE_URL }}
+          FINCATHON_MODEL_ID: ${{ vars.FINCATHON_MODEL_ID }}
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-provider-probe-receipts
+          path: .local/live-provider-probes.json

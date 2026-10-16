@@ -1,0 +1,12 @@
+{
+  "version": "pilot-2026-10-v1",
+  "price_status": "unvalidated_pilot_baseline",
+  "plans": {
+    "free_sandbox": {"runs": 2, "pages": 10, "users": 1, "active_deals": 0, "duration_days": null, "monthly": true, "price_idr": "0"},
+    "deal_pass": {"runs": 10, "pages": 100, "users": 1, "active_deals": 1, "duration_days": 90, "monthly": false, "price_idr": "299000"},
+    "pro": {"runs": 30, "pages": 300, "users": 3, "active_deals": 5, "duration_days": null, "monthly": true, "price_idr": "999000"},
+    "team": {"runs": 100, "pages": 1000, "users": 10, "active_deals": 20, "duration_days": null, "monthly": true, "price_idr": "2499000"},
+    "institutional": {"runs": 0, "pages": 0, "users": 0, "active_deals": 0, "duration_days": null, "monthly": true, "price_idr": null}
+  },
+  "addons": {"analysis": {"unit": "enriched_run", "quantity": 10, "price_idr": "149000"}, "document": {"unit": "document_page", "quantity": 100, "price_idr": "49000"}}
+}

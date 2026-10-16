@@ -1,0 +1,101 @@
+{
+  "IDR": {
+    "principal": "60000000",
+    "events": [
+      {
+        "day": 13,
+        "hour": 12,
+        "kind": "loan_draw",
+        "amount": "60000000",
+        "sequence": 0
+      },
+      {
+        "day": 13,
+        "hour": 12,
+        "kind": "finance_cost",
+        "amount": "1000000",
+        "sequence": 1
+      },
+      {
+        "day": 54,
+        "hour": 12,
+        "kind": "finance_cost",
+        "amount": "1200000",
+        "sequence": 1
+      },
+      {
+        "day": 54,
+        "hour": 13,
+        "kind": "principal_repayment",
+        "amount": "60000000",
+        "sequence": 2
+      }
+    ]
+  },
+  "CNY": {
+    "principal": "20000",
+    "events": [
+      {
+        "day": 13,
+        "hour": 12,
+        "kind": "loan_draw",
+        "amount": "20000",
+        "sequence": 0
+      },
+      {
+        "day": 13,
+        "hour": 12,
+        "kind": "finance_cost",
+        "amount": "200",
+        "sequence": 1
+      },
+      {
+        "day": 54,
+        "hour": 12,
+        "kind": "finance_cost",
+        "amount": "400",
+        "sequence": 1
+      },
+      {
+        "day": 54,
+        "hour": 13,
+        "kind": "principal_repayment",
+        "amount": "20000",
+        "sequence": 2
+      }
+    ]
+  },
+  "EUR": {
+    "principal": "6000",
+    "events": [
+      {
+        "day": 13,
+        "hour": 12,
+        "kind": "loan_draw",
+        "amount": "6000",
+        "sequence": 0
+      },
+      {
+        "day": 13,
+        "hour": 12,
+        "kind": "finance_cost",
+        "amount": "100",
+        "sequence": 1
+      },
+      {
+        "day": 54,
+        "hour": 12,
+        "kind": "finance_cost",
+        "amount": "120",
+        "sequence": 1
+      },
+      {
+        "day": 54,
+        "hour": 13,
+        "kind": "principal_repayment",
+        "amount": "6000",
+        "sequence": 2
+      }
+    ]
+  }
+}

@@ -1,0 +1,25 @@
+# Optional override for the managed cloud proxy, resolved by scripts/compose_cloud.py.
+x-cloud-build: &cloud-build
+  network: host
+  extra_hosts:
+    - proxy:${FINCATHON_PROXY_IP:?Resolve the managed proxy with scripts/compose_cloud.py}
+  secrets: [cloud_ca]
+  args:
+    HTTP_PROXY: ${HTTP_PROXY:-}
+    HTTPS_PROXY: ${HTTPS_PROXY:-}
+    NO_PROXY: ${NO_PROXY:-}
+    http_proxy: ${http_proxy:-${HTTP_PROXY:-}}
+    https_proxy: ${https_proxy:-${HTTPS_PROXY:-}}
+    no_proxy: ${no_proxy:-${NO_PROXY:-}}
+services:
+  api:
+    build: *cloud-build
+  worker:
+    build: *cloud-build
+  migrate:
+    build: *cloud-build
+  web:
+    build: *cloud-build
+secrets:
+  cloud_ca:
+    file: ${NODE_EXTRA_CA_CERTS:?Use the managed proxy CA without disabling TLS verification}

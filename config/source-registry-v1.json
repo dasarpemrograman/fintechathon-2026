@@ -1,0 +1,16 @@
+{
+  "version": "candidate-authorities-2026-10-v1",
+  "status": "candidate_domains_require_retrieval_and_review",
+  "authorities": {
+    "ID": {"language": "id", "customs": ["beacukai.go.id"], "finance": ["indonesiaeximbank.go.id"]},
+    "CN": {"language": "zh", "customs": ["customs.gov.cn"], "finance": ["eximbank.gov.cn"]},
+    "SG": {"language": "en", "customs": ["customs.gov.sg"], "finance": ["enterprisesg.gov.sg"]},
+    "KE": {"language": "en", "customs": ["kra.go.ke"], "finance": []},
+    "DE": {"language": "de", "customs": ["zoll.de"], "finance": ["kfw.de"]},
+    "AE": {"language": "en", "customs": [], "finance": ["edb.gov.ae"]}
+  },
+  "market_references": ["intracen.org"],
+  "logistics_providers": ["maersk.com", "dhl.com"],
+  "global_trade_references": ["wto.org"],
+  "fx_reference": "api.frankfurter.dev"
+}

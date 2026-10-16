@@ -1,0 +1,4 @@
+SYNTHETIC DEMO ONLY
+Quantity 10 kg
+Price USD 350.00
+Payment Net 30 — anchor unresolved

@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.py[cod]
+node_modules/
+.next/
+.local/
+*.egg-info/
+.pytest_cache/
+.playwright/
+test-results/
+playwright-report/
+
+*.tsbuildinfo

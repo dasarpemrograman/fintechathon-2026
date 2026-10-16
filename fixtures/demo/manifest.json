@@ -1,0 +1,69 @@
+{
+  "dataset_id": "demo-v1",
+  "version": 1,
+  "reference_date": "2026-10-16",
+  "organizations": {
+    "id": "Nusantara Synthetic Exports",
+    "cn": "Pearl Synthetic Exports",
+    "ke": "Savannah Synthetic Exports"
+  },
+  "cases": [
+    {
+      "key": "id-reseller",
+      "organization": "id",
+      "profile": "reseller",
+      "origin": "ID",
+      "destination": "SG",
+      "currency": "IDR",
+      "timezone": "Asia/Jakarta",
+      "product": "Green coffee beans",
+      "financial": "id_reseller"
+    },
+    {
+      "key": "cn-producer",
+      "organization": "cn",
+      "profile": "producer",
+      "origin": "CN",
+      "destination": "SG",
+      "currency": "CNY",
+      "timezone": "Asia/Shanghai",
+      "product": "Manufactured components",
+      "financial": "cn_producer"
+    },
+    {
+      "key": "id-producer",
+      "organization": "id",
+      "profile": "producer",
+      "origin": "ID",
+      "destination": "NL",
+      "currency": "IDR",
+      "timezone": "Asia/Jakarta",
+      "product": "Dried spices",
+      "financial": "id_reseller"
+    },
+    {
+      "key": "cn-reseller",
+      "organization": "cn",
+      "profile": "reseller",
+      "origin": "CN",
+      "destination": "AE",
+      "currency": "CNY",
+      "timezone": "Asia/Shanghai",
+      "product": "Ceramic tableware",
+      "financial": "generic_cny",
+      "multiple_shipments": true
+    },
+    {
+      "key": "ke-producer",
+      "organization": "ke",
+      "profile": "producer",
+      "origin": "KE",
+      "destination": "DE",
+      "currency": "EUR",
+      "timezone": "Africa/Nairobi",
+      "product": "Dried mango",
+      "financial": "generic_eur"
+    }
+  ],
+  "expected_entry_workspaces": 10
+}

@@ -1,0 +1,12 @@
+{
+  "documents/ambiguous-zh.txt": "c8c61a4092ba0ed1e65cca13aa7b46bfacb3cc022f127e3f80ef5625f45467b5",
+  "documents/quotation-id.txt": "6f25e95a6430960bec8fc6bbfed8996d3cccfa528c6bd7bda6100b6edb678434",
+  "documents/quotation.pdf": "4d7c3adf56461b390311eee49e541a2778d838761aa3e139cb3145995ed2ba35",
+  "documents/quotation.txt": "93560a14b9630cf5572a1dca4a245762200a19cbb4924f4c56d497cf3dcaec7f",
+  "documents/scan.png": "5dee2886e44788fe56e8fc1b239a5e3ba18db89bd9180df1e2da4ed395dde6ee",
+  "documents/scanned.pdf": "2c50d727e116660e6a01db5d9667158b5a4fbb8bbaba2a5656ebc91aaf64dfd0",
+  "finance.json": "4da81e60580915d4ed32cd03862043e38a53a4c213eb0bcaa0fb7f06db86f7b8",
+  "manifest.json": "0e959cdd14b765c8cfca8a86cbc4bdbb239168cbb2c242526e91c4b7ecb8a106",
+  "ocr-assets.lock.json": "c5890c7a9dae27a1a24e38cf85027f4463c25851224d8aea0270e519c8a34df3",
+  "sources.json": "ad5da485060b703e8f1e2c975a536d1c3be5024bd92c0a231a5d7289741abae6"
+}

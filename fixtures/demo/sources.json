@@ -1,0 +1,26 @@
+{
+  "requirements": {
+    "title": "Synthetic requirements card",
+    "text": "SYNTHETIC DEMO ONLY. Example checklist: review the applicable export documentation and product conformity evidence. This is not an official rule, executable quote or lender offer."
+  },
+  "freight": {
+    "title": "Synthetic freight quotation",
+    "text": "SYNTHETIC DEMO ONLY. Example freight USD 350.00 per declared W/M minimum. Included charge coverage requires review. This is not an official rule, executable quote or lender offer."
+  },
+  "market_price": {
+    "title": "Synthetic market observation",
+    "text": "SYNTHETIC DEMO ONLY. Illustrative market observation. Product grade, quantity and delivery comparability are unreviewed. This is not an official rule, executable quote or lender offer."
+  },
+  "fx": {
+    "title": "Synthetic reference FX",
+    "text": "SYNTHETIC DEMO ONLY. Synthetic reference FX USD 1 = IDR 16000.00; no currency execution is implied. This is not an official rule, executable quote or lender offer."
+  },
+  "finance": {
+    "title": "Synthetic finance terms",
+    "text": "SYNTHETIC DEMO ONLY. Illustrative pre-shipment funding; pricing and eligibility are fictional. This is not an official rule, executable quote or lender offer."
+  },
+  "product": {
+    "title": "Synthetic product attributes",
+    "text": "SYNTHETIC DEMO ONLY. Example product attributes, classification and intended use require review. This is not an official rule, executable quote or lender offer."
+  }
+}

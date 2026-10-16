@@ -1,0 +1,10 @@
+{
+  "repository": "https://github.com/tesseract-ocr/tessdata_fast.git",
+  "commit": "87416418657359cb625c412a48b6e1d6d41c29bd",
+  "git_blob_ids": {
+    "eng.traineddata": "bbef4675053b5b468cdb477053e28b1c698ba08e",
+    "ind.traineddata": "3013f50cd2af9aceca00e865ed889144865f0848",
+    "chi_sim.traineddata": "388bac276d033d06e5ed5ba7a7ad14ae58f97dab",
+    "osd.traineddata": "527457ca8f8fe1fda7c2f88bce3c0e4be12be9d0"
+  }
+}

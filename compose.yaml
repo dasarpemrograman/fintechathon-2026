@@ -1,0 +1,65 @@
+name: fincathon
+x-runtime: &runtime
+  image: fincathon-api
+  build:
+    context: .
+    dockerfile: docker/api.Dockerfile
+  environment: &runtime-env
+    DATABASE_URL: postgresql+psycopg://fincathon@postgres:5432/fincathon
+    DATABASE_PASSWORD_FILE: /run/secrets/db_password
+    APP_MODE: normal
+    STORAGE_PATH: /app/.local/files
+  secrets: [db_password]
+  volumes:
+    - runtime:/app/.local
+  depends_on:
+    postgres:
+      condition: service_healthy
+services:
+  postgres:
+    image: postgres:17-bookworm@sha256:3645570cccdfa447589da9f57dd740faa29b30938e861289a5574b6ca6b03826
+    environment:
+      POSTGRES_USER: fincathon
+      POSTGRES_DB: fincathon
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    secrets: [db_password]
+    volumes: [postgres:/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U fincathon -d fincathon]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+  migrate:
+    <<: *runtime
+    command: [python, -m, alembic, upgrade, head]
+  api:
+    <<: *runtime
+    ports: [127.0.0.1:8000:8000]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  worker:
+    <<: *runtime
+    command: [python, -m, services.worker]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+  web:
+    build:
+      context: .
+      dockerfile: docker/web.Dockerfile
+    environment:
+      API_BASE_URL: http://api:8000
+      WEB_ORIGIN: http://127.0.0.1:3000
+    ports: [127.0.0.1:3000:3000]
+    depends_on:
+      api: {condition: service_healthy}
+secrets:
+  db_password:
+    file: .local/db-password
+volumes:
+  postgres:
+  runtime:

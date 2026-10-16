@@ -1,0 +1,4 @@
+DATA DEMO SINTETIS
+Jumlah 10 kg
+Harga IDR 5500000
+Pembayaran Net 30 — tanggal acuan belum dikonfirmasi
