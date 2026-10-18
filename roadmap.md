@@ -301,14 +301,16 @@ Source: [durable operations](openspec/specs/durable-operations/spec.md). Start i
 
 ### R19: Seeded demo and evaluator journeys
 
+**Status:** In review; [technical evidence](docs/roadmap/R19-acceptance.md). R19.4 integrated acceptance remains blocked (R07.4: Faiz/Wisa; R17.3/R17.4: Wisa).
+
 **Owner:** Fithra · **Reviewer:** Wisa · **Depends on:** accepted core packages R01–R18; R21 for the optional Calendar journey.
 
 Sources: [seeded demo](openspec/specs/seeded-demo/spec.md), [walkthrough](docs/demo-walkthrough.md). Start in `packages/domain/demo.py`, `demo_stages.py`, `demo_reset.py`, `fixtures/demo/`, seed/reset scripts and browser journeys.
 
-- [ ] R19.1 Verify versioned fixture hashes, deterministic business dates, all reviewer roles, at least ten entry workspaces, general lanes and multiple line/shipment cases.
-- [ ] R19.2 Reproduce exploration, profitable-but-cash-negative analysis, negotiation, financing, drafts, blocked/corrected goods, receipts, reconciling and closed checkpoints through real services.
-- [ ] R19.3 Exercise reseeding twice, restart persistence and namespace reset with an unrelated user record; reject mixed ownership and retained/live Calendar dependencies.
-- [ ] R19.4 Run complete and blocked evaluator journeys with runtime outbound access denied, persistent synthetic labels, keyboard/narrow-screen use and an updated concise walkthrough.
+- [x] R19.1 Verify versioned fixture hashes, deterministic business dates, all reviewer roles, at least ten entry workspaces, general lanes and multiple line/shipment cases. [Evidence](docs/roadmap/R19-acceptance.md).
+- [x] R19.2 Reproduce exploration, profitable-but-cash-negative analysis, negotiation, financing, drafts, blocked/corrected goods, receipts, reconciling and closed checkpoints through real services. [Evidence](docs/roadmap/R19-acceptance.md).
+- [x] R19.3 Exercise reseeding twice, restart persistence and namespace reset with an unrelated user record; reject mixed ownership and retained/live Calendar dependencies. [Evidence](docs/roadmap/R19-acceptance.md).
+- [ ] R19.4 Run complete and blocked evaluator journeys with runtime outbound access denied, persistent synthetic labels, keyboard/narrow-screen use and an updated concise walkthrough. **Blocked:** Offline journeys executed; final integrated acceptance is blocked on R07.4 (Faiz/Wisa) and R17.3/R17.4 isolated recovery evidence (Wisa). [Evidence](docs/roadmap/R19-acceptance.md).
 
 **Acceptance:** the evaluator can reproduce causal successful and blocked histories without provider credentials, and demo evidence cannot satisfy real-workspace readiness.
 
