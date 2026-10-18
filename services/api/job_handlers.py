@@ -39,6 +39,13 @@ def accept_job(conn, context, operation, parent, body, request=None):
     }[operation]
     from packages.domain.entitlements import require_feature
 
+    if operation == "syncCalendar":
+        from packages.adapters.calendar import connected
+        from packages.adapters.calendar_policy import require_live_sync
+
+        connection = connected(conn, context["tenant"], body["connection_id"])
+        require_live_sync(connection["data_mode"])
+
     deterministic_matching = (
         kind == "finance_options" and parent["execution_scope"] == "real"
     )

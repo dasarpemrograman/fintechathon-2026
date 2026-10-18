@@ -1,5 +1,7 @@
 # Local implementation verification
 
+Latest review: [18 October verification](../openspec/changes/archive/2026-10-18-implement-export-workspace-with-seeded-demo/verification.md) and [live acceptance results](live-acceptance-results.md) record 74/74 tasks complete, passing real Calendar lifecycle and all declared search/source/FX/model checks. General Calendar writes remain disabled. The evidence below is the historical 16 October implementation record; its missing-credential observations are superseded by the latest review.
+
 Recorded 16 October 2026 for `implement-export-workspace-with-seeded-demo`. The local application and isolated offline demo are implemented. Live-provider coverage and real Google Calendar acceptance remain blocked and are not counted as passed. No hosted deployment or production readiness is claimed.
 
 ## Executed checks

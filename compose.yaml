@@ -4,6 +4,9 @@ x-runtime: &runtime
   build:
     context: .
     dockerfile: docker/api.Dockerfile
+  env_file:
+    - path: .env
+      required: false
   environment: &runtime-env
     DATABASE_URL: postgresql+psycopg://fincathon@postgres:5432/fincathon
     DATABASE_PASSWORD_FILE: /run/secrets/db_password

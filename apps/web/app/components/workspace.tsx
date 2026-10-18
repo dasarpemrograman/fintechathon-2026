@@ -1397,9 +1397,15 @@ function Detail({
                       {title(event.kind)} · {money(event.amount)}
                       <br />
                       <small>
-                        {event.schedule.kind === "fixed" &&
-                        "instant" in event.schedule.due
-                          ? date(event.schedule.due.instant)
+                        {event.schedule.kind === "fixed"
+                          ? ("instant" in event.schedule.due
+                              ? formatDate(
+                                  event.schedule.due.instant,
+                                  event.schedule.due.timezone,
+                                )
+                              : event.schedule.due.date) +
+                            " · " +
+                            event.schedule.due.timezone
                           : "Relatif terhadap peristiwa"}
                       </small>
                     </article>

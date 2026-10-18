@@ -28,6 +28,8 @@ export function CalendarPanel({
     [action, setAction] = useState<"insert" | "update" | "delete">("insert"),
     [preview, setPreview] = useState<S["CalendarPreview"] | null>(null),
     [approved, setApproved] = useState(false),
+    [syncReady, setSyncReady] = useState(demo),
+    [calendarId, setCalendarId] = useState("primary"),
     [error, setError] = useState("");
   const root = "deals/" + deal.id;
   async function refresh() {
@@ -36,6 +38,23 @@ export function CalendarPanel({
     if (!response.ok)
       throw new Error(body.message || "Tidak dapat membaca koneksi.");
     setConnections(body.result.items);
+    const matching = body.result.items.filter(
+      (c: S["CalendarConnection"]) =>
+        c.data_mode === (demo ? "synthetic_demo" : "live") &&
+        c.status === "connected",
+    );
+    setConnection((current) => current || (!demo && matching.at(-1)?.id) || "");
+    const capabilities = await fetch("/api/gateway/capabilities", {
+      cache: "no-store",
+    });
+    if (!capabilities.ok)
+      throw new Error("Tidak dapat membaca kesiapan kalender.");
+    const capabilityBody = await capabilities.json();
+    setSyncReady(
+      capabilityBody.result.items.some(
+        (c: S["Capability"]) => c.name === "calendar" && c.state === "ready",
+      ),
+    );
   }
   useEffect(() => {
     refresh().catch((error) => setError(error.message));
@@ -50,6 +69,10 @@ export function CalendarPanel({
       redirect_uri: location.origin + "/oauth/calendar/callback",
     })) as S["CalendarAuthorization"] | null;
     if (!auth) return;
+    if (!demo) {
+      window.location.assign(auth.authorization_url);
+      return;
+    }
     const connected = (await command("calendar/callback", {
       state: auth.state,
       code: "offline-demo",
@@ -73,208 +96,239 @@ export function CalendarPanel({
       </p>
       {!demo ? (
         <p>
-          Validasi akun Google belum dicatat. Siapkan kredensial dan uji siklus
-          akun sebelum mengaktifkan proyeksi langsung.
+          Hubungkan akun Google dan pilih kalender Anda.{" "}
+          {syncReady
+            ? "Sinkronisasi langsung diaktifkan operator; setiap proyeksi tetap memerlukan persetujuan."
+            : "Proyeksi langsung tetap dinonaktifkan sampai validasi akun dicatat dan operator mengaktifkannya."}
         </p>
       ) : (
-        <>
-          <strong>DEMO SINTETIS · tidak ada panggilan Google</strong>
-          {error && <p role="alert">{error}</p>}
-          <div className="actions">
-            <button
-              disabled={disabled}
-              onClick={() =>
-                connect().catch((error) => setError(error.message))
-              }
-            >
-              Hubungkan kalender demo
-            </button>
-            <button
-              className="secondary"
-              disabled={disabled}
-              onClick={() =>
-                refresh().catch((error) => setError(error.message))
-              }
-            >
-              Perbarui status proyeksi
-            </button>
-          </div>
-          <label>
-            Koneksi kalender
-            <select
-              value={connection}
-              onChange={(e) => {
-                setConnection(e.target.value);
-                invalidate();
-              }}
-            >
-              <option value="">Pilih koneksi</option>
-              {connections
-                .filter((c) => c.data_mode === "synthetic_demo")
-                .map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.calendar_id || c.id} · {c.status}
-                  </option>
-                ))}
-            </select>
-          </label>
-          {active && (
-            <>
-              <p>
-                Status koneksi: {active.status} · {active.data_mode}
-              </p>
-              {active.status === "connected" && (
-                <button
-                  disabled={disabled}
-                  className="secondary"
-                  onClick={async () => {
-                    await command(
-                      "calendar/connections/" + active.id + "/revoke",
-                      {},
-                    );
-                    invalidate();
-                    await refresh();
-                  }}
-                >
-                  Cabut koneksi ini
-                </button>
-              )}
-              {active.owned_events?.map((event) => (
-                <div key={event.milestone_id}>
-                  <p>
-                    {event.milestone_id} · status proyeksi: {event.state}
-                  </p>
-                  {event.state === "conflict" && (
-                    <div className="actions">
-                      {(["keep_external", "reapprove_projection"] as const).map(
-                        (decision) => (
-                          <button
-                            key={decision}
-                            disabled={disabled}
-                            onClick={async () => {
-                              await command(root + "/calendar-conflicts", {
-                                expected_revision: deal.revision,
-                                connection_id: active.id,
-                                milestone_id: event.milestone_id,
-                                decision,
-                              });
-                              invalidate();
-                              await refresh();
-                            }}
-                          >
-                            {decision === "keep_external"
-                              ? "Pertahankan perubahan eksternal"
-                              : "Tinjau proyeksi lagi"}
-                          </button>
-                        ),
-                      )}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </>
-          )}
-          <fieldset disabled={disabled || active?.status !== "connected"}>
-            <legend>Milestone yang diproyeksikan</legend>
-            {milestones.map((m) => (
-              <label key={m.id}>
-                <input
-                  type="checkbox"
-                  checked={selected.includes(m.id)}
-                  onChange={(e) => {
-                    setSelected((ids) =>
-                      e.target.checked
-                        ? [...ids, m.id]
-                        : ids.filter((id) => id !== m.id),
-                    );
-                    invalidate();
-                  }}
-                />
-                {m.kind} · {m.id}
-              </label>
-            ))}
-          </fieldset>
-          <label>
-            Tindakan proyeksi
-            <select
-              value={action}
-              onChange={(e) => {
-                setAction(e.target.value as typeof action);
-                invalidate();
-              }}
-            >
-              <option value="insert">Tambah</option>
-              <option value="update">Perbarui milik aplikasi</option>
-              <option value="delete">Hapus milik aplikasi</option>
-            </select>
-          </label>
+        <strong>DEMO SINTETIS · tidak ada panggilan Google</strong>
+      )}
+      <>
+        {error && <p role="alert">{error}</p>}
+        <div className="actions">
           <button
-            disabled={
-              disabled || !selected.length || active?.status !== "connected"
-            }
-            onClick={async () => {
-              const value = (await command(root + "/calendar-preview", {
-                expected_revision: deal.revision,
-                connection_id: connection,
-                milestone_ids: selected,
-                action,
-              })) as S["CalendarPreview"] | null;
-              setPreview(value);
-              setApproved(false);
+            disabled={disabled}
+            onClick={() => connect().catch((error) => setError(error.message))}
+          >
+            {demo ? "Hubungkan kalender demo" : "Hubungkan Google Calendar"}
+          </button>
+          <button
+            className="secondary"
+            disabled={disabled}
+            onClick={() => refresh().catch((error) => setError(error.message))}
+          >
+            Perbarui status proyeksi
+          </button>
+        </div>
+        <label>
+          Koneksi kalender
+          <select
+            value={connection}
+            onChange={(e) => {
+              setConnection(e.target.value);
+              invalidate();
             }}
           >
-            Pratinjau proyeksi
-          </button>
-          {preview && (
-            <>
-              <p>
-                Hash proyeksi: <code>{preview.projection_hash}</code>
-              </p>
-              {preview.events.map((event) => (
-                <p key={event.milestone_id}>
-                  {event.title} ·{" "}
-                  {"date" in event.date ? event.date.date : event.date.instant}{" "}
-                  · {event.date.timezone} · {event.action}
-                </p>
+            <option value="">Pilih koneksi</option>
+            {connections
+              .filter((c) => c.data_mode === (demo ? "synthetic_demo" : "live"))
+              .map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.calendar_id || c.id} · {c.status}
+                </option>
               ))}
-              <button
-                disabled={disabled || approved}
-                onClick={async () => {
-                  const result = await command(root + "/approvals", {
-                    expected_revision: deal.revision,
-                    purpose: "calendar_write",
-                    analysis_hash: preview.projection_hash,
-                    artifact_hash: null,
-                    evidence_digest: preview.projection_hash,
-                    decision: "approved",
-                  });
-                  if (result) setApproved(true);
+          </select>
+        </label>
+        {active && (
+          <>
+            <p>
+              Status koneksi: {active.status} · {active.data_mode}
+            </p>
+            {!demo && active.status === "connected" && (
+              <form
+                onSubmit={async (event) => {
+                  event.preventDefault();
+                  const result = await command(
+                    "calendar/connections/" + active.id + "/selection",
+                    { calendar_id: calendarId.trim() },
+                  );
+                  if (result) {
+                    invalidate();
+                    await refresh();
+                  }
                 }}
               >
-                Setujui hash proyeksi ini
-              </button>
+                <label>
+                  ID kalender Google
+                  <input
+                    value={calendarId}
+                    onChange={(event) => setCalendarId(event.target.value)}
+                    required
+                  />
+                </label>
+                <p>
+                  Gunakan primary untuk kalender utama akun, atau ID kalender
+                  milik Anda. Pemilihan ini tidak mengirim peristiwa.
+                </p>
+                <button disabled={disabled || !calendarId.trim()} type="submit">
+                  Pilih kalender Google
+                </button>
+              </form>
+            )}
+            {active.status === "connected" && (
               <button
-                disabled={disabled || !approved}
-                onClick={() =>
-                  run(root + "/calendar-sync", {
-                    expected_revision: deal.revision,
-                    connection_id: connection,
-                    approved_projection_hash: preview.projection_hash,
-                    milestone_ids: selected,
-                    action,
-                  })
-                }
+                disabled={disabled}
+                className="secondary"
+                onClick={async () => {
+                  await command(
+                    "calendar/connections/" + active.id + "/revoke",
+                    {},
+                  );
+                  invalidate();
+                  await refresh();
+                }}
               >
-                Jalankan proyeksi demo yang disetujui
+                Cabut koneksi ini
               </button>
-              <p>
-                Pekerjaan diterima belum berarti efek terkirim. Perbarui status
-                proyeksi untuk membaca hasil outbox.
+            )}
+            {active.owned_events?.map((event) => (
+              <div key={event.milestone_id}>
+                <p>
+                  {event.milestone_id} · status proyeksi: {event.state}
+                </p>
+                {event.state === "conflict" && (
+                  <div className="actions">
+                    {(["keep_external", "reapprove_projection"] as const).map(
+                      (decision) => (
+                        <button
+                          key={decision}
+                          disabled={disabled}
+                          onClick={async () => {
+                            await command(root + "/calendar-conflicts", {
+                              expected_revision: deal.revision,
+                              connection_id: active.id,
+                              milestone_id: event.milestone_id,
+                              decision,
+                            });
+                            invalidate();
+                            await refresh();
+                          }}
+                        >
+                          {decision === "keep_external"
+                            ? "Pertahankan perubahan eksternal"
+                            : "Tinjau proyeksi lagi"}
+                        </button>
+                      ),
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </>
+        )}
+        <fieldset disabled={disabled || active?.status !== "connected"}>
+          <legend>Milestone yang diproyeksikan</legend>
+          {milestones.map((m) => (
+            <label key={m.id}>
+              <input
+                type="checkbox"
+                checked={selected.includes(m.id)}
+                onChange={(e) => {
+                  setSelected((ids) =>
+                    e.target.checked
+                      ? [...ids, m.id]
+                      : ids.filter((id) => id !== m.id),
+                  );
+                  invalidate();
+                }}
+              />
+              {m.kind} · {m.id}
+            </label>
+          ))}
+        </fieldset>
+        <label>
+          Tindakan proyeksi
+          <select
+            value={action}
+            onChange={(e) => {
+              setAction(e.target.value as typeof action);
+              invalidate();
+            }}
+          >
+            <option value="insert">Tambah</option>
+            <option value="update">Perbarui milik aplikasi</option>
+            <option value="delete">Hapus milik aplikasi</option>
+          </select>
+        </label>
+        <button
+          disabled={
+            disabled || !selected.length || active?.status !== "connected"
+          }
+          onClick={async () => {
+            const value = (await command(root + "/calendar-preview", {
+              expected_revision: deal.revision,
+              connection_id: connection,
+              milestone_ids: selected,
+              action,
+            })) as S["CalendarPreview"] | null;
+            setPreview(value);
+            setApproved(false);
+          }}
+        >
+          Pratinjau proyeksi
+        </button>
+        {preview && (
+          <>
+            <p>
+              Hash proyeksi: <code>{preview.projection_hash}</code>
+            </p>
+            {preview.events.map((event) => (
+              <p key={event.milestone_id}>
+                {event.title} ·{" "}
+                {"date" in event.date ? event.date.date : event.date.instant} ·{" "}
+                {event.date.timezone} · {event.action}
               </p>
-            </>
-          )}
-        </>
-      )}
+            ))}
+            <button
+              disabled={disabled || approved}
+              onClick={async () => {
+                const result = await command(root + "/approvals", {
+                  expected_revision: deal.revision,
+                  purpose: "calendar_write",
+                  analysis_hash: preview.projection_hash,
+                  artifact_hash: null,
+                  evidence_digest: preview.projection_hash,
+                  decision: "approved",
+                });
+                if (result) setApproved(true);
+              }}
+            >
+              Setujui hash proyeksi ini
+            </button>
+            <button
+              disabled={disabled || !approved || !syncReady}
+              onClick={() =>
+                run(root + "/calendar-sync", {
+                  expected_revision: deal.revision,
+                  connection_id: connection,
+                  approved_projection_hash: preview.projection_hash,
+                  milestone_ids: selected,
+                  action,
+                })
+              }
+            >
+              {demo
+                ? "Jalankan proyeksi demo yang disetujui"
+                : "Jalankan proyeksi Google yang disetujui"}
+            </button>
+            <p>
+              Pekerjaan diterima belum berarti efek terkirim. Perbarui status
+              proyeksi untuk membaca hasil outbox.
+            </p>
+          </>
+        )}
+      </>
     </details>
   );
 }

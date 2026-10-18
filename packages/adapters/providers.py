@@ -74,15 +74,50 @@ def bounded_response(client, provider, method, url, **kwargs):
                     "invalid_response",
                 )
             content.extend(part)
+        # iter_bytes() has decoded content encodings. Preserve provider metadata
+        # without asking the new response to decode the body a second time.
+        headers = response.headers.copy()
+        headers.pop("content-encoding", None)
+        headers.pop("content-length", None)
         return httpx.Response(
             response.status_code,
-            headers=response.headers,
+            headers=headers,
             content=bytes(content),
             request=response.request,
         )
 
 
 def checked_json(provider, response, prefix):
+    if response.status_code == 402:
+        reason = "Provider payment or credits are required (HTTP 402)."
+        if (
+            provider == "configured-model"
+            and response.request.url.host == "generativelanguage.googleapis.com"
+        ):
+            try:
+                body = response.json()
+                errors = body if isinstance(body, list) else [body]
+                depleted = any(
+                    isinstance(row, dict)
+                    and isinstance(row.get("error"), dict)
+                    and "prepayment credits are depleted"
+                    in str(row["error"].get("message", "")).lower()
+                    for row in errors
+                )
+            except ValueError:
+                depleted = False
+            if depleted:
+                reason = (
+                    "Gemini reports depleted prepaid credits for this key's project. "
+                    "For free-tier use, configure a key from an eligible Free Tier "
+                    "project in Google AI Studio; the API endpoint is compatible."
+                )
+        raise failure(
+            provider,
+            prefix + "_PAYMENT_REQUIRED",
+            reason,
+            response=response,
+        )
     if response.status_code in {401, 403}:
         raise failure(
             provider,

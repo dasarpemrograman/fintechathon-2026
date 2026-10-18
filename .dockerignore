@@ -1,5 +1,7 @@
 .git
 .local
+.env
+.env.*
 .venv
 **/node_modules
 **/.next

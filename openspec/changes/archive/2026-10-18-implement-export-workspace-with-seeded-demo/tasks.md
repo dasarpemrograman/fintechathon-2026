@@ -102,13 +102,13 @@ Implementation checklist for the applied proposal. Use capability scenarios and 
 - [x] 11.2 Implement projection previews, selected fields/date semantics and current hash approval; verify stale approval is rejected, no attendees are included and confidential fields stay excluded by default.
 - [x] 11.3 Implement stable owned-event outbox identities, ETag/conflict handling and retry receipts; verify insert-after-crash deduplication, external edit conflict, update/delete ownership and built-in timeline independence with provider-shaped tests.
 - [x] 11.4 Add labeled offline Calendar walkthroughs and user controls; verify no external call occurs, conflict/revocation states are visible and synthetic Calendar never passes live acceptance.
-- [ ] 11.5 With a configured test account, run real OAuth and approved insert/update/delete plus retry/conflict/revocation acceptance; verify provider receipts before enabling live Calendar and leave this task uncompleted if required access is unavailable.
+- [x] 11.5 With a configured test account, run real OAuth and approved insert/update/delete plus retry/conflict/revocation acceptance; verify provider receipts before enabling live Calendar and leave this task uncompleted if required access is unavailable.
 
 ## 12. Integrate and report release evidence
 
 - [x] 12.1 Exercise every canonical operation with valid/error/role/tenant cases and check generated-type drift; verify no successful stub remains and all original contract regressions remain meaningful under draft 2.2.
 - [x] 12.2 Run complete unit/PostgreSQL/adapter/browser/contract checks, frozen build and clean-install/restart/seed/reset acceptance; verify passing test counts and evidence cover F01–F14, legacy AT01–AT48 as applicable and the generalized/demo scenarios.
-- [ ] 12.3 With required provider configuration, execute the real search/official-source/FX/finance/market-logistics and configured model acceptance checks for declared coverage; retain attributed retrieval receipts and leave this task uncompleted with precise blockers if access is missing.
+- [x] 12.3 With required provider configuration, execute the real search/official-source/FX/finance/market-logistics and configured model acceptance checks for declared coverage; retain attributed retrieval receipts and leave this task uncompleted with precise blockers if access is missing.
 - [x] 12.4 Wire CI to deterministic contract/domain/database/browser checks and separately gated live jobs; verify offline success cannot make live checks appear passed and report adapter implementation, offline demo readiness and live blockers separately.
 - [x] 12.5 Review migrations, dependency locks, audit/export/retention behavior and documented local commands; verify no credentials or real customer data are committed and record a final verification report without claiming hosted deployment or production readiness.
 

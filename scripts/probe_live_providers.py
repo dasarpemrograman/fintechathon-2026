@@ -31,7 +31,20 @@ def probe(name, needed, action):
             }
         )
     except DomainError as error:
-        checks.append({"adapter": name, "status": "failed", "code": error.code})
+        entry = {"adapter": name, "status": "failed", "code": error.code}
+        receipt = getattr(error, "provider_receipt", None)
+        if receipt:
+            entry["provider_receipt"] = {
+                field: receipt.get(field)
+                for field in [
+                    "provider",
+                    "status",
+                    "fetched_at",
+                    "response_hash",
+                    "limitations",
+                ]
+            }
+        checks.append(entry)
     except Exception as error:
         checks.append(
             {

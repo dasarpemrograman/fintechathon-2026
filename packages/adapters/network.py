@@ -3,8 +3,10 @@
 from datetime import datetime, timezone
 import hashlib, ipaddress, socket, time
 from urllib.parse import urlsplit, urljoin, urlunsplit
+from contextlib import ExitStack
 import httpx
 from services.api.store import DomainError
+from packages.adapters.pinned_transport import PinnedTransport
 
 
 def destination(url):
@@ -42,7 +44,9 @@ def destination(url):
             "FETCH_ADDRESS_BLOCKED",
             "Private, loopback, link-local and reserved addresses are blocked.",
         )
-    address = sorted(addresses)[0]
+    # Local Docker/WSL often has public IPv6 DNS answers without an IPv6 route.
+    # Every answer above is still validated; prefer IPv4 when both are offered.
+    address = min(addresses, key=lambda value: (ipaddress.ip_address(value).version != 4, value))
     host = "[" + address + "]" if ":" in address else address
     return parsed, urlunsplit(("https", host, parsed.path or "/", parsed.query, ""))
 
@@ -56,9 +60,18 @@ def fetch(url, *, max_bytes=2 * 1024 * 1024):
     current = url
     deadline = time.monotonic() + 25
     try:
-        with httpx.Client(timeout=12, follow_redirects=False, trust_env=True) as client:
+        with ExitStack() as clients:
             for redirect in range(5):
                 parsed, pinned = destination(current)
+                transport = PinnedTransport(urlsplit(pinned).hostname, parsed.hostname)
+                client = clients.enter_context(
+                    httpx.Client(
+                        timeout=12,
+                        follow_redirects=False,
+                        trust_env=True,
+                        transport=transport,
+                    )
+                )
                 # Connect to the validated address, preserving HTTP Host and TLS SNI/certificate
                 # verification. The inherited proxy still mediates the connection.
                 with client.stream(
@@ -101,6 +114,7 @@ def fetch(url, *, max_bytes=2 * 1024 * 1024):
                         "text/plain",
                         "application/json",
                         "application/pdf",
+                        "application/octet-stream",
                     }:
                         raise DomainError(
                             "SOURCE_TYPE_BLOCKED",
@@ -122,6 +136,14 @@ def fetch(url, *, max_bytes=2 * 1024 * 1024):
                                 "Public retrieval exceeded the wall-time budget.",
                                 503,
                             )
+                    if media == "application/octet-stream":
+                        if not content.startswith(b"%PDF-"):
+                            raise DomainError(
+                                "SOURCE_TYPE_BLOCKED",
+                                "Untyped public sources must contain a PDF signature.",
+                                503,
+                            )
+                        media = "application/pdf"
                     return {
                         "url": current,
                         "content": bytes(content),

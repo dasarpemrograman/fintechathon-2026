@@ -785,6 +785,65 @@ class WorkflowCommandTests(unittest.TestCase):
             )
         self.assertEqual(caught.exception.code, "CONTRACT_SCHEDULE_PRESERVED")
 
+    def test_actual_delivery_does_not_verify_acceptance_payment_anchor(self):
+        from services.api.review_handlers import execute_review
+        from packages.domain.economics import resolve_schedule
+
+        due = {"instant": "2026-10-10T09:00:00Z", "timezone": "Asia/Jakarta"}
+        fixed = {"kind": "fixed", "due": due}
+
+        def record(kind, date_kind, value, identifier=None, evidence_ids=None):
+            return execute_review(
+                self.conn,
+                self.context,
+                "recordMilestone",
+                self.deal,
+                {
+                    "milestone_id": identifier,
+                    "kind": kind,
+                    "schedule": fixed,
+                    "date_kind": date_kind,
+                    "value": value,
+                    "evidence_ids": evidence_ids or [],
+                },
+            )["result"]
+
+        acceptance = record("acceptance", "forecast", due)
+        payment = {
+            "kind": "event_relative",
+            "anchor_milestone_id": acceptance["id"],
+            "offset_days": 30,
+            "day_basis": "calendar",
+            "business_calendar_id": None,
+        }
+        arrival = record("arrival", "actual", due, evidence_ids=[self.evidence["id"]])
+        milestones = {row["id"]: row for row in [arrival, acceptance]}
+        self.assertEqual(arrival["verified_by"], self.context["actor"])
+        self.assertIsNone(acceptance["actual"])
+        self.assertIsNone(acceptance["verified_by"])
+        forecast_due = resolve_schedule(payment, milestones, {})
+        self.assertEqual(forecast_due.date().isoformat(), "2026-11-09")
+
+        actual = {"instant": "2026-10-12T09:00:00Z", "timezone": "Asia/Jakarta"}
+        with self.assertRaises(store.DomainError) as caught:
+            record("acceptance", "actual", actual, acceptance["id"])
+        self.assertEqual(caught.exception.code, "EVENT_EVIDENCE")
+        unchanged = store.get(
+            self.conn, self.context["tenant"], "milestone", acceptance["id"]
+        )
+        self.assertIsNone(unchanged["actual"])
+        acceptance = record(
+            "acceptance", "actual", actual, acceptance["id"], [self.evidence["id"]]
+        )
+        milestones[acceptance["id"]] = acceptance
+        self.assertEqual(acceptance["verified_by"], self.context["actor"])
+        self.assertEqual(acceptance["forecast"], due)
+        self.assertEqual(acceptance["schedule"], fixed)
+        self.assertEqual(arrival["actual"], due)
+        self.assertEqual(
+            resolve_schedule(payment, milestones, {}).date().isoformat(), "2026-11-11"
+        )
+
     def test_fee_deduction_and_buyer_writeoff_are_evidenced_and_cash_is_not_invented(
         self,
     ):

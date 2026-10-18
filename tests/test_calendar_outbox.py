@@ -22,6 +22,18 @@ class Engine:
 
 class CalendarOutboxTests(unittest.TestCase):
     def setUp(self):
+        self.acceptance = patch.dict(
+            "os.environ",
+            {
+                "FINCATHON_CALENDAR_LIVE_ENABLED": "true",
+                "FINCATHON_CALENDAR_ACCEPTANCE_REFERENCE": "synthetic-adapter-test-only",
+                "GOOGLE_CLIENT_ID": "test-client",
+                "GOOGLE_CLIENT_SECRET": "test-client-secret",
+                "GOOGLE_REDIRECT_URI": "http://127.0.0.1:3000/oauth/calendar/callback",
+            },
+        )
+        self.acceptance.start()
+        self.addCleanup(self.acceptance.stop)
         self.conn = store.engine.connect()
         self.tx = self.conn.begin()
         identity = auth.bootstrap(
@@ -88,6 +100,103 @@ class CalendarOutboxTests(unittest.TestCase):
         )
         return identifier
 
+    def test_disabled_acceptance_blocks_admission_processing_and_queued_delivery(self):
+        from types import SimpleNamespace
+        from services.api.job_handlers import accept_job
+        from services.api.handlers import read_operation
+        from services.api.settings import settings
+        from packages.adapters.calendar import process_calendar
+        from migrations.schema_v3 import calendar_events
+
+        identifier = self.enqueue()
+        context = {
+            "tenant": self.tenant,
+            "actor": self.actor,
+            "scope": "real",
+            "request_id": "gate-check",
+        }
+        with (
+            patch.dict("os.environ", {"FINCATHON_CALENDAR_LIVE_ENABLED": "false"}),
+            patch.object(settings, "mode", "normal"),
+            patch("packages.adapters.calendar.httpx.Client") as provider,
+        ):
+            for action in [
+                lambda: accept_job(
+                    self.conn,
+                    context,
+                    "syncCalendar",
+                    {"execution_scope": "real"},
+                    {"connection_id": self.connection["id"]},
+                ),
+                lambda: process_calendar(
+                    SimpleNamespace(
+                        conn=self.conn,
+                        tenant=self.tenant,
+                        actor=self.actor,
+                        body={"connection_id": self.connection["id"]},
+                        parent={},
+                    )
+                ),
+            ]:
+                with self.assertRaises(store.DomainError) as error:
+                    action()
+                self.assertEqual(error.exception.code, "CALENDAR_LIVE_DISABLED")
+            capabilities = read_operation(
+                self.conn,
+                context,
+                "getCapabilities",
+                None,
+                SimpleNamespace(path_params={}),
+            )
+            self.assertEqual(capabilities["result"]["items"][-1]["state"], "blocked")
+            with patch.object(store, "engine", Engine(self.conn)):
+                result = deliver_once()
+            self.assertEqual(result["failure_code"], "CALENDAR_LIVE_DISABLED")
+            provider.assert_not_called()
+            row = (
+                self.conn.execute(
+                    sa.select(store.outbox).where(store.outbox.c.id == identifier)
+                )
+                .mappings()
+                .one()
+            )
+            self.assertEqual(row["state"], "failed")
+            self.assertFalse(row["receipt"]["delivered"])
+            self.assertIsNone(
+                self.conn.execute(
+                    sa.select(calendar_events).where(
+                        calendar_events.c.connection_id == self.connection["id"]
+                    )
+                ).first()
+            )
+
+    def test_operator_enablement_requires_acceptance_reference_and_credentials(self):
+        from packages.adapters.calendar_policy import live_sync_ready
+
+        self.assertTrue(live_sync_ready())
+        for name in [
+            "FINCATHON_CALENDAR_ACCEPTANCE_REFERENCE",
+            "GOOGLE_CLIENT_ID",
+            "GOOGLE_CLIENT_SECRET",
+            "GOOGLE_REDIRECT_URI",
+        ]:
+            with self.subTest(missing=name), patch.dict("os.environ", {name: ""}):
+                self.assertFalse(live_sync_ready())
+
+    def test_demo_runtime_refuses_live_outbox_even_when_operator_enabled(self):
+        from services.api.settings import settings
+
+        self.enqueue()
+        with (
+            patch.object(settings, "mode", "demo"),
+            patch.object(store, "engine", Engine(self.conn)),
+            patch("packages.adapters.calendar.httpx.Client") as provider,
+        ):
+            result = deliver_once()
+            self.assertEqual(result["failure_code"], "DEMO_CALENDAR_ONLY")
+            self.assertFalse(result["delivered"])
+            provider.assert_not_called()
+
     def test_crash_after_insert_reuses_provider_id_and_records_one_external_event(self):
         identifier = self.enqueue()
         external = {}
@@ -139,6 +248,9 @@ class CalendarOutboxTests(unittest.TestCase):
         )
         self.assertEqual(row["state"], "delivered")
         self.assertEqual(row["attempts"], 2)
+        self.assertEqual(
+            row["receipt"]["acceptance_reference"], "synthetic-adapter-test-only"
+        )
 
     def test_external_edit_conflicts_and_nonowned_delete_fails(self):
         identifier = self.enqueue("delete")

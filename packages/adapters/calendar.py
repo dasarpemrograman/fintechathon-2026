@@ -428,7 +428,11 @@ def calendar_command(conn, context, operation, parent, body, request=None):
 
 
 def process_calendar(work):
+    from packages.adapters.calendar_policy import require_live_sync
+
     context = {"tenant": work.tenant, "actor": work.actor}
+    connection = connected(work.conn, work.tenant, work.body["connection_id"])
+    require_live_sync(connection["data_mode"])
     events, projection_hash = projection(work.conn, context, work.parent, work.body)
     if projection_hash != work.body["approved_projection_hash"]:
         raise DomainError(
@@ -516,6 +520,9 @@ def google_event(event, event_id, owned_key):
     result = {
         "id": event_id,
         "summary": event["title"],
+        "visibility": "private",
+        "transparency": "transparent",
+        "reminders": {"useDefault": False},
         "extendedProperties": {"private": {"fincathon_owner": owned_key}},
     }
     if "date" in value:
@@ -543,10 +550,44 @@ def google_event(event, event_id, owned_key):
     return result
 
 
+def event_matches(remote, expected):
+    """Compare managed fields while accepting Google's equivalent UTC offsets."""
+    from datetime import datetime
+
+    def same_time(actual, wanted):
+        if "date" in wanted:
+            return actual.get("date") == wanted["date"] and "dateTime" not in actual
+        try:
+            left = datetime.fromisoformat(actual["dateTime"].replace("Z", "+00:00"))
+            right = datetime.fromisoformat(wanted["dateTime"].replace("Z", "+00:00"))
+            return (
+                left.utcoffset() is not None
+                and right.utcoffset() is not None
+                and left == right
+                and actual.get("timeZone") == wanted.get("timeZone")
+            )
+        except (KeyError, TypeError, ValueError):
+            return False
+
+    return (
+        remote.get("summary") == expected["summary"]
+        and same_time(remote.get("start", {}), expected["start"])
+        and same_time(remote.get("end", {}), expected["end"])
+        and remote.get("extendedProperties") == expected["extendedProperties"]
+        and remote.get("visibility") == expected["visibility"]
+        and remote.get("transparency") == expected["transparency"]
+        and remote.get("reminders", {}).get("useDefault") is False
+        and not remote.get("reminders", {}).get("overrides")
+    )
+
+
 def deliver_effect(conn, row):
+    from packages.adapters.calendar_policy import require_live_sync
+
     p = row["payload"]
     tenant = p["tenant_id"]
     connection = connected(conn, tenant, p["connection_id"])
+    require_live_sync(connection["data_mode"])
     event = p["event"]
     owned_key = digest(
         {
@@ -572,6 +613,10 @@ def deliver_effect(conn, row):
         "data_mode": connection["data_mode"],
         "action": event["action"],
     }
+    if connection["data_mode"] == "live":
+        receipt["acceptance_reference"] = os.environ[
+            "FINCATHON_CALENDAR_ACCEPTANCE_REFERENCE"
+        ].strip()
     if event["action"] != "insert" and not prior:
         raise DomainError(
             "CALENDAR_EVENT_NOT_OWNED",
@@ -659,20 +704,14 @@ def deliver_effect(conn, row):
                     base + "/" + event_id,
                     headers={"Authorization": headers["Authorization"]},
                 )
-                if external.status_code == 200 and all(
-                    external.json().get(k) == payload[k]
-                    for k in ["summary", "start", "end", "extendedProperties"]
-                ):
+                if external.status_code == 200 and event_matches(external.json(), payload):
                     response = external
                 else:
                     state = "conflict"
             if (
                 response.status_code == 200
                 and event["action"] == "insert"
-                and not all(
-                    response.json().get(k) == payload[k]
-                    for k in ["summary", "start", "end", "extendedProperties"]
-                )
+                and not event_matches(response.json(), payload)
             ):
                 state = "conflict"
             if response.status_code not in (200, 201, 204, 412) and not (

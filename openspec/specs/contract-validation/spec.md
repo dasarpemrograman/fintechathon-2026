@@ -7,7 +7,7 @@ Provide repeatable offline evidence that the canonical API contract and its embe
 ## Requirements
 
 ### Requirement: Structural failures are actionable
-Contract validation SHALL reject duplicate YAML keys, invalid OpenAPI or JSON Schema, unresolved references and references outside the canonical document. It SHALL return a nonzero exit status with a diagnostic that identifies the failing location or reference.
+Contract validation SHALL reject duplicate YAML keys, invalid OpenAPI/JSON Schema and unresolved/external references, including `$dynamicRef`. It SHALL handle supported local dynamic references with correct scope or reject them explicitly before any retrieval. Failures SHALL return nonzero with a location/reference diagnostic.
 
 #### Scenario: Route key is repeated
 - **WHEN** the same YAML mapping contains duplicate route keys
@@ -16,6 +16,14 @@ Contract validation SHALL reject duplicate YAML keys, invalid OpenAPI or JSON Sc
 #### Scenario: Reference is external or broken
 - **WHEN** a schema or response points outside the document or to a missing local target
 - **THEN** validation fails without fetching another source
+
+#### Scenario: Unused component declares an external dynamic reference
+- **WHEN** an otherwise valid document includes an unused schema with an external `$dynamicRef`
+- **THEN** offline validation fails before any network request
+
+#### Scenario: Local dynamic reference is unsupported or unresolved
+- **WHEN** a schema uses a local dynamic reference the validator cannot resolve with correct semantics
+- **THEN** validation rejects it explicitly rather than counting it as checked
 
 ### Requirement: Request and response examples are checked
 Validation SHALL check embedded media-type request and response examples against their applicable schemas, including examples and schemas reached through local references. Invalid examples SHALL fail validation with operation, direction, HTTP status where relevant, and example identification.
@@ -29,7 +37,7 @@ Validation SHALL check embedded media-type request and response examples against
 - **THEN** validation accepts it and includes it in request example counts
 
 ### Requirement: Examples demonstrate relevant outcomes
-The canonical document SHALL contain representative accepted-job, partial-analysis, blocked-readiness, pending-receipt and error examples. Validation output SHALL report operation, request-example and response-example counts separately, without presenting zero response checks as response coverage.
+The canonical document SHALL contain accepted-job, partial-analysis, blocked-readiness, pending-receipt, complete closure-response and error examples. Each SHALL validate against its full operation schema. Output SHALL report separate operation/request-example/response-example counts without claiming zero checks as coverage.
 
 #### Scenario: Queued discovery result
 - **WHEN** the accepted-job example is validated
@@ -43,6 +51,10 @@ The canonical document SHALL contain representative accepted-job, partial-analys
 - **WHEN** the receipt creation response example is validated
 - **THEN** the receipt remains pending and has no verifier identity
 
+#### Scenario: Complete closure response is mutated
+- **WHEN** a valid full closure response is changed to contradict its gate/envelope or omit required Deal fields
+- **THEN** validation against the actual operation schema rejects it without extracting only a conditional fragment
+
 ### Requirement: Negative payloads prove rejection
 Contract regressions SHALL exercise invalid request and response payloads, including contradictory accepted/completed statuses and invalid nested response fields. The suite SHALL preserve checks for protected patches, money representation and independent payment/closure states.
 
@@ -55,7 +67,7 @@ Contract regressions SHALL exercise invalid request and response payloads, inclu
 - **THEN** validation returns failure instead of counting the example as passed
 
 ### Requirement: Verification remains bounded and reproducible
-Local commands and CI SHALL validate the same canonical file and run the same contract regressions with pinned tooling. Reports SHALL distinguish contract checks from runtime authorization, arithmetic, service and integration tests, which are outside this deliverable.
+Local commands and CI SHALL validate the same canonical file with pinned tooling. Reports SHALL distinguish contract checks, runtime authorization/arithmetic, browser/service tests and credential-dependent live acceptance. Contract success alone SHALL NOT imply application or integration readiness; offline success SHALL NOT mark unexecuted live checks passed.
 
 #### Scenario: Contract checks pass
 - **WHEN** structural validation, all embedded examples and contract regressions pass

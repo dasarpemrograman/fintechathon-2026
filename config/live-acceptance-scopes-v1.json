@@ -1,0 +1,288 @@
+{
+  "version": "acceptance-scopes-2026-10-18-v1",
+  "scope_status": "operator-selected illustrative test goods, not customer inventory",
+  "lanes": [
+    {
+      "id": "ID-SG",
+      "origin": "ID",
+      "destination": "SG",
+      "product": "Green Coffea arabica coffee beans, unroasted, not decaffeinated, unmixed, for beverage manufacture, bulk 60 kg bags; no organic or civet-coffee claim",
+      "hs6_candidate": "090111",
+      "currency_pair": [
+        "IDR",
+        "SGD"
+      ],
+      "search_terms": "unroasted non decaffeinated arabica coffee beans 090111",
+      "export_domain": "beacukai.go.id",
+      "import_domain": "sfa.gov.sg",
+      "finance_domain": "indonesiaeximbank.go.id"
+    },
+    {
+      "id": "CN-SG",
+      "origin": "CN",
+      "destination": "SG",
+      "product": "Bare unpopulated rigid two-layer FR-4 printed circuit boards, etched copper conductors and contacts, 100 x 100 mm, 1.6 mm thick, 1 oz copper, lead-free HASL, no mounted or embedded electronic components; illustrative quantity 1000 pieces",
+      "hs6_candidate": "853400",
+      "currency_pair": [
+        "CNY",
+        "SGD"
+      ],
+      "search_terms": "bare unpopulated FR4 printed circuits 853400",
+      "export_domain": "online.customs.gov.cn",
+      "import_domain": "customs.gov.sg",
+      "finance_domain": "icbc.com.cn"
+    },
+    {
+      "id": "KE-DE",
+      "origin": "KE",
+      "destination": "DE",
+      "product": "Plain dried mango slices for human consumption, no added sugar, no added sulphites, not candied or otherwise prepared, non-organic test assumption, bulk food-grade liners in 10 kg cartons",
+      "hs6_candidate": "080450",
+      "currency_pair": [
+        "KES",
+        "EUR"
+      ],
+      "search_terms": "plain unsweetened dried mango slices 080450",
+      "export_domain": "infotradekenya.go.ke",
+      "import_domain": "food.ec.europa.eu",
+      "finance_domain": "ke.kcbgroup.com"
+    }
+  ],
+  "sources": [
+    {
+      "id": "id-export",
+      "lanes": [
+        "ID-SG"
+      ],
+      "category": "official_export",
+      "url": "https://www.beacukai.go.id/tata-laksana-ekspor",
+      "terms": [
+        "PEB",
+        "ekspor"
+      ],
+      "assessment": "Commercial export declaration procedure is relevant to the Indonesian dispatch leg; exemptions and product-specific restrictions require shipment facts."
+    },
+    {
+      "id": "id-coffee-sg",
+      "lanes": [
+        "ID-SG"
+      ],
+      "category": "official_product_guidance",
+      "url": "https://lamansitu.kemendag.go.id/content/persyaratan-mutu-kopi-singapura",
+      "terms": [
+        "kopi",
+        "Singapura"
+      ],
+      "assessment": "Indonesian government coffee-to-Singapore guide; packaged-food rules are conditional on packing. Civet-coffee-specific conditions are excluded from these non-civet test goods."
+    },
+    {
+      "id": "sg-food",
+      "lanes": [
+        "ID-SG"
+      ],
+      "category": "official_import",
+      "url": "https://www.sfa.gov.sg/food-import-export/commercial-imports/import-requirements-for-food-food-products",
+      "terms": [
+        "food",
+        "import"
+      ],
+      "assessment": "Commercial food importer and category requirements apply to the Singapore recipient. Meat, eggs and fish conditions are excluded; exact coffee product category remains a declared review item."
+    },
+    {
+      "id": "cn-export",
+      "lanes": [
+        "CN-SG"
+      ],
+      "category": "official_export",
+      "url": "https://online.customs.gov.cn/static/pages/guides/000629002001/000629002001.html",
+      "terms": [
+        "出口",
+        "申报"
+      ],
+      "assessment": "China Customs outbound goods declaration and commercial documents are relevant. Import-only rules are excluded; control status depends on final technical specifications/end use."
+    },
+    {
+      "id": "sg-import",
+      "lanes": [
+        "CN-SG"
+      ],
+      "category": "official_import",
+      "url": "https://www.customs.gov.sg/doing-business/import-operations/import-operations-overview/",
+      "terms": [
+        "import",
+        "permit"
+      ],
+      "assessment": "Singapore commercial imports require commodity classification and the relevant permit workflow; CA controls must be checked for the final bare-board specification."
+    },
+    {
+      "id": "ke-export",
+      "lanes": [
+        "KE-DE"
+      ],
+      "category": "official_export",
+      "url": "https://infotradekenya.go.ke/menu/855",
+      "terms": [
+        "export",
+        "Kenya"
+      ],
+      "assessment": "Kenyan commercial exporter registration and customs process are relevant; fresh-produce phytosanitary conditions are not automatically applied to plain dried slices."
+    },
+    {
+      "id": "eu-plant",
+      "lanes": [
+        "KE-DE"
+      ],
+      "category": "official_import",
+      "url": "https://food.ec.europa.eu/plants/plant-health-and-biosecurity/trade-plants-plant-products-non-eu-countries_en",
+      "terms": [
+        "phytosanitary",
+        "2019/2072"
+      ],
+      "assessment": "Plant-health certification depends on the Annex XI/XII commodity listing. This general source does not establish that dried mango requires the certificate required for fresh mango."
+    },
+    {
+      "id": "mango-market",
+      "lanes": [
+        "KE-DE"
+      ],
+      "category": "market_reference",
+      "url": "https://www.cbi.eu/market-information/processed-fruit-vegetables-edible-nuts/dried-mango/market-entry",
+      "terms": [
+        "dried mango",
+        "prices"
+      ],
+      "assessment": "Dried-mango-specific European market, food-safety and bulk-price context. Retail prices and other origins cannot be treated as a Kenya FOB or delivered-Germany executable quote."
+    },
+    {
+      "id": "id-finance",
+      "lanes": [
+        "ID-SG"
+      ],
+      "category": "finance",
+      "url": "https://www.indonesiaeximbank.go.id/product-services/pembiayaan-modal-kerja-ekspor-pmke",
+      "terms": [
+        "Modal Kerja",
+        "ekspor"
+      ],
+      "assessment": "Export working-capital purpose matches pre-shipment procurement; business eligibility, actual currency availability, interest and fees remain lender-confirmed/quote-required."
+    },
+    {
+      "id": "cn-finance",
+      "lanes": [
+        "CN-SG"
+      ],
+      "category": "finance",
+      "url": "https://www.icbc.com.cn/en/column/1438058479532523652.html",
+      "terms": [
+        "Packing Loan",
+        "L/C"
+      ],
+      "assessment": "Pre-shipment packing loan requires an acceptable export LC and bank credit line; it is incompatible with an open-account-only scenario. Published maximum is not approval or a firm advance rate."
+    },
+    {
+      "id": "ke-finance",
+      "lanes": [
+        "KE-DE"
+      ],
+      "category": "finance",
+      "url": "https://ke.kcbgroup.com/products/trade-finance",
+      "terms": [
+        "Pre-shipment",
+        "Post shipment"
+      ],
+      "assessment": "Separate pre-shipment confirmed-order funding from post-shipment invoice/LC discounting; post-shipment funds cannot cure an earlier production deficit. Eligibility, pricing and tenor remain unconfirmed."
+    },
+    {
+      "id": "coffee-market",
+      "lanes": [
+        "ID-SG"
+      ],
+      "category": "market_reference",
+      "url": "https://ico.org/documents/I-CIP.pdf",
+      "terms": [
+        "I-CIP",
+        "October"
+      ],
+      "assessment": "Daily ICO indicator in US cents/lb is a market reference, not an Indonesia-origin specific grade/MOQ/Incoterm quotation. Retain observation date and exclude it from executable pricing."
+    },
+    {
+      "id": "pcb-market",
+      "lanes": [
+        "CN-SG"
+      ],
+      "category": "market_reference",
+      "url": "https://jlcpcb.com/",
+      "terms": [
+        "FR-4",
+        "5 pcs"
+      ],
+      "assessment": "Manufacturer's promotional prototype price is for a small quantity and configurable board specifications; exclude it as a comparator for the 1000-board test lot and request a Gerber/specification quote."
+    },
+    {
+      "id": "sg-logistics",
+      "lanes": [
+        "ID-SG",
+        "CN-SG"
+      ],
+      "category": "logistics_reference",
+      "url": "https://www.maersk.com/local-information/asia-pacific/singapore/routes",
+      "terms": [
+        "Singapore",
+        "routes"
+      ],
+      "assessment": "Carrier service/port reference supports logistics discovery, not a booked sailing, guaranteed transit time, shipment capacity or freight quote."
+    },
+    {
+      "id": "ke-logistics",
+      "lanes": [
+        "KE-DE"
+      ],
+      "category": "logistics_reference",
+      "url": "https://www.maersk.com/local-information/africa/kenya/routes",
+      "terms": [
+        "Kenya",
+        "routes"
+      ],
+      "assessment": "Carrier Kenya service reference; an end-to-end Mombasa-to-Germany itinerary, transshipment, date, food handling and charges require a shipment-specific carrier quote."
+    },
+    {
+      "id": "coffee-hs",
+      "lanes": [
+        "ID-SG"
+      ],
+      "category": "hs_nomenclature",
+      "url": "https://hts.usitc.gov/reststop/file?filename=Chapter+9&release=2026HTSRev1",
+      "terms": [
+        "0901.11",
+        "Not decaffeinated"
+      ],
+      "assessment": "International six-digit nomenclature supports unroasted, non-decaffeinated coffee. US national tariff rates and suffixes are excluded from the Indonesia/Singapore test."
+    },
+    {
+      "id": "pcb-hs",
+      "lanes": [
+        "CN-SG"
+      ],
+      "category": "hs_nomenclature",
+      "url": "https://hts.usitc.gov/reststop/file?filename=Chapter+85&release=2026HTSRev1",
+      "terms": [
+        "8534",
+        "Printed circuits"
+      ],
+      "assessment": "Printed-circuit nomenclature is consistent with bare etched boards; populated assemblies are excluded. US national rates and suffixes are not Singapore or China tariff treatment."
+    },
+    {
+      "id": "mango-hs",
+      "lanes": [
+        "KE-DE"
+      ],
+      "category": "hs_nomenclature",
+      "url": "https://hts.usitc.gov/reststop/file?filename=Chapter+8&release=2026HTSRev1",
+      "terms": [
+        "0804.50",
+        "mango"
+      ],
+      "assessment": "International six-digit heading covers mangoes fresh or dried. US duty rates and national subdivisions are excluded; candied/prepared fruit needs separate classification."
+    }
+  ]
+}

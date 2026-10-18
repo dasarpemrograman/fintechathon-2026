@@ -1,4 +1,95 @@
 import { test, expect } from "@playwright/test";
+import { randomUUID } from "node:crypto";
+test("funding dates preserve local dates and declared timezones", async ({
+  page,
+  context,
+  baseURL,
+}) => {
+  const origin = new URL(baseURL!).origin;
+  const marker = "Local-date browser regression " + randomUUID();
+  const login = await context.request.post("/api/session", {
+    headers: { Origin: origin },
+    data: { user_id: "demo_id_owner" },
+  });
+  expect(login.ok()).toBe(true);
+  const workspace = await (
+    await context.request.get("/api/gateway/workspaces/demo_stage_negotiation")
+  ).json();
+  const root = "/api/gateway/deals/" + workspace.result.deal_id;
+  const deal = await (await context.request.get(root)).json();
+  const response = await context.request.post(root + "/funding-options", {
+    headers: { Origin: origin },
+    data: {
+      expected_revision: deal.result.deal.revision,
+      fundingOption: {
+        product_id: null,
+        fit: "needs_information",
+        fit_reasons: [marker],
+        failed_predicates: [],
+        unknown_predicates: ["Hypothetical facility"],
+        draw: { amount: "10.00", currency: "IDR" },
+        earliest_draw_milestone_id: null,
+        schedule: [
+          {
+            kind: "loan_draw",
+            amount: { amount: "10.00", currency: "IDR" },
+            schedule: {
+              kind: "fixed",
+              due: { date: "2026-10-20", timezone: "Pacific/Kiritimati" },
+            },
+            status: "proposed",
+            evidence_ids: [],
+          },
+          {
+            kind: "principal_repayment",
+            amount: { amount: "10.00", currency: "IDR" },
+            schedule: {
+              kind: "fixed",
+              due: {
+                instant: "2026-11-21T01:00:00Z",
+                timezone: "America/Los_Angeles",
+              },
+            },
+            status: "proposed",
+            evidence_ids: [],
+          },
+        ],
+        assumptions: [],
+        status: "proposed",
+        external_facility_evidence_ids: [],
+      },
+    },
+  });
+  expect(response.ok()).toBe(true);
+  await page.goto("/");
+  await page
+    .locator("article")
+    .filter({ hasText: "Synthetic coffee · negotiation" })
+    .getByRole("button", { name: "Buka ruang kerja" })
+    .click();
+  await page
+    .getByRole("button", { name: "Skenario & pendanaan", exact: true })
+    .click();
+  const option = page.locator("article").filter({ hasText: marker });
+  await expect(option).toHaveCount(1);
+  await expect(
+    option.getByText("2026-10-20 · Pacific/Kiritimati", { exact: true }),
+  ).toBeVisible();
+  const instant = await page.evaluate(() =>
+    new Intl.DateTimeFormat("id-ID", {
+      dateStyle: "medium",
+      timeStyle: "short",
+      timeZone: "America/Los_Angeles",
+    }).format(new Date("2026-11-21T01:00:00Z")),
+  );
+  await expect(
+    option.getByText(instant + " · America/Los_Angeles", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    option.getByText("Relatif terhadap peristiwa", { exact: true }),
+  ).toHaveCount(0);
+});
+
 test("seeded database journey uses the browser, API and worker", async ({
   page,
   context,

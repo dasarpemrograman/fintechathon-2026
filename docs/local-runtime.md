@@ -1,6 +1,26 @@
 # Local runtime foundation
 
+See [live acceptance setup](live-acceptance.md) for the installed OpenSpec workflows, model billing requirements, and Google consent/test-calendar preparation.
+
 Run from the existing repository checkout. Toolchain pins are in `.python-version` and `.node-version`; runtime dependencies use `uv.lock` and `package-lock.json`. Do not create a worktree for setup.
+
+## Environment configuration
+
+Copy the root template with `cp .env.example .env`. Fill in the optional Brave search key, OpenAI-compatible model base URL/model ID/key, and Google OAuth configuration as needed. Leave provider credentials blank for the seeded offline demo. The model base URL excludes `/chat/completions`; the adapter appends that path.
+
+The host API, worker and provider probes load root `.env`, then generated `.local/runtime.env`, without overriding exported variables. Thus precedence is exported environment, root `.env`, then generated local settings. Leave the database override commented to retain the generated PostgreSQL credentials. `.env` is excluded from Git and Docker build contexts. In managed cloud environments, use environment credential settings for secret bindings.
+
+Compose optionally reads `.env` for backend services; its explicit database, storage and normal/demo mode settings take precedence. Root `.env` is never copied into an image. Restart host API/worker processes after edits; recreate Compose services to refresh their environment. Configuring credentials does not satisfy live acceptance.
+
+### Google Calendar OAuth
+
+Use a Google OAuth **Web application** client for Fincathon, enable Google Calendar API, and register `http://127.0.0.1:3000/oauth/calendar/callback` as an authorized redirect URI for the documented local origin. Set `GOOGLE_REDIRECT_URI` to that exact URI. If you deliberately use another origin, register and configure its `/oauth/calendar/callback` URI instead; localhost and 127.0.0.1 are different origins. Add your approved test account to the consent screen's test users while in Testing mode. The app requests `calendar.events.owned` and offline access.
+
+In normal mode, sign in and open a Deal's optional Calendar panel. Choose **Hubungkan Google Calendar**, complete Google's consent, then return to the Deal and select the connected account. Enter `primary` or the ID of a calendar you own and choose **Pilih kalender Google**. The callback exchanges its actor-bound single-use state through an authenticated same-origin request, removes code/state from browser history and keeps tokens encrypted server-side. Cancellation, missing sessions and stale states produce a recovery message. Connection and selection do not create events.
+
+Live event writes remain blocked by default. After approved real OAuth and insert/update/delete/retry/conflict/revocation acceptance has retained receipts, an operator can set `FINCATHON_CALENDAR_LIVE_ENABLED=true` and `FINCATHON_CALENDAR_ACCEPTANCE_REFERENCE` to the evidence reference, then restart API and worker. To collect those receipts initially, use a separate isolated normal-mode acceptance instance with an approved test account and a test-run reference; enabling that test instance does not establish release acceptance. Credentials, the enable flag and the reference are all required. Admission, worker processing and outbox delivery recheck the shared gate; delivery receipts retain the acceptance reference. Demo runtimes refuse live delivery even if these variables are enabled. Disable the flag to block further deliveries, including queued work. Blocked outbox attempts fail without a provider call; after re-enabling, review and queue a new projection explicitly. Every write still requires the current projection approval and recorded app ownership. Mocked tests and the offline demo are not real acceptance evidence.
+
+## Install and prepare storage
 
 ```sh
 UV_CACHE_DIR=/workspace/.cache/uv uv sync --frozen
@@ -46,7 +66,7 @@ The configured model adapter receives only completeness, blocker codes, opaque a
 
 Cash reservation commands lock the organization/currency ledger in the same transaction as reservation creation or release. They require the current reviewed snapshot hash and subtract commitments plus active reservations before admitting new reservations. Execution gates subtract reservations belonging to other Deals from available own funds in the same native currency; the analytical forecast remains bound to its declared cash snapshot. Releasing a reservation does not record a payment or change historical cash snapshots.
 
-Calendar writes use a transactional outbox with at-least-once attempts. A stable provider event identity and owned-event receipt make a retry after an insert deduplicate. Existing external edits cause an ETag conflict; another review is required. Unowned events cannot be changed or deleted. Provider exceptions are bounded and never change the internal milestone timeline. This behavior is tested with provider-shaped responses; real OAuth and event lifecycle validation remain unexecuted.
+Calendar writes use a transactional outbox with at-least-once attempts. A stable provider event identity and owned-event receipt make a retry after an insert deduplicate. Existing external edits cause an ETag conflict; another review is required. Unowned events cannot be changed or deleted. Provider exceptions are bounded and never change the internal milestone timeline. This behavior is covered by provider-shaped regressions and the real approved OAuth/event lifecycle documented in live-acceptance-results.md. Event payloads are private, transparent and reminder-free; equivalent provider UTC offsets do not create false conflicts.
 
 ## Readiness and diagnostics
 
@@ -70,6 +90,6 @@ Authenticated workspace/Deal exports contain the current snapshot, evidence meta
 
 For local disaster recovery, stop application writers and back up PostgreSQL, the entire private runtime volume (including originals and the encryption key), and the exact application/migration version together. Use a private directory with `umask 077`. `docker compose exec -T postgres pg_dump -U fincathon -d fincathon` can write a logical dump directly to a protected local file; never print it into chat or commit it. Restore into a separate empty database/volume, apply forward migrations and verify original file hashes and authenticated historical reads before switching the runtime. Do not overwrite the running database as an import step. Historical schema-2.1 projections preserve their original snapshot and explicit unknowns.
 
-Calendar OAuth requests only `calendar.events.owned`, uses actor-bound single-use ten-minute state, and encrypts access/refresh credentials under the private installation key. Expiring tokens refresh through Google's token endpoint and stay encrypted. Revocation consumes pending states, removes local access and attempts provider grant revocation; a provider outage produces `REMOTE_REVOCATION_UNCONFIRMED` while local access remains removed. Review remaining Google account grants if that warning appears. A connection with owned events cannot silently switch to another calendar; create a new connection. Real-account acceptance is still required before treating this adapter as live validated.
+Calendar OAuth requests only `calendar.events.owned`, uses actor-bound single-use ten-minute state, and encrypts access/refresh credentials under the private installation key. Expiring tokens refresh through Google's token endpoint and stay encrypted. Revocation consumes pending states, removes local access and attempts provider grant revocation; a provider outage produces `REMOTE_REVOCATION_UNCONFIRMED` while local access remains removed. Review remaining Google account grants if that warning appears. A connection with owned events cannot silently switch to another calendar; create a new connection. The declared local real-account acceptance passed on 18 October 2026; its grant was revoked after cleanup. See live-acceptance-results.md. A new operator connection still requires consent.
 
 Controlled drafts distinguish internal recommendations/finance packs from counterparty messages, agreements, clause revisions and amendments. Counterparty templates omit internal contribution/cash metrics and unrelated supplier terms. They retain exact analysis/scenario hashes, declared prices and dates, with explicit original-agreement/clause/effective-date placeholders rather than invented legal terms. Downloads require the same organization/object authorization as their source Deal.

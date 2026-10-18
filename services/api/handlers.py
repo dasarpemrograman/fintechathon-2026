@@ -329,18 +329,26 @@ def read_operation(conn, context, operation, parent, request):
         }
         return env(context, result)
     if operation == "getCapabilities":
+        from packages.adapters.calendar_policy import live_sync_ready
+
         return env(
             context,
             {
                 "items": [
                     {
                         "name": name,
-                        "state": "ready" if context["scope"] == "demo" else "blocked",
+                        "state": "ready"
+                        if context["scope"] == "demo"
+                        or name == "calendar"
+                        and live_sync_ready()
+                        else "blocked",
                         "mode": "synthetic_demo"
                         if context["scope"] == "demo"
                         else "live",
                         "reason": "Isolated offline fixture adapter."
                         if context["scope"] == "demo"
+                        else "Live Calendar enabled by operator with an acceptance reference."
+                        if name == "calendar" and live_sync_ready()
                         else "Live acceptance has not been recorded.",
                     }
                     for name in ["search", "fx", "model", "calendar"]
