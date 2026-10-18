@@ -23,6 +23,7 @@ def extract(path, media):
         result = []
         for index, page in enumerate(reader.pages):
             text = page.extract_text() or ""
+            locator = "PDF page " + str(index + 1)
             if not text.strip():
                 with TemporaryDirectory() as directory:
                     prefix = Path(directory) / "page"
@@ -46,11 +47,12 @@ def extract(path, media):
                     )
                     scanned = extract(str(prefix) + ".png", "image/png")[0]
                     text = scanned["text"]
+                    locator += "; " + scanned["locator"]
             result.append(
                 {
                     "page": index + 1,
                     "text": text,
-                    "locator": "PDF page " + str(index + 1),
+                    "locator": locator,
                 }
             )
         return result
