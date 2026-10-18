@@ -23,7 +23,7 @@ with store.engine.begin() as conn:
             store.organizations.insert().values(
                 id=second,
                 name="Browser Second Organization",
-                policy={"plan": "team", "active": True},
+                policy={"plan": "free_sandbox", "active": True},
             )
         )
         conn.execute(
