@@ -162,6 +162,41 @@ test("cross-origin browser mutations are refused", async ({ request }) => {
   expect(response.status()).toBe(403);
 });
 
+test("browser logout revokes its server token before clearing the HttpOnly cookie", async ({
+  page,
+  context,
+}) => {
+  await page.goto("/");
+  await page.locator("#identity").selectOption("demo_id_owner");
+  await page.getByRole("button", { name: "Masuk demo", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Ruang kerja Anda" }),
+  ).toBeVisible();
+  const session = (await context.cookies()).find(
+    (c) => c.name === "fincathon_session",
+  )!;
+  expect(session.httpOnly).toBe(true);
+  expect(session.sameSite).toBe("Strict");
+  await page.getByRole("button", { name: "Keluar", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Masuk ke organisasi" }),
+  ).toBeVisible();
+  expect((await context.cookies()).some((c) => c.name === session.name)).toBe(
+    false,
+  );
+  const rejected = await context.request.get(
+    "http://127.0.0.1:8000/v2/auth/session",
+    {
+      headers: { Authorization: "Bearer " + session.value },
+    },
+  );
+  expect(rejected.status()).toBe(401);
+  await page.reload();
+  await expect(
+    page.getByRole("heading", { name: "Masuk ke organisasi" }),
+  ).toBeVisible();
+});
+
 test("funding comparison and analysis-bound draft use real worker outputs", async ({
   page,
 }) => {

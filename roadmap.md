@@ -67,14 +67,16 @@ Each package inherits the completion rules at the end of this document. The path
 
 ### R01: Accounts, organizations and roles
 
+**Status:** In review; [technical evidence](docs/roadmap/R01-acceptance.md). Numbered technical checks complete; Wisa’s package review remains required.
+
 **Owner:** Fithra · **Reviewer:** Wisa · **Depends on:** baseline local runtime.
 
 Source: [workspace access](openspec/specs/workspace-access/spec.md). Start in `services/api/auth.py`, `services/api/store.py`, `apps/web/app/api/session/route.ts` and `apps/web/app/api/gateway/[...path]/route.ts`.
 
-- [ ] R01.1 Verify normal account bootstrap, login, logout, session expiry/revocation and organization selection through API and browser.
-- [ ] R01.2 Verify membership changes and owner, export admin, finance reviewer and production/procurement permissions; close gaps between browser controls and server authorization.
-- [ ] R01.3 Check that documents, resources, jobs, artifacts and exports reject another tenant's identifiers and unauthorized references.
-- [ ] R01.4 Verify HttpOnly browser sessions and mutation origin checks; confirm allowlisted demo entry works only in explicit demo mode and document local account provisioning.
+- [x] R01.1 Verify normal account bootstrap, login, logout, session expiry/revocation and organization selection through API and browser. [Evidence](docs/roadmap/R01-acceptance.md).
+- [x] R01.2 Verify membership changes and owner, export admin, finance reviewer and production/procurement permissions; close gaps between browser controls and server authorization. [Evidence](docs/roadmap/R01-acceptance.md).
+- [x] R01.3 Check that documents, resources, jobs, artifacts and exports reject another tenant's identifiers and unauthorized references. [Evidence](docs/roadmap/R01-acceptance.md).
+- [x] R01.4 Verify HttpOnly browser sessions and mutation origin checks; confirm allowlisted demo entry works only in explicit demo mode and document local account provisioning. [Evidence](docs/roadmap/R01-acceptance.md).
 
 **Acceptance:** authorized users retain their intended access after reload; forged roles, expired sessions and cross-tenant requests cannot read or mutate protected resources.
 

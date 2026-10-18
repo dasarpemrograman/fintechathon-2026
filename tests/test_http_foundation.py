@@ -151,6 +151,58 @@ class HttpFoundationTests(unittest.TestCase):
         )
         self.assertEqual(response.status_code, 422)
 
+    def test_logout_revokes_the_bearer_and_does_not_revoke_other_sessions(self):
+        other = self.client.post(
+            "/v2/auth/login",
+            json={"email": self.email, "password": self.password},
+            headers={"Idempotency-Key": store.uid("login")},
+        )
+        self.assertEqual(other.status_code, 200, other.text)
+        other_headers = {
+            "Authorization": "Bearer " + other.json()["result"]["access_token"]
+        }
+        response = self.client.post(
+            "/v2/auth/logout",
+            json={},
+            headers={**self.headers, "Idempotency-Key": store.uid("logout")},
+        )
+        self.assertEqual(response.status_code, 200, response.text)
+        for method, path, kwargs in [
+            ("get", "/v2/auth/session", {}),
+            ("get", "/v2/workspaces", {}),
+            ("post", "/v2/workspaces", {"json": self.body()}),
+        ]:
+            with self.subTest(method=method, path=path):
+                rejected = self.client.request(
+                    method,
+                    path,
+                    headers={**self.headers, "Idempotency-Key": store.uid("revoked")},
+                    **kwargs,
+                )
+                self.assertEqual(rejected.status_code, 401, rejected.text)
+        self.assertEqual(
+            self.client.get("/v2/auth/session", headers=other_headers).status_code,
+            200,
+        )
+
+    def test_final_owner_cannot_remove_their_own_membership(self):
+        path = "/v2/organizations/" + self.identity["organization_id"] + "/memberships"
+        for roles in [[], ["export_admin"]]:
+            with self.subTest(roles=roles):
+                response = self.client.post(
+                    path,
+                    json={"user_id": self.identity["user_id"], "roles": roles},
+                    headers={
+                        **self.headers,
+                        "Idempotency-Key": store.uid("membership"),
+                    },
+                )
+                self.assertEqual(response.status_code, 409, response.text)
+                self.assertEqual(response.json()["code"], "LAST_OWNER_REQUIRED")
+        current = self.client.get("/v2/auth/session", headers=self.headers)
+        self.assertEqual(current.status_code, 200, current.text)
+        self.assertEqual(current.json()["result"]["memberships"][0]["roles"], ["owner"])
+
     def test_stale_revision_replay_returns_original_command_receipt(self):
         first = self.client.post(
             "/v2/workspaces",
