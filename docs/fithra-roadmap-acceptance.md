@@ -12,7 +12,7 @@ R19 fixture inventory, lifecycle reproduction and reset tests can run independen
 
 ## Fresh verification
 
-Executed against the feature code and regression tests through `684b3dc` (auth `3c5dd9d`/`dcc635e`, extraction `57cad58`/`684b3dc`, usage `debaf70`, numeric UI `078399d`, Compose journey `48c36c8`), using Python 3.12.14, Node 24.19.0, uv 0.12.23, PostgreSQL 17 and the pinned Linux application images on Docker Desktop. Python/database tests and final browser acceptance run sequentially.
+Executed against the feature code and regression tests through `eeab6ef` (auth `3c5dd9d`/`dcc635e`, extraction `57cad58`/`684b3dc`, usage `debaf70`, numeric UI `078399d`, Compose journey `48c36c8`, scenario comparison `eeab6ef`), using Python 3.12.14, Node 24.19.0, uv 0.12.23, PostgreSQL 17 and the pinned Linux application images on Docker Desktop. Python/database tests and final browser acceptance run sequentially.
 
 | Check | Result |
 | --- | --- |
@@ -22,12 +22,12 @@ Executed against the feature code and regression tests through `684b3dc` (auth `
 | Operation inventory | Successful HTTP responses observed for **146/146** canonical operations, including role and foreign-tenant cases |
 | Extraction | Actual UTF-8, native PDF, scanned PDF, PNG and JPEG processing/download checks; English, Indonesian and Chinese OCR/text candidates; 12 fixture hashes verified |
 | Builds | Production Next.js build and pinned API/web images build successfully |
-| Actual-service browser suite | `FINCATHON_BROWSER_COMPOSE=1 npx playwright test`: **17/17 pass**, including new normal-account/session and numeric lineage journeys |
+| Actual-service browser suite | `FINCATHON_BROWSER_COMPOSE=1 npx playwright test`: **18/18 pass**, including normal-account/session, numeric lineage and joint-scenario comparison journeys; the scenario case was rerun after its layout polish |
 | Seed/restart persistence | Two consecutive reseeds and a full Compose stop/start preserve **1,701 immutable snapshots**, **7 original hashes**, **14 workspaces**, all 12 role memberships and 12 fixture hashes. A disposable unrelated user's workspace and session survive restart unchanged; the control is cleaned up afterward. |
 | Offline runtime | Demo Docker network is internal; an actual API public TCP egress attempt is blocked; browser journeys use synthetic providers |
 | Whitespace | `git diff --check` passes |
 
-Run logs stay under ignored `.local/fithra-*`; credentials and session controls remain private and are excluded from committed evidence. The first host extraction attempt failed in macOS `preexec_fn` resource-limit setup, so acceptance uses the documented Linux container sandbox. The first all-service build hit a duplicate shared-image export; explicit `build api web` passed. A browser startup attempt ran before container readiness and was discarded. An early lineage assertion incorrectly expected a file behind a manual excerpt; it now uses the document-backed base case. An OCR fixture was adjusted to test an unambiguous visible date pattern rather than depend on one OCR engine reading a currency glyph identically. Captured failed-run logs are retained separately; the unsuccessful attempts described here are not counted as passes.
+Run logs stay under ignored `.local/fithra-*`; credentials and session controls remain private and are excluded from committed evidence. The first host extraction attempt failed in macOS `preexec_fn` resource-limit setup, so acceptance uses the documented Linux container sandbox. The first all-service build hit a duplicate shared-image export; explicit `build api web` passed. A browser startup attempt ran before container readiness and was discarded. An early lineage assertion incorrectly expected a file behind a manual excerpt; it now uses the document-backed base case. A first scenario test assumed a joint proposal already existed at the checkpoint; the final test creates its own joint proposal through the real browser and worker. An OCR fixture was adjusted to test an unambiguous visible date pattern rather than depend on one OCR engine reading a currency glyph identically. Captured failed-run logs are retained separately; the unsuccessful attempts described here are not counted as passes.
 
 ## R01: accounts, organizations and roles
 
@@ -75,9 +75,9 @@ The source locator is “Fixture manifest and declared schedules,” with explic
 | R10.1 | `test_scenario_comparison.py` and `test_joint_scenario_changes_reproject_terms_and_costs_without_writes` exercise immutable baseline/buyer/supplier-production/joint alternatives and retain required counterparties. |
 | R10.2 | Joint payment/procurement regression verifies changed buyer deposit and supplier unit costs are reprojected into obligations/costs without mutating baseline resources; dated economics/golden tests cover full deposit/balance schedules and producer inputs. |
 | R10.3 | Constraint checks/ranking cover margin, cash buffer, allowed changes, delivery dates/timezones, credit tenor, missing anchors and stale results. Ranking uses disclosed deterministic metrics and never implies agreement. |
-| R10.4 | Actual-service browser funding/scenario journey displays API-derived contribution/minimum/timing, creates a bound draft and retains hypothetical terms; domain assertions compare unchanged live inputs and residual exposure. |
+| R10.4 | `browser/scenarios.spec.ts` creates a joint buyer deposit/balance and supplier-date alternative through the actual editor/worker, inspects its exact stored base and before/after values, cash horizon/schedule and remaining exposure, and verifies unchanged live payment/procurement terms. The funding/draft journey remains covered. |
 
-Existing working calculation and scenario behavior was reused. Decimal arithmetic, verified receipt history and immutable source revisions were preserved.
+Existing working calculation and scenario behavior was reused. Decimal arithmetic, verified receipt history and immutable source revisions were preserved. The comparison summary needed a confirmed UI fix: `scenario-details.tsx` now retrieves the immutable scenario and its declared base revision, exposes changed values side by side, and displays the existing server-derived timing, unknowns and residual risk. [Original comparison](audits/fithra-roadmap/scenario-before.png) and [expanded comparison](audits/fithra-roadmap/scenario-after.png) show the same stored synthetic proposal; the original frontend was built from `6a67924`. Opening the details sends only authorized reads.
 
 ## R13: requirements, goods and readiness
 
