@@ -186,14 +186,16 @@ Source: [deal economics](openspec/specs/deal-economics/spec.md). Start in `packa
 
 ### R10: Negotiation and scenario comparison
 
+**Status:** In review; [technical evidence](docs/roadmap/R10-acceptance.md). Numbered technical checks complete; Wisa’s package review remains required.
+
 **Owner:** Fithra · **Reviewer:** Wisa · **Depends on:** R07, R08, R09.
 
 Source: [negotiation and finance](openspec/specs/negotiation-finance/spec.md). Start in `packages/domain/comparison.py`, `economics.py`, `scenario-editor.tsx` and the scenario comparison views.
 
-- [ ] R10.1 Exercise immutable buyer, supplier/production-input and combined term scenarios against the same baseline and evidence revisions.
-- [ ] R10.2 Verify deposit/balance, supplier timing and production changes recalculate together rather than leaving inconsistent obligations or totals.
-- [ ] R10.3 Check ranking against explicit owner constraints: margin, liquidity buffer, delivery deadline, allowed changes and credit tenor; retain unknowns and required counterparties.
-- [ ] R10.4 Verify comparison shows contribution, cash minimum, timing, residual risk and changed fields; selected hypothetical terms cannot silently amend the live deal.
+- [x] R10.1 Exercise immutable buyer, supplier/production-input and combined term scenarios against the same baseline and evidence revisions. [Evidence](docs/roadmap/R10-acceptance.md).
+- [x] R10.2 Verify deposit/balance, supplier timing and production changes recalculate together rather than leaving inconsistent obligations or totals. [Evidence](docs/roadmap/R10-acceptance.md).
+- [x] R10.3 Check ranking against explicit owner constraints: margin, liquidity buffer, delivery deadline, allowed changes and credit tenor; retain unknowns and required counterparties. [Evidence](docs/roadmap/R10-acceptance.md).
+- [x] R10.4 Verify comparison shows contribution, cash minimum, timing, residual risk and changed fields; selected hypothetical terms cannot silently amend the live deal. [Evidence](docs/roadmap/R10-acceptance.md).
 
 **Acceptance:** a user can compare baseline and joint alternatives, identify the relevant agreements, and retain the unchanged historical baseline.
 
