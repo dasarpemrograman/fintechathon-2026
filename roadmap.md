@@ -106,14 +106,16 @@ Sources: [workspace access](openspec/specs/workspace-access/spec.md), [deal econ
 
 ### R04: Document upload, extraction and fact review
 
+**Status:** In review; [technical evidence](docs/roadmap/R04-acceptance.md). Numbered technical checks complete; Wisa’s package review remains required.
+
 **Owner:** Fithra · **Reviewer:** Wisa · **Depends on:** R01, R18.
 
 Source: [evidence ingestion](openspec/specs/evidence-ingestion/spec.md). Start in `packages/adapters/documents.py`, `extract_runner.py`, `extraction_cache.py`, `services/api/storage.py` and the evidence/review browser controls.
 
-- [ ] R04.1 Verify authorized UTF-8, PDF, PNG and JPEG upload/download with original hashes, size/type limits and private storage.
-- [ ] R04.2 Exercise actual native-text and scanned/OCR paths in English, Indonesian and Chinese; retain page/region locators, original-language spans and explicit processing failures.
-- [ ] R04.3 Verify conflicting candidates, ambiguous currency/payment anchors and manual quotation evidence stay unreviewed until an authorized decision.
-- [ ] R04.4 Verify reviewed fact changes create revisions, invalidate affected outputs and approvals, preserve original downloads, and expose actionable review states in the browser.
+- [x] R04.1 Verify authorized UTF-8, PDF, PNG and JPEG upload/download with original hashes, size/type limits and private storage. [Evidence](docs/roadmap/R04-acceptance.md).
+- [x] R04.2 Exercise actual native-text and scanned/OCR paths in English, Indonesian and Chinese; retain page/region locators, original-language spans and explicit processing failures. [Evidence](docs/roadmap/R04-acceptance.md).
+- [x] R04.3 Verify conflicting candidates, ambiguous currency/payment anchors and manual quotation evidence stay unreviewed until an authorized decision. [Evidence](docs/roadmap/R04-acceptance.md).
+- [x] R04.4 Verify reviewed fact changes create revisions, invalidate affected outputs and approvals, preserve original downloads, and expose actionable review states in the browser. [Evidence](docs/roadmap/R04-acceptance.md).
 
 **Acceptance:** a reviewed fact can be traced to its unchanged original source; extraction alone cannot establish commercial agreement or payment verification.
 
