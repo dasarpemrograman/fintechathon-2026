@@ -223,14 +223,16 @@ Source: [negotiation and finance](openspec/specs/negotiation-finance/spec.md). S
 
 ### R13: Requirements, goods and execution readiness
 
+**Status:** In review; [technical evidence](docs/roadmap/R13-acceptance.md). Numbered technical checks complete; Wisa’s package review remains required.
+
 **Owner:** Fithra · **Reviewer:** Wisa · **Depends on:** R04, R05, R08, R12, R15.
 
 Source: [execution and reconciliation](openspec/specs/execution-reconciliation/spec.md). Start in `packages/domain/workflow.py`, `services/api/review_handlers.py`, `review-controls.tsx` and readiness/goods screens.
 
-- [ ] R13.1 Verify requirement applicability and fulfillment review retain product/lane predicates, responsible parties, source versions and supporting evidence.
-- [ ] R13.2 Exercise measured goods inspection, declared specifications, discrepancies and corrective evidence; a photograph alone cannot establish conformity.
-- [ ] R13.3 Verify separate owner review, relevant counterparty agreement, available/verified resources, goods and document conditions feed server-derived stage gates.
-- [ ] R13.4 Exercise blocked and successful procurement/production/shipment paths; show actionable conditions and preserve stale approval/history without allowing a generic risk acceptance to bypass critical blockers.
+- [x] R13.1 Verify requirement applicability and fulfillment review retain product/lane predicates, responsible parties, source versions and supporting evidence. [Evidence](docs/roadmap/R13-acceptance.md).
+- [x] R13.2 Exercise measured goods inspection, declared specifications, discrepancies and corrective evidence; a photograph alone cannot establish conformity. [Evidence](docs/roadmap/R13-acceptance.md).
+- [x] R13.3 Verify separate owner review, relevant counterparty agreement, available/verified resources, goods and document conditions feed server-derived stage gates. [Evidence](docs/roadmap/R13-acceptance.md).
+- [x] R13.4 Exercise blocked and successful procurement/production/shipment paths; show actionable conditions and preserve stale approval/history without allowing a generic risk acceptance to bypass critical blockers. [Evidence](docs/roadmap/R13-acceptance.md).
 
 **Acceptance:** approved-but-unfunded and buyer-paid-but-nonconforming cases remain blocked at the appropriate stage until their specific missing conditions are resolved.
 
