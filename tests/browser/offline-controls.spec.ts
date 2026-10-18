@@ -94,10 +94,13 @@ test("offline Calendar shows delivered, conflict resolution and revocation from 
   ];
   if (process.env.FINCATHON_BROWSER_COMPOSE === "1")
     execFileSync(
-      "python",
+      "docker",
       [
-        "scripts/compose_cloud.py",
-        "--demo",
+        "compose",
+        "-f",
+        "compose.yaml",
+        "-f",
+        "compose.demo.yaml",
         "exec",
         "-T",
         "api",
