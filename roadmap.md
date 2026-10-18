@@ -268,14 +268,16 @@ Source: [execution and reconciliation](openspec/specs/execution-reconciliation/s
 
 ### R16: Usage, allowances and entitlement behavior
 
+**Status:** In review; [technical evidence](docs/roadmap/R16-acceptance.md). Numbered technical checks complete; Wisa’s package review remains required.
+
 **Owner:** Fithra · **Reviewer:** Wisa · **Depends on:** R01, R18.
 
 Sources: [durable operations](openspec/specs/durable-operations/spec.md), [pilot allowances](docs/local-runtime.md#pilot-allowances). Start in `packages/domain/entitlements.py`, `config/plans-v1.json`, `scripts/set_plan.py` and usage/settings views.
 
-- [ ] R16.1 Verify workload/allowance previews and versioned Free, Deal Pass, Pro, Team and explicitly provisioned institutional terms.
-- [ ] R16.2 Check admission reserves pending workload and successful chargeable work is metered once; failures, retries, cached duplicate uploads and deterministic recalculation do not add charges.
-- [ ] R16.3 Exercise included-pool/add-on expiry and user/active-deal limits; existing evidence, exports and permitted manual obligation/receipt actions remain accessible on expiry.
-- [ ] R16.4 Verify usage screens explain restrictions and provisioning is audited; subscription policy stays separate from deal economics and introduces no hidden overage purchase.
+- [x] R16.1 Verify workload/allowance previews and versioned Free, Deal Pass, Pro, Team and explicitly provisioned institutional terms. [Evidence](docs/roadmap/R16-acceptance.md).
+- [x] R16.2 Check admission reserves pending workload and successful chargeable work is metered once; failures, retries, cached duplicate uploads and deterministic recalculation do not add charges. [Evidence](docs/roadmap/R16-acceptance.md).
+- [x] R16.3 Exercise included-pool/add-on expiry and user/active-deal limits; existing evidence, exports and permitted manual obligation/receipt actions remain accessible on expiry. [Evidence](docs/roadmap/R16-acceptance.md).
+- [x] R16.4 Verify usage screens explain restrictions and provisioning is audited; subscription policy stays separate from deal economics and introduces no hidden overage purchase. [Evidence](docs/roadmap/R16-acceptance.md).
 
 **Acceptance:** the organization can see and explain its consumption and admission decisions without losing permitted ongoing deal work.
 
