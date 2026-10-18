@@ -336,13 +336,15 @@ input[type="checkbox"] {
   width: auto;
   justify-self: start;
 }
-.numeric-lineage {
+.numeric-lineage,
+.scenario-comparison {
   overflow-wrap: anywhere;
 }
 .numeric-lineage button {
   max-width: 100%;
   overflow-wrap: anywhere;
 }
-.numeric-lineage dd {
+.numeric-lineage dd,
+.scenario-comparison dd {
   margin-inline-start: 16px;
 }

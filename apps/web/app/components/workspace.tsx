@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { NumericLineage } from "./numeric-lineage";
+import { ScenarioDetails } from "./scenario-details";
 import { DiscoveryPanel } from "./discovery-panel";
 import { ScenarioEditor } from "./scenario-editor";
 import { FinancialEntry } from "./financial-entry";
@@ -1468,37 +1469,48 @@ function Detail({
           <section className="card">
             <h2>Perbandingan skenario</h2>
             {analyses.map((a) => (
-              <p key={a.id}>
-                <code>{a.scenario_id}</code>
-                <br />
-                {money(a.after_financing.contribution)} · kas minimum{" "}
-                {a.cash_metrics?.minimum_cash} · {title(a.completeness)}
-                {a.owner_comparison && (
-                  <>
-                    <br />
-                    Peringkat relatif:{" "}
-                    {a.owner_comparison.rank || "belum tersedia"} · preferensi{" "}
-                    {a.owner_comparison.ranking_preference || "belum dipilih"}
-                    <br />
-                    {a.owner_comparison.checks.map((check) => (
-                      <span className="tag" key={check.code}>
-                        {check.code}: {title(check.status)}
-                      </span>
-                    ))}
-                    <br />
-                    Pihak yang perlu menerima:{" "}
-                    {a.owner_comparison.required_counterparty_ids
-                      .map(
-                        (id) =>
-                          deal?.parties.find((p) => p.id === id)
-                            ?.display_name || id,
-                      )
-                      .join(", ") || "sesuai penerimaan kontrak yang berlaku"}
-                    <br />
-                    <small>{a.owner_comparison.basis}</small>
-                  </>
-                )}
-              </p>
+              <div
+                key={a.id}
+                data-testid="scenario-comparison-row"
+                data-analysis-id={a.id}
+              >
+                <p>
+                  <code>{a.scenario_id}</code>
+                  <br />
+                  {money(a.after_financing.contribution)} · kas minimum{" "}
+                  {a.cash_metrics?.minimum_cash} · {title(a.completeness)}
+                  {a.owner_comparison && (
+                    <>
+                      <br />
+                      Peringkat relatif:{" "}
+                      {a.owner_comparison.rank || "belum tersedia"} · preferensi{" "}
+                      {a.owner_comparison.ranking_preference || "belum dipilih"}
+                      <br />
+                      {a.owner_comparison.checks.map((check) => (
+                        <span className="tag" key={check.code}>
+                          {check.code}: {title(check.status)}
+                        </span>
+                      ))}
+                      <br />
+                      Pihak yang perlu menerima:{" "}
+                      {a.owner_comparison.required_counterparty_ids
+                        .map(
+                          (id) =>
+                            deal?.parties.find((p) => p.id === id)
+                              ?.display_name || id,
+                        )
+                        .join(", ") || "sesuai penerimaan kontrak yang berlaku"}
+                      <br />
+                      <small>{a.owner_comparison.basis}</small>
+                    </>
+                  )}
+                </p>
+                <ScenarioDetails
+                  analysis={a}
+                  root={root}
+                  timezone={w.owner_timezone}
+                />
+              </div>
             ))}
           </section>
         </>
