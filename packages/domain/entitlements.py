@@ -114,6 +114,7 @@ def balance(conn, tenant, include_pending=True, at=None):
                 if unit == "enriched_run" and (
                     body.get("execution") == "enrich"
                     or kind in {"discovery", "finance_options"}
+                    and not body.get("_deterministic_matching", False)
                 ):
                     pending += 1
         from_included = min(included, pending)
