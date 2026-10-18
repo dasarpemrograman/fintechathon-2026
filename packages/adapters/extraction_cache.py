@@ -20,7 +20,7 @@ model_commit = json.loads((ROOT / "fixtures/demo/ocr-assets.lock.json").read_tex
     "commit"
 ]
 VERSION = (
-    "extract-1;pypdf-"
+    "extract-2;pypdf-"
     + importlib.metadata.version("pypdf")
     + ";pillow-"
     + importlib.metadata.version("pillow")

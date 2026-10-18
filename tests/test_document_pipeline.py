@@ -150,6 +150,35 @@ class DocumentPipelineTests(unittest.TestCase):
             hashlib.sha256(download.content).hexdigest(), document["content_hash"]
         )
 
+    def test_old_parser_cache_is_retained_but_cannot_hide_new_pdf_regions(self):
+        from packages.adapters import extraction_cache as cache
+        from migrations.schema_v6 import extractions
+
+        content_hash = hashlib.sha256(
+            b"Synthetic scanned PDF cache fixture"
+        ).hexdigest()
+        previous_version = "extract-1;" + cache.VERSION.split(";", 1)[1]
+        old_pages = [{"page": 1, "text": "USD 350.00", "locator": "PDF page 1"}]
+        with patch.object(cache, "VERSION", previous_version):
+            cache.remember(self.conn, self.tenant, content_hash, "real", old_pages)
+        self.assertIsNone(cache.lookup(self.conn, self.tenant, content_hash, "real"))
+        corrected = [
+            {**old_pages[0], "locator": "PDF page 1; OCR word boxes: 10,20,30,40"}
+        ]
+        cache.remember(self.conn, self.tenant, content_hash, "real", corrected)
+        self.assertEqual(
+            cache.lookup(self.conn, self.tenant, content_hash, "real")["pages"],
+            corrected,
+        )
+        retained = self.conn.execute(
+            sa.select(extractions.c.pages).where(
+                extractions.c.tenant_id == self.tenant,
+                extractions.c.content_hash == content_hash,
+                extractions.c.parser_version == previous_version,
+            )
+        ).scalar_one()
+        self.assertEqual(retained, old_pages)
+
     def test_supported_original_types_round_trip_through_authorized_http(self):
         from io import BytesIO
         from pathlib import Path
