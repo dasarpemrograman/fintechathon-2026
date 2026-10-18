@@ -242,9 +242,16 @@ export default function Workspace() {
     }
   }
   async function logout() {
-    await fetch("/api/session", { method: "DELETE" });
-    setSession(null);
-    setSelected(null);
+    setError("");
+    try {
+      const response = await fetch("/api/session", { method: "DELETE" });
+      if (!response.ok)
+        throw new Error("Tidak dapat mencabut sesi. Coba keluar lagi.");
+      setSession(null);
+      setSelected(null);
+    } catch (error) {
+      setError((error as Error).message);
+    }
   }
   const member = session?.memberships.find(
     (m) => m.organization_id === session.organization_id,
@@ -298,6 +305,11 @@ export default function Workspace() {
         )}
       </header>
       <main>
+        {session && error && (
+          <div role="alert" className="notice error">
+            {error}
+          </div>
+        )}
         {!session ? (
           <div className="login">
             <div className="eyebrow">Dari bukti ke keputusan</div>

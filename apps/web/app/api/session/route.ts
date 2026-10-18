@@ -43,14 +43,21 @@ export async function DELETE(request: NextRequest) {
   const blocked = originError(request);
   if (blocked) return blocked;
   const token = request.cookies.get(cookieName)?.value;
-  if (token)
-    await fetch(apiBase + "/v2/auth/logout", {
+  if (token) {
+    const revoked = await fetch(apiBase + "/v2/auth/logout", {
       method: "POST",
       headers: {
         Authorization: "Bearer " + token,
         "Idempotency-Key": crypto.randomUUID(),
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify({}),
     });
+    if (!revoked.ok && revoked.status !== 401)
+      return NextResponse.json(await revoked.json(), {
+        status: revoked.status,
+      });
+  }
   const response = NextResponse.json({ message: "Keluar" });
   response.cookies.delete(cookieName);
   return response;
