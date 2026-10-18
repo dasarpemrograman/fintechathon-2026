@@ -145,14 +145,16 @@ Sources: [deal economics](openspec/specs/deal-economics/spec.md), [calculation p
 
 ### R07: Numeric lineage and evidence drill-down
 
+**Status:** In review; [technical evidence](docs/roadmap/R07-acceptance.md). R07.4 handoff remains blocked (Faiz/Wisa).
+
 **Owner:** Fithra · **Reviewer:** Wisa · **Depends on:** R04, R05, R06.
 
 Sources: [evidence ingestion](openspec/specs/evidence-ingestion/spec.md), [workspace UI](openspec/specs/workspace-ui/spec.md). Start in domain analysis outputs, immutable revision reads and `apps/web/app/components/workspace.tsx`.
 
-- [ ] R07.1 Follow representative prices, costs, cash results and blockers to their formula, exact input revisions, evidence IDs, hashes and original source spans.
-- [ ] R07.2 Verify that historical analyses resolve historical inputs and remain retrievable after a quote, fact or scenario changes.
-- [ ] R07.3 Verify drill-down clearly labels assumptions, unknowns, conflicts, expiry, synthetic/cached mode and stale reviews, including permitted original-file downloads.
-- [ ] R07.4 Review handoffs with Faiz for calculated fields and Wisa for source references; retain a documented trace from a displayed decision back to evidence.
+- [x] R07.1 Follow representative prices, costs, cash results and blockers to their formula, exact input revisions, evidence IDs, hashes and original source spans. [Evidence](docs/roadmap/R07-acceptance.md).
+- [x] R07.2 Verify that historical analyses resolve historical inputs and remain retrievable after a quote, fact or scenario changes. [Evidence](docs/roadmap/R07-acceptance.md).
+- [x] R07.3 Verify drill-down clearly labels assumptions, unknowns, conflicts, expiry, synthetic/cached mode and stale reviews, including permitted original-file downloads. [Evidence](docs/roadmap/R07-acceptance.md).
+- [ ] R07.4 Review handoffs with Faiz for calculated fields and Wisa for source references; retain a documented trace from a displayed decision back to evidence. **Blocked:** Blocked on the calculated-input handoff review by Faiz and source-reference review by Wisa; the trace is ready for review. [Evidence](docs/roadmap/R07-acceptance.md).
 
 **Acceptance:** users can explain a material number or blocker from stored evidence without relying on the latest mutable input or an unsupported model explanation.
 

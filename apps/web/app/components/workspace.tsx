@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState, type FormEvent } from "react";
+import { NumericLineage } from "./numeric-lineage";
 import { DiscoveryPanel } from "./discovery-panel";
 import { ScenarioEditor } from "./scenario-editor";
 import { FinancialEntry } from "./financial-entry";
@@ -1335,7 +1336,11 @@ function Detail({
                   {title(analysis.price_range.label)} · Pembanding yang tidak
                   sebanding tidak menjadi harga transaksi.
                 </p>
-                <Lineage analysis={analysis} />
+                <NumericLineage
+                  key={analysis.id}
+                  analysis={analysis}
+                  workspaceId={w.id}
+                />
                 <code>
                   Analisis {analysis.snapshot_hash} ·{" "}
                   {analysis.calculator_version}
@@ -2177,61 +2182,6 @@ function Settings() {
       </p>
     </details>
   ) : null;
-}
-
-function Lineage({ analysis }: { analysis: A }) {
-  const [source, setSource] = useState<
-      S["InputRevisionResponse"]["result"] | null
-    >(null),
-    [error, setError] = useState("");
-  return (
-    <details>
-      <summary>Telusuri rumus dan versi sumber</summary>
-      {analysis.numeric_lineage?.map((line, n) => (
-        <article key={n}>
-          <h3>{title(line.metric)}</h3>
-          <p>{line.formula}</p>
-          <small>{line.calculator_version}</small>
-          <div className="actions">
-            {line.evidence_refs.map((ref) => (
-              <button
-                key={ref.id}
-                className="link"
-                onClick={() =>
-                  api<S["InputRevisionResponse"]["result"]>(
-                    "inputs/" + ref.id + "/revisions/" + ref.revision,
-                  )
-                    .then(setSource)
-                    .catch((e) => setError(e.message))
-                }
-              >
-                Sumber revisi {ref.revision} · {ref.id.slice(-8)}
-              </button>
-            ))}
-          </div>
-          <p className="muted">
-            {line.input_refs.length} masukan versi tetap; perubahan berikutnya
-            tidak menimpa analisis ini.
-          </p>
-        </article>
-      ))}
-      {!analysis.numeric_lineage && (
-        <p className="muted">
-          Hitung ulang untuk mendapatkan referensi versi sumber.
-        </p>
-      )}
-      {source && "claim" in source && (
-        <aside className="source">
-          <strong>{source.title}</strong>
-          <p>{source.claim}</p>
-          <small>{source.locator}</small>
-          <br />
-          <code>{source.content_hash}</code>
-        </aside>
-      )}
-      {error && <p role="alert">{error}</p>}
-    </details>
-  );
 }
 
 function MemberAdmin({
