@@ -14,6 +14,18 @@ The latest live report accepts only the three declared goods/routes: Indonesia�
 
 `R01`–`R21` are new roadmap package IDs. The original grouped `F01`–`F14` coverage remains in the [feature matrix](docs/verification.md#coverage-by-feature-and-source-acceptance); these IDs do not redefine those source feature numbers.
 
+## Fithra takeover verification: 18 October 2026
+
+Branch `feat/fithra-roadmap-ready-tasks` started at `6a67924`. [Fresh technical acceptance](docs/fithra-roadmap-acceptance.md) reuses the existing implementation, fixes confirmed browser logout, scanned-PDF provenance and pending allowance gaps, and adds browser access to immutable numeric inputs. **26 numbered subtasks are technically verified; two remain blocked.** Checked subtasks link to implementation/test evidence. No other engineer's package is checked off by this takeover.
+
+| Package | State | Remaining handoff |
+| --- | --- | --- |
+| R01, R04, R10, R13, R16 | In review | Technical checks complete; Wisa's package review remains required for Done. |
+| R07 | In review; R07.4 blocked | Faiz reviews calculated inputs and Wisa reviews source references. |
+| R19 | In review; R19.4 blocked | Offline reproduction is verified; final integrated acceptance needs R07.4 and Wisa's R17.3/R17.4 recovery evidence. |
+
+The dependency assessment uses current implementation, fresh deterministic checks and the latest scoped live acceptance report. Historical missing-credential findings are not reopened. Native macOS host process/sandbox limitations are recorded for Faiz/R18; the Linux Compose path is verified. Full execution results, retained attempts, provenance trace and screenshots are in the acceptance report.
+
 ## Ownership and workload
 
 Scope points are initial relative size estimates: **3 = medium**, **5 = large**. They measure the breadth of ownership, not days or measured remaining implementation effort. All three engineers start with seven packages and 31 points. Rebalance after baseline verification if the discovered work differs significantly.
@@ -71,10 +83,10 @@ Each package inherits the completion rules at the end of this document. The path
 
 Source: [workspace access](openspec/specs/workspace-access/spec.md). Start in `services/api/auth.py`, `services/api/store.py`, `apps/web/app/api/session/route.ts` and `apps/web/app/api/gateway/[...path]/route.ts`.
 
-- [ ] R01.1 Verify normal account bootstrap, login, logout, session expiry/revocation and organization selection through API and browser.
-- [ ] R01.2 Verify membership changes and owner, export admin, finance reviewer and production/procurement permissions; close gaps between browser controls and server authorization.
-- [ ] R01.3 Check that documents, resources, jobs, artifacts and exports reject another tenant's identifiers and unauthorized references.
-- [ ] R01.4 Verify HttpOnly browser sessions and mutation origin checks; confirm allowlisted demo entry works only in explicit demo mode and document local account provisioning.
+- [x] R01.1 Verify normal account bootstrap, login, logout, session expiry/revocation and organization selection through API and browser. [Evidence](docs/fithra-roadmap-acceptance.md#r01-accounts-organizations-and-roles).
+- [x] R01.2 Verify membership changes and owner, export admin, finance reviewer and production/procurement permissions; close gaps between browser controls and server authorization. [Evidence](docs/fithra-roadmap-acceptance.md#r01-accounts-organizations-and-roles).
+- [x] R01.3 Check that documents, resources, jobs, artifacts and exports reject another tenant's identifiers and unauthorized references. [Evidence](docs/fithra-roadmap-acceptance.md#r01-accounts-organizations-and-roles).
+- [x] R01.4 Verify HttpOnly browser sessions and mutation origin checks; confirm allowlisted demo entry works only in explicit demo mode and document local account provisioning. [Evidence](docs/fithra-roadmap-acceptance.md#r01-accounts-organizations-and-roles).
 
 **Acceptance:** authorized users retain their intended access after reload; forged roles, expired sessions and cross-tenant requests cannot read or mutate protected resources.
 
@@ -110,10 +122,10 @@ Sources: [workspace access](openspec/specs/workspace-access/spec.md), [deal econ
 
 Source: [evidence ingestion](openspec/specs/evidence-ingestion/spec.md). Start in `packages/adapters/documents.py`, `extract_runner.py`, `extraction_cache.py`, `services/api/storage.py` and the evidence/review browser controls.
 
-- [ ] R04.1 Verify authorized UTF-8, PDF, PNG and JPEG upload/download with original hashes, size/type limits and private storage.
-- [ ] R04.2 Exercise actual native-text and scanned/OCR paths in English, Indonesian and Chinese; retain page/region locators, original-language spans and explicit processing failures.
-- [ ] R04.3 Verify conflicting candidates, ambiguous currency/payment anchors and manual quotation evidence stay unreviewed until an authorized decision.
-- [ ] R04.4 Verify reviewed fact changes create revisions, invalidate affected outputs and approvals, preserve original downloads, and expose actionable review states in the browser.
+- [x] R04.1 Verify authorized UTF-8, PDF, PNG and JPEG upload/download with original hashes, size/type limits and private storage. [Evidence](docs/fithra-roadmap-acceptance.md#r04-upload-extraction-and-review).
+- [x] R04.2 Exercise actual native-text and scanned/OCR paths in English, Indonesian and Chinese; retain page/region locators, original-language spans and explicit processing failures. [Evidence](docs/fithra-roadmap-acceptance.md#r04-upload-extraction-and-review).
+- [x] R04.3 Verify conflicting candidates, ambiguous currency/payment anchors and manual quotation evidence stay unreviewed until an authorized decision. [Evidence](docs/fithra-roadmap-acceptance.md#r04-upload-extraction-and-review).
+- [x] R04.4 Verify reviewed fact changes create revisions, invalidate affected outputs and approvals, preserve original downloads, and expose actionable review states in the browser. [Evidence](docs/fithra-roadmap-acceptance.md#r04-upload-extraction-and-review).
 
 **Acceptance:** a reviewed fact can be traced to its unchanged original source; extraction alone cannot establish commercial agreement or payment verification.
 
@@ -149,10 +161,10 @@ Sources: [deal economics](openspec/specs/deal-economics/spec.md), [calculation p
 
 Sources: [evidence ingestion](openspec/specs/evidence-ingestion/spec.md), [workspace UI](openspec/specs/workspace-ui/spec.md). Start in domain analysis outputs, immutable revision reads and `apps/web/app/components/workspace.tsx`.
 
-- [ ] R07.1 Follow representative prices, costs, cash results and blockers to their formula, exact input revisions, evidence IDs, hashes and original source spans.
-- [ ] R07.2 Verify that historical analyses resolve historical inputs and remain retrievable after a quote, fact or scenario changes.
-- [ ] R07.3 Verify drill-down clearly labels assumptions, unknowns, conflicts, expiry, synthetic/cached mode and stale reviews, including permitted original-file downloads.
-- [ ] R07.4 Review handoffs with Faiz for calculated fields and Wisa for source references; retain a documented trace from a displayed decision back to evidence.
+- [x] R07.1 Follow representative prices, costs, cash results and blockers to their formula, exact input revisions, evidence IDs, hashes and original source spans. [Evidence](docs/fithra-roadmap-acceptance.md#r07-numeric-lineage).
+- [x] R07.2 Verify that historical analyses resolve historical inputs and remain retrievable after a quote, fact or scenario changes. [Evidence](docs/fithra-roadmap-acceptance.md#r07-numeric-lineage).
+- [x] R07.3 Verify drill-down clearly labels assumptions, unknowns, conflicts, expiry, synthetic/cached mode and stale reviews, including permitted original-file downloads. [Evidence](docs/fithra-roadmap-acceptance.md#r07-numeric-lineage).
+- [ ] R07.4 Review handoffs with Faiz for calculated fields and Wisa for source references; retain a documented trace from a displayed decision back to evidence. **Blocked:** Blocked on the calculated-input handoff review by Faiz and source-reference review by Wisa; the trace is ready for review. [Evidence](docs/fithra-roadmap-acceptance.md#r07-numeric-lineage).
 
 **Acceptance:** users can explain a material number or blocker from stored evidence without relying on the latest mutable input or an unsupported model explanation.
 
@@ -188,10 +200,10 @@ Source: [deal economics](openspec/specs/deal-economics/spec.md). Start in `packa
 
 Source: [negotiation and finance](openspec/specs/negotiation-finance/spec.md). Start in `packages/domain/comparison.py`, `economics.py`, `scenario-editor.tsx` and the scenario comparison views.
 
-- [ ] R10.1 Exercise immutable buyer, supplier/production-input and combined term scenarios against the same baseline and evidence revisions.
-- [ ] R10.2 Verify deposit/balance, supplier timing and production changes recalculate together rather than leaving inconsistent obligations or totals.
-- [ ] R10.3 Check ranking against explicit owner constraints: margin, liquidity buffer, delivery deadline, allowed changes and credit tenor; retain unknowns and required counterparties.
-- [ ] R10.4 Verify comparison shows contribution, cash minimum, timing, residual risk and changed fields; selected hypothetical terms cannot silently amend the live deal.
+- [x] R10.1 Exercise immutable buyer, supplier/production-input and combined term scenarios against the same baseline and evidence revisions. [Evidence](docs/fithra-roadmap-acceptance.md#r10-negotiation-and-scenarios).
+- [x] R10.2 Verify deposit/balance, supplier timing and production changes recalculate together rather than leaving inconsistent obligations or totals. [Evidence](docs/fithra-roadmap-acceptance.md#r10-negotiation-and-scenarios).
+- [x] R10.3 Check ranking against explicit owner constraints: margin, liquidity buffer, delivery deadline, allowed changes and credit tenor; retain unknowns and required counterparties. [Evidence](docs/fithra-roadmap-acceptance.md#r10-negotiation-and-scenarios).
+- [x] R10.4 Verify comparison shows contribution, cash minimum, timing, residual risk and changed fields; selected hypothetical terms cannot silently amend the live deal. [Evidence](docs/fithra-roadmap-acceptance.md#r10-negotiation-and-scenarios).
 
 **Acceptance:** a user can compare baseline and joint alternatives, identify the relevant agreements, and retain the unchanged historical baseline.
 
@@ -227,10 +239,10 @@ Source: [negotiation and finance](openspec/specs/negotiation-finance/spec.md). S
 
 Source: [execution and reconciliation](openspec/specs/execution-reconciliation/spec.md). Start in `packages/domain/workflow.py`, `services/api/review_handlers.py`, `review-controls.tsx` and readiness/goods screens.
 
-- [ ] R13.1 Verify requirement applicability and fulfillment review retain product/lane predicates, responsible parties, source versions and supporting evidence.
-- [ ] R13.2 Exercise measured goods inspection, declared specifications, discrepancies and corrective evidence; a photograph alone cannot establish conformity.
-- [ ] R13.3 Verify separate owner review, relevant counterparty agreement, available/verified resources, goods and document conditions feed server-derived stage gates.
-- [ ] R13.4 Exercise blocked and successful procurement/production/shipment paths; show actionable conditions and preserve stale approval/history without allowing a generic risk acceptance to bypass critical blockers.
+- [x] R13.1 Verify requirement applicability and fulfillment review retain product/lane predicates, responsible parties, source versions and supporting evidence. [Evidence](docs/fithra-roadmap-acceptance.md#r13-requirements-goods-and-readiness).
+- [x] R13.2 Exercise measured goods inspection, declared specifications, discrepancies and corrective evidence; a photograph alone cannot establish conformity. [Evidence](docs/fithra-roadmap-acceptance.md#r13-requirements-goods-and-readiness).
+- [x] R13.3 Verify separate owner review, relevant counterparty agreement, available/verified resources, goods and document conditions feed server-derived stage gates. [Evidence](docs/fithra-roadmap-acceptance.md#r13-requirements-goods-and-readiness).
+- [x] R13.4 Exercise blocked and successful procurement/production/shipment paths; show actionable conditions and preserve stale approval/history without allowing a generic risk acceptance to bypass critical blockers. [Evidence](docs/fithra-roadmap-acceptance.md#r13-requirements-goods-and-readiness).
 
 **Acceptance:** approved-but-unfunded and buyer-paid-but-nonconforming cases remain blocked at the appropriate stage until their specific missing conditions are resolved.
 
@@ -266,10 +278,10 @@ Source: [execution and reconciliation](openspec/specs/execution-reconciliation/s
 
 Sources: [durable operations](openspec/specs/durable-operations/spec.md), [pilot allowances](docs/local-runtime.md#pilot-allowances). Start in `packages/domain/entitlements.py`, `config/plans-v1.json`, `scripts/set_plan.py` and usage/settings views.
 
-- [ ] R16.1 Verify workload/allowance previews and versioned Free, Deal Pass, Pro, Team and explicitly provisioned institutional terms.
-- [ ] R16.2 Check admission reserves pending workload and successful chargeable work is metered once; failures, retries, cached duplicate uploads and deterministic recalculation do not add charges.
-- [ ] R16.3 Exercise included-pool/add-on expiry and user/active-deal limits; existing evidence, exports and permitted manual obligation/receipt actions remain accessible on expiry.
-- [ ] R16.4 Verify usage screens explain restrictions and provisioning is audited; subscription policy stays separate from deal economics and introduces no hidden overage purchase.
+- [x] R16.1 Verify workload/allowance previews and versioned Free, Deal Pass, Pro, Team and explicitly provisioned institutional terms. [Evidence](docs/fithra-roadmap-acceptance.md#r16-usage-and-entitlement-behavior).
+- [x] R16.2 Check admission reserves pending workload and successful chargeable work is metered once; failures, retries, cached duplicate uploads and deterministic recalculation do not add charges. [Evidence](docs/fithra-roadmap-acceptance.md#r16-usage-and-entitlement-behavior).
+- [x] R16.3 Exercise included-pool/add-on expiry and user/active-deal limits; existing evidence, exports and permitted manual obligation/receipt actions remain accessible on expiry. [Evidence](docs/fithra-roadmap-acceptance.md#r16-usage-and-entitlement-behavior).
+- [x] R16.4 Verify usage screens explain restrictions and provisioning is audited; subscription policy stays separate from deal economics and introduces no hidden overage purchase. [Evidence](docs/fithra-roadmap-acceptance.md#r16-usage-and-entitlement-behavior).
 
 **Acceptance:** the organization can see and explain its consumption and admission decisions without losing permitted ongoing deal work.
 
@@ -305,10 +317,10 @@ Source: [durable operations](openspec/specs/durable-operations/spec.md). Start i
 
 Sources: [seeded demo](openspec/specs/seeded-demo/spec.md), [walkthrough](docs/demo-walkthrough.md). Start in `packages/domain/demo.py`, `demo_stages.py`, `demo_reset.py`, `fixtures/demo/`, seed/reset scripts and browser journeys.
 
-- [ ] R19.1 Verify versioned fixture hashes, deterministic business dates, all reviewer roles, at least ten entry workspaces, general lanes and multiple line/shipment cases.
-- [ ] R19.2 Reproduce exploration, profitable-but-cash-negative analysis, negotiation, financing, drafts, blocked/corrected goods, receipts, reconciling and closed checkpoints through real services.
-- [ ] R19.3 Exercise reseeding twice, restart persistence and namespace reset with an unrelated user record; reject mixed ownership and retained/live Calendar dependencies.
-- [ ] R19.4 Run complete and blocked evaluator journeys with runtime outbound access denied, persistent synthetic labels, keyboard/narrow-screen use and an updated concise walkthrough.
+- [x] R19.1 Verify versioned fixture hashes, deterministic business dates, all reviewer roles, at least ten entry workspaces, general lanes and multiple line/shipment cases. [Evidence](docs/fithra-roadmap-acceptance.md#r19-seeded-demo-and-evaluator-journeys).
+- [x] R19.2 Reproduce exploration, profitable-but-cash-negative analysis, negotiation, financing, drafts, blocked/corrected goods, receipts, reconciling and closed checkpoints through real services. [Evidence](docs/fithra-roadmap-acceptance.md#r19-seeded-demo-and-evaluator-journeys).
+- [x] R19.3 Exercise reseeding twice, restart persistence and namespace reset with an unrelated user record; reject mixed ownership and retained/live Calendar dependencies. [Evidence](docs/fithra-roadmap-acceptance.md#r19-seeded-demo-and-evaluator-journeys).
+- [ ] R19.4 Run complete and blocked evaluator journeys with runtime outbound access denied, persistent synthetic labels, keyboard/narrow-screen use and an updated concise walkthrough. **Blocked:** Offline journeys executed; final integrated acceptance is blocked on R07.4 (Faiz/Wisa) and R17.3/R17.4 isolated recovery evidence (Wisa). [Evidence](docs/fithra-roadmap-acceptance.md#r19-seeded-demo-and-evaluator-journeys).
 
 **Acceptance:** the evaluator can reproduce causal successful and blocked histories without provider credentials, and demo evidence cannot satisfy real-workspace readiness.
 
