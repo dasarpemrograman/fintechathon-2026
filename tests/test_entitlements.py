@@ -125,6 +125,55 @@ class EntitlementTests(unittest.TestCase):
             self.assertEqual(state["units"]["enriched_run"]["included_remaining"], 1)
             self.assertEqual(state["units"]["enriched_run"]["addon_remaining"], 1)
 
+    def test_pending_provider_work_reserves_allowance_but_manual_matching_does_not(
+        self,
+    ):
+        self.policy({"plan": "pro", "runs": 1, "pages": 10, "active": True})
+        context = {
+            "tenant": self.tenant,
+            "actor": self.actor,
+            "scope": "real",
+            "dataset": None,
+            "request_id": store.uid("request"),
+        }
+        workspace = commands.new_workspace(
+            self.conn,
+            context,
+            {
+                "mode": "sandbox",
+                "business_profile": "reseller",
+                "reporting_currency": "USD",
+                "owner_timezone": "UTC",
+                "product": {"description": "Allowance acceptance fixture"},
+            },
+        )
+        commands.enqueue(
+            self.conn,
+            context,
+            workspace,
+            "finance_options",
+            {
+                "_deterministic_matching": True,
+            },
+        )
+        self.assertTrue(commands.admission(self.conn, context)["admitted"])
+        pending = commands.enqueue(
+            self.conn,
+            context,
+            workspace,
+            "analysis",
+            {
+                "execution": "enrich",
+            },
+        )["run"]["id"]
+        self.assertFalse(commands.admission(self.conn, context)["admitted"])
+        self.assertEqual(commands.all_records(self.conn, self.tenant, "usage"), [])
+        self.conn.execute(
+            store.jobs.update().where(store.jobs.c.id == pending).values(state="failed")
+        )
+        self.assertTrue(commands.admission(self.conn, context)["admitted"])
+        self.assertEqual(commands.all_records(self.conn, self.tenant, "usage"), [])
+
     def test_free_plan_blocks_deal_activation_and_paid_plan_releases_archived_slot(
         self,
     ):
