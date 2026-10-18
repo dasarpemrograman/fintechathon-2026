@@ -1,0 +1,21 @@
+{
+  "analysis": "analysis_4211fc31672e9546894067f9",
+  "analysis_hash": "584141d47b8360f499e1da2d284a78d088bd5ba6f93ffc5fe21a8446d2ff1f74",
+  "contribution": {
+    "amount": "26000000.00",
+    "currency": "IDR"
+  },
+  "minimum_cash": "-52000000.00",
+  "parent_ref": {
+    "id": "deal_f3cd6fc3a46ff42f27698fe5",
+    "revision": 26
+  },
+  "evidence_ref": {
+    "id": "evidence_812e26fe2485211c7ddaa167",
+    "revision": 1
+  },
+  "original_document_id": "document_3f6b392b6ebb8d67f82c1721",
+  "hash": "707e5794000f5df7a318357c1e2d20d8de510855c29f3837395156fdcbcd521b",
+  "locator": "Fixture manifest and declared schedules",
+  "mode": "synthetic_demo"
+}
