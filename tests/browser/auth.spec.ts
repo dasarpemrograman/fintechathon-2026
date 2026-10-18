@@ -49,6 +49,36 @@ test("normal account login and organization selection persist, then logout revok
     ).toBeVisible();
     await page
       .getByRole("combobox", { name: "Organisasi", exact: true })
+      .selectOption(identity.organization_id);
+    await expect(async () => {
+      const session = await context.request.get("/api/gateway/auth/session");
+      expect((await session.json()).result.organization_id).toBe(
+        identity.organization_id,
+      );
+    }).toPass();
+    const created = await context.request.post("/api/gateway/workspaces", {
+      headers: { Origin: new URL(page.url()).origin },
+      data: {
+        mode: "sandbox",
+        business_profile: "reseller",
+        reporting_currency: "EUR",
+        owner_timezone: "UTC",
+        product: { description: "Private first-organization workspace" },
+      },
+    });
+    expect(created.status()).toBe(201);
+    await page.reload();
+    await expect(
+      page.getByRole("heading", {
+        name: "Private first-organization workspace",
+        exact: true,
+      }),
+    ).toBeVisible();
+    await expect(
+      page.getByText("Penggunaan & paket · team", { exact: true }),
+    ).toBeVisible();
+    await page
+      .getByRole("combobox", { name: "Organisasi", exact: true })
       .selectOption(identity.second_organization_id);
     await expect(async () => {
       const session = await context.request.get("/api/gateway/auth/session");
@@ -56,6 +86,15 @@ test("normal account login and organization selection persist, then logout revok
         identity.second_organization_id,
       );
     }).toPass();
+    await expect(
+      page.getByRole("heading", {
+        name: "Private first-organization workspace",
+        exact: true,
+      }),
+    ).toHaveCount(0);
+    await expect(
+      page.getByText("Penggunaan & paket · free_sandbox", { exact: true }),
+    ).toBeVisible();
     await page.reload();
     await expect(
       page.getByRole("combobox", { name: "Organisasi", exact: true }),

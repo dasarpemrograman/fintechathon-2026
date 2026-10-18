@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { DiscoveryPanel } from "./discovery-panel";
 import { ScenarioEditor } from "./scenario-editor";
 import { FinancialEntry } from "./financial-entry";
@@ -192,6 +192,7 @@ function Field({
   );
 }
 export default function Workspace() {
+  const viewEpoch = useRef(0);
   const [session, setSession] = useState<S["Session"] | null>(null),
     [loading, setLoading] = useState(true),
     [error, setError] = useState(""),
@@ -203,12 +204,14 @@ export default function Workspace() {
     [creating, setCreating] = useState(false),
     [workspaceCursor, setWorkspaceCursor] = useState<string | null>(null);
   async function load(append = false) {
+    const epoch = viewEpoch.current;
     const page = await api<S["WorkspacePage"]>(
       "workspaces?limit=25" +
         (append && workspaceCursor
           ? "&cursor=" + encodeURIComponent(workspaceCursor)
           : ""),
     );
+    if (epoch !== viewEpoch.current) return;
     setWorkspaces((old) => (append ? [...old, ...page.items] : page.items));
     setWorkspaceCursor(page.next_cursor);
   }
@@ -225,6 +228,13 @@ export default function Workspace() {
       )
       .finally(() => setLoading(false));
   }, []);
+  function clearWorkspaceView() {
+    viewEpoch.current += 1;
+    setSelected(null);
+    setWorkspaces([]);
+    setWorkspaceCursor(null);
+    setCreating(false);
+  }
   async function login(body: unknown) {
     setError("");
     try {
@@ -235,6 +245,7 @@ export default function Workspace() {
       });
       const d = await r.json();
       if (!r.ok) throw new Error(d.message || d.code || "Tidak dapat masuk");
+      clearWorkspaceView();
       setSession(d.session);
       await load();
     } catch (e) {
@@ -248,7 +259,7 @@ export default function Workspace() {
       if (!response.ok)
         throw new Error("Tidak dapat mencabut sesi. Coba keluar lagi.");
       setSession(null);
-      setSelected(null);
+      clearWorkspaceView();
     } catch (error) {
       setError((error as Error).message);
     }
@@ -280,8 +291,8 @@ export default function Workspace() {
                       "auth/organization",
                       { organization_id: e.target.value },
                     );
+                    clearWorkspaceView();
                     setSession(updated);
-                    setSelected(null);
                     await load();
                   } catch (error) {
                     setError((error as Error).message);
@@ -376,7 +387,11 @@ export default function Workspace() {
               setSelected(null);
               load();
             }}
-            onWorkspace={setSelected}
+            onWorkspace={(updated) =>
+              setSelected((current) =>
+                current?.id === updated.id ? updated : current,
+              )
+            }
           />
         ) : (
           <>
@@ -453,9 +468,10 @@ export default function Workspace() {
                 Muat ruang kerja berikutnya
               </button>
             )}
-            <Settings />
+            <Settings key={session.organization_id} />
             {session && member?.roles.includes("owner") && (
               <MemberAdmin
+                key={session.organization_id}
                 session={session}
                 onChanged={async () => {
                   const updated = await api<S["Session"]>("auth/session");
