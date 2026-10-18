@@ -21,6 +21,14 @@ class DocumentExtractionTests(unittest.TestCase):
                     (name, facts),
                 )
                 self.assertTrue(all(f["locator"] and f["original_text"] for f in facts))
+                if name in {"scan.png", "scanned.pdf"}:
+                    self.assertTrue(
+                        all("OCR word boxes:" in f["locator"] for f in facts)
+                    )
+                if name == "scanned.pdf":
+                    self.assertTrue(
+                        all(f["locator"].startswith("PDF page 1;") for f in facts)
+                    )
 
     def test_chinese_original_script_and_ambiguity_are_preserved(self):
         facts = candidates(
@@ -31,6 +39,25 @@ class DocumentExtractionTests(unittest.TestCase):
             any("¥" in f["original_text"] or "30" in f["original_text"] for f in facts)
         )
         self.assertTrue(all(f["value"]["status"] == "unreviewed" for f in facts))
+
+    def test_indonesian_and_chinese_ocr_retain_original_language_and_regions(self):
+        for language, expected in [("id", "Harga"), ("zh", "价格")]:
+            with self.subTest(language=language):
+                pages = extract(
+                    (ROOT / ("scan-" + language + ".png")).read_bytes(), "image/png"
+                )
+                self.assertIn(expected, pages[0]["text"])
+                facts = candidates(pages)
+                self.assertTrue(any(f["value"]["decimal"] == "350.00" for f in facts))
+                self.assertTrue(all(f["original_language"] == language for f in facts))
+                self.assertTrue(all("OCR word boxes:" in f["locator"] for f in facts))
+                self.assertTrue(
+                    all(f["value"]["status"] == "unreviewed" for f in facts)
+                )
+                if language == "zh":
+                    self.assertTrue(
+                        any(f["field_path"] == "/extracted/ambiguity" for f in facts)
+                    )
 
     def test_indonesian_gold_spans_and_net_anchor(self):
         pages = extract((ROOT / "quotation-id.txt").read_bytes(), "text/plain")
