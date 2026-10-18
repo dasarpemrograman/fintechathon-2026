@@ -1,6 +1,6 @@
 # Fithra roadmap acceptance
 
-18 October 2026, branch `feat/fithra-roadmap-ready-tasks`, starting commit `6a67924`. This is a fresh takeover of the existing implementation. Numbered checks below record technical acceptance; package status remains **In review** until Wisa accepts the handoff. R07.4 and the final R19.4 dependency gate remain open.
+18 October 2026, branch `feat/fithra-roadmap-ready-tasks`, starting commit `6a67924`. Delivery and review: [PR #1](https://github.com/dasarpemrograman/fintechathon-2026/pull/1). This is a fresh takeover of the existing implementation. Numbered checks below record technical acceptance; package status remains **In review** until Wisa accepts the handoff. R07.4 and the final R19.4 dependency gate remain open.
 
 ## Evidence policy and readiness
 
