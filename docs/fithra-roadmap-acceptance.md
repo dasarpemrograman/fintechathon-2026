@@ -12,22 +12,22 @@ R19 fixture inventory, lifecycle reproduction and reset tests can run independen
 
 ## Fresh verification
 
-Executed against the feature code and regression tests through `48c36c8` (auth `3c5dd9d`, extraction `57cad58`, usage `debaf70`, numeric UI `078399d`, Compose journey `48c36c8`), using Python 3.12.14, Node 24.19.0, uv 0.12.23, PostgreSQL 17 and the pinned Linux application images on Docker Desktop. Python/database tests and final browser acceptance run sequentially.
+Executed against the feature code and regression tests through `684b3dc` (auth `3c5dd9d`/`dcc635e`, extraction `57cad58`/`684b3dc`, usage `debaf70`, numeric UI `078399d`, Compose journey `48c36c8`), using Python 3.12.14, Node 24.19.0, uv 0.12.23, PostgreSQL 17 and the pinned Linux application images on Docker Desktop. Python/database tests and final browser acceptance run sequentially.
 
 | Check | Result |
 | --- | --- |
 | Frozen dependencies | `uvx --from uv==0.12.23 uv sync --frozen` and `npm ci` pass |
 | Contract and generation | `scripts/validate_contract.py`: 146 operations, 14 request and 10 response examples; `scripts/check_generated.py`: exact generated-type equality |
-| Full backend integration | `python -m pytest -q` in the Linux API container: **187 tests and 934 subtests pass**, one existing Starlette/httpx deprecation warning |
+| Full backend integration | `python -m pytest -q` in the Linux API container: **188 tests and 934 subtests pass**, one existing Starlette/httpx deprecation warning |
 | Operation inventory | Successful HTTP responses observed for **146/146** canonical operations, including role and foreign-tenant cases |
 | Extraction | Actual UTF-8, native PDF, scanned PDF, PNG and JPEG processing/download checks; English, Indonesian and Chinese OCR/text candidates; 12 fixture hashes verified |
 | Builds | Production Next.js build and pinned API/web images build successfully |
 | Actual-service browser suite | `FINCATHON_BROWSER_COMPOSE=1 npx playwright test`: **17/17 pass**, including new normal-account/session and numeric lineage journeys |
-| Seed/restart persistence | Two consecutive reseeds and a full Compose stop/start preserve **1,350 immutable snapshots**, **7 original hashes**, **14 workspaces**, all 12 role memberships and 12 fixture hashes. A disposable unrelated user's workspace and session survive restart unchanged; the control is cleaned up afterward. |
+| Seed/restart persistence | Two consecutive reseeds and a full Compose stop/start preserve **1,701 immutable snapshots**, **7 original hashes**, **14 workspaces**, all 12 role memberships and 12 fixture hashes. A disposable unrelated user's workspace and session survive restart unchanged; the control is cleaned up afterward. |
 | Offline runtime | Demo Docker network is internal; an actual API public TCP egress attempt is blocked; browser journeys use synthetic providers |
 | Whitespace | `git diff --check` passes |
 
-Private logs are ignored under `.local/fithra-*`; they contain no published credentials. The first host extraction attempt failed in macOS `preexec_fn` resource-limit setup, so acceptance uses the documented Linux container sandbox. The first all-service build hit a duplicate shared-image export; explicit `build api web` passed. A browser startup attempt ran before container readiness and was discarded. An early lineage assertion incorrectly expected a file behind a manual excerpt; it now uses the document-backed base case. An OCR fixture was adjusted to test an unambiguous visible date pattern rather than depend on one OCR engine reading a currency glyph identically. Failed attempts are retained separately and are not counted as passes.
+Run logs stay under ignored `.local/fithra-*`; credentials and session controls remain private and are excluded from committed evidence. The first host extraction attempt failed in macOS `preexec_fn` resource-limit setup, so acceptance uses the documented Linux container sandbox. The first all-service build hit a duplicate shared-image export; explicit `build api web` passed. A browser startup attempt ran before container readiness and was discarded. An early lineage assertion incorrectly expected a file behind a manual excerpt; it now uses the document-backed base case. An OCR fixture was adjusted to test an unambiguous visible date pattern rather than depend on one OCR engine reading a currency glyph identically. Captured failed-run logs are retained separately; the unsuccessful attempts described here are not counted as passes.
 
 ## R01: accounts, organizations and roles
 
@@ -38,7 +38,7 @@ Private logs are ignored under `.local/fithra-*`; they contain no published cred
 | R01.3 | Operation matrix and storage/pipeline checks exercise tenant-scoped resources, documents, runs, artifacts, exports and foreign references; the same ID never grants another tenant access. |
 | R01.4 | Normal-mode demo rejection and old-demo-session refusal in HTTP/storage tests; browser HttpOnly/Strict cookies, empty client token storage, origin denial and revoked-token checks. [Local provisioning](local-runtime.md) retains a hidden password prompt. |
 
-Confirmed fix: the browser logout proxy omitted the contract-required empty JSON object. It now sends the canonical request, waits for server revocation and retains a visible retry state on failure. No wire change was required.
+Confirmed fix: the browser logout proxy omitted the contract-required empty JSON object. It now sends the canonical request, waits for server revocation and retains a visible retry state on failure. No wire change was required. Session/organization changes clear the previous portfolio and discard late list responses; usage and membership views remount for the selected organization. The normal-account browser regression verifies a private workspace disappears and Team allowances change to Free when selecting the second organization.
 
 ## R04: upload, extraction and review
 
@@ -49,7 +49,7 @@ Confirmed fix: the browser logout proxy omitted the contract-required empty JSON
 | R04.3 | Conflicting quantities remain separate in `test_conflicting_candidates_and_archived_exports_preserve_originals`; Chinese currency/date ambiguity and net-30 anchor tests retain unknowns. Manual evidence stays subject to explicit authorized review. |
 | R04.4 | `test_effective_dates_and_expiry_invalidate_reviews_without_editing_history` and immutable numeric-source regression; browser evidence/review controls call the API and show processing/review state. Original downloads remain unchanged. |
 
-Confirmed fix: scanned-PDF processing discarded OCR region locators while retaining text. PDF locators now retain both the page and OCR word boxes. New explicitly synthetic Indonesian/Chinese image fixtures are hash-locked; existing fixture bytes and natural keys are unchanged. OCR output remains fallible review material, never commercial agreement or verified payment.
+Confirmed fix: scanned-PDF processing discarded OCR region locators while retaining text. PDF locators now retain both the page and OCR word boxes. Parser cache identity advances to `extract-2`; a regression proves old `extract-1` results remain stored but cannot satisfy a current lookup, so prior cached output cannot hide the fix. Existing history is not rewritten. New explicitly synthetic Indonesian/Chinese image fixtures are hash-locked; existing fixture bytes and natural keys are unchanged. OCR output remains fallible review material, never commercial agreement or verified payment.
 
 ## R07: numeric lineage
 
