@@ -26,6 +26,6 @@ An upstream small-socket-buffer workaround was evaluated and reverted: booting t
 
 Record running container names and preserve all named volumes and private files before restarting WSL. Stop Docker cleanly when possible. Start the same services afterward and verify application/database health and saved record fingerprints. Do not delete database or runtime volumes.
 
-During this repair Docker retained a stale, empty `fincathon_default` network definition after its failed initialization. That project network was removed only after confirming it had zero endpoints, then recreated through the existing Compose configuration with the same persistent volumes. The original app and unrelated Helios PostgreSQL service were restored. No Docker-wide prune, data reset or credential replacement was used.
+During this repair Docker retained a stale, empty `fincathon_default` network definition after its failed initialization. That project network was removed only after confirming it had zero endpoints, then recreated through the existing Compose configuration with the same persistent volumes. The original app and unrelated PostgreSQL service were restored. No Docker-wide prune, data reset or credential replacement was used.
 
 The operational evidence, executed tests and host configuration backup are retained with the local repair report. This repair mitigates the observed host resource/fragmentation condition; it does not claim that an upstream kernel defect has been patched.
