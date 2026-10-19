@@ -36,7 +36,7 @@ export function CalendarPanel({
     const response = await fetch("/api/gateway/calendar/connections");
     const body = await response.json();
     if (!response.ok)
-      throw new Error(body.message || "Tidak dapat membaca koneksi.");
+      throw new Error(body.message || "Unable to load connections.");
     setConnections(body.result.items);
     const matching = body.result.items.filter(
       (c: S["CalendarConnection"]) =>
@@ -48,7 +48,7 @@ export function CalendarPanel({
       cache: "no-store",
     });
     if (!capabilities.ok)
-      throw new Error("Tidak dapat membaca kesiapan kalender.");
+      throw new Error("Unable to check calendar availability.");
     const capabilityBody = await capabilities.json();
     setSyncReady(
       capabilityBody.result.items.some(
@@ -88,21 +88,21 @@ export function CalendarPanel({
   const active = connections.find((c) => c.id === connection);
   return (
     <details className="card">
-      <summary>Kalender opsional</summary>
+      <summary>Optional calendar</summary>
       <p>
-        Jadwal internal tetap tersedia tanpa kalender eksternal. Proyeksi hanya
-        memuat judul milestone umum dan tanggal yang dipilih, tanpa peserta,
-        nilai kontrak atau identitas pihak.
+        Your internal timeline works independently of external calendars.
+        Projections include only selected milestone titles and dates, without
+        attendees, contract values, or party identities.
       </p>
       {!demo ? (
         <p>
-          Hubungkan akun Google dan pilih kalender Anda.{" "}
+          Connect your Google account and select a calendar.{" "}
           {syncReady
-            ? "Sinkronisasi langsung diaktifkan operator; setiap proyeksi tetap memerlukan persetujuan."
-            : "Proyeksi langsung tetap dinonaktifkan sampai validasi akun dicatat dan operator mengaktifkannya."}
+            ? "An operator has enabled live sync. Each projection still requires your approval."
+            : "Live projections remain disabled until account validation is recorded and an operator enables them."}
         </p>
       ) : (
-        <strong>DEMO SINTETIS · tidak ada panggilan Google</strong>
+        <strong>SYNTHETIC DEMO · no Google requests</strong>
       )}
       <>
         {error && <p role="alert">{error}</p>}
@@ -111,18 +111,18 @@ export function CalendarPanel({
             disabled={disabled}
             onClick={() => connect().catch((error) => setError(error.message))}
           >
-            {demo ? "Hubungkan kalender demo" : "Hubungkan Google Calendar"}
+            {demo ? "Connect demo calendar" : "Connect Google Calendar"}
           </button>
           <button
             className="secondary"
             disabled={disabled}
             onClick={() => refresh().catch((error) => setError(error.message))}
           >
-            Perbarui status proyeksi
+            Refresh projection status
           </button>
         </div>
         <label>
-          Koneksi kalender
+          Calendar connection
           <select
             value={connection}
             onChange={(e) => {
@@ -130,7 +130,7 @@ export function CalendarPanel({
               invalidate();
             }}
           >
-            <option value="">Pilih koneksi</option>
+            <option value="">Select a connection</option>
             {connections
               .filter((c) => c.data_mode === (demo ? "synthetic_demo" : "live"))
               .map((c) => (
@@ -143,7 +143,7 @@ export function CalendarPanel({
         {active && (
           <>
             <p>
-              Status koneksi: {active.status} · {active.data_mode}
+              Connection status: {active.status} · {active.data_mode}
             </p>
             {!demo && active.status === "connected" && (
               <form
@@ -160,7 +160,7 @@ export function CalendarPanel({
                 }}
               >
                 <label>
-                  ID kalender Google
+                  Google calendar ID
                   <input
                     value={calendarId}
                     onChange={(event) => setCalendarId(event.target.value)}
@@ -168,11 +168,11 @@ export function CalendarPanel({
                   />
                 </label>
                 <p>
-                  Gunakan primary untuk kalender utama akun, atau ID kalender
-                  milik Anda. Pemilihan ini tidak mengirim peristiwa.
+                  Use primary for your account's main calendar, or the ID of a
+                  calendar you own. Selecting a calendar does not send events.
                 </p>
                 <button disabled={disabled || !calendarId.trim()} type="submit">
-                  Pilih kalender Google
+                  Select Google calendar
                 </button>
               </form>
             )}
@@ -189,13 +189,13 @@ export function CalendarPanel({
                   await refresh();
                 }}
               >
-                Cabut koneksi ini
+                Revoke this connection
               </button>
             )}
             {active.owned_events?.map((event) => (
               <div key={event.milestone_id}>
                 <p>
-                  {event.milestone_id} · status proyeksi: {event.state}
+                  {event.milestone_id} · projection status: {event.state}
                 </p>
                 {event.state === "conflict" && (
                   <div className="actions">
@@ -216,8 +216,8 @@ export function CalendarPanel({
                           }}
                         >
                           {decision === "keep_external"
-                            ? "Pertahankan perubahan eksternal"
-                            : "Tinjau proyeksi lagi"}
+                            ? "Keep external changes"
+                            : "Review projection again"}
                         </button>
                       ),
                     )}
@@ -228,7 +228,7 @@ export function CalendarPanel({
           </>
         )}
         <fieldset disabled={disabled || active?.status !== "connected"}>
-          <legend>Milestone yang diproyeksikan</legend>
+          <legend>Milestones to project</legend>
           {milestones.map((m) => (
             <label key={m.id}>
               <input
@@ -248,7 +248,7 @@ export function CalendarPanel({
           ))}
         </fieldset>
         <label>
-          Tindakan proyeksi
+          Projection action
           <select
             value={action}
             onChange={(e) => {
@@ -256,9 +256,9 @@ export function CalendarPanel({
               invalidate();
             }}
           >
-            <option value="insert">Tambah</option>
-            <option value="update">Perbarui milik aplikasi</option>
-            <option value="delete">Hapus milik aplikasi</option>
+            <option value="insert">Insert</option>
+            <option value="update">Update app-owned events</option>
+            <option value="delete">Delete app-owned events</option>
           </select>
         </label>
         <button
@@ -276,12 +276,12 @@ export function CalendarPanel({
             setApproved(false);
           }}
         >
-          Pratinjau proyeksi
+          Preview projection
         </button>
         {preview && (
           <>
             <p>
-              Hash proyeksi: <code>{preview.projection_hash}</code>
+              Projection hash: <code>{preview.projection_hash}</code>
             </p>
             {preview.events.map((event) => (
               <p key={event.milestone_id}>
@@ -304,7 +304,7 @@ export function CalendarPanel({
                 if (result) setApproved(true);
               }}
             >
-              Setujui hash proyeksi ini
+              Approve this projection hash
             </button>
             <button
               disabled={disabled || !approved || !syncReady}
@@ -319,12 +319,12 @@ export function CalendarPanel({
               }
             >
               {demo
-                ? "Jalankan proyeksi demo yang disetujui"
-                : "Jalankan proyeksi Google yang disetujui"}
+                ? "Run approved demo projection"
+                : "Run approved Google projection"}
             </button>
             <p>
-              Pekerjaan diterima belum berarti efek terkirim. Perbarui status
-              proyeksi untuk membaca hasil outbox.
+              An accepted job does not mean events have been delivered. Refresh
+              the projection status to check the delivery result.
             </p>
           </>
         )}

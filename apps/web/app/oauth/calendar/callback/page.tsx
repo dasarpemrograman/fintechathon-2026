@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 export default function CalendarCallback() {
   const started = useRef(false);
-  const [message, setMessage] = useState("Menyelesaikan otorisasi Google…");
+  const [message, setMessage] = useState("Completing Google authorization…");
   useEffect(() => {
     if (started.current) return;
     started.current = true;
@@ -13,7 +13,7 @@ export default function CalendarCallback() {
     window.history.replaceState(null, "", window.location.pathname);
     if (params.has("error")) {
       setMessage(
-        "Otorisasi Google dibatalkan atau ditolak. Tidak ada sinkronisasi yang dijalankan.",
+        "Google authorization was cancelled or denied. No synchronization was started.",
       );
       return;
     }
@@ -28,7 +28,7 @@ export default function CalendarCallback() {
       params.getAll("state").length !== 1
     ) {
       setMessage(
-        "Callback Google tidak valid. Mulai koneksi lagi dari ruang kerja.",
+        "Invalid Google callback. Start the connection again from your workspace.",
       );
       return;
     }
@@ -47,27 +47,27 @@ export default function CalendarCallback() {
         if (!response.ok) {
           setMessage(
             response.status === 401
-              ? "Sesi berakhir. Masuk kembali, lalu mulai koneksi Google lagi."
-              : "Koneksi Google gagal atau permintaan sudah kedaluwarsa. Mulai koneksi lagi dari ruang kerja.",
+              ? "Your session expired. Sign in and start the Google connection again."
+              : "The Google connection failed or the request expired. Start the connection again from your workspace.",
           );
           return;
         }
         setMessage(
-          "Google terhubung. Kembali ke ruang kerja untuk memilih kalender. Belum ada peristiwa yang dikirim.",
+          "Google connected. Return to your workspace to select a calendar. No events have been sent.",
         );
       })
       .catch(() =>
         setMessage(
-          "Layanan tidak dapat dihubungi. Mulai koneksi Google lagi dari ruang kerja.",
+          "Unable to reach the service. Start the Google connection again from your workspace.",
         ),
       );
   }, []);
   return (
     <main>
       <section className="card">
-        <h1>Koneksi Google Calendar</h1>
+        <h1>Google Calendar connection</h1>
         <p role="status">{message}</p>
-        <a href="/">Kembali ke ruang kerja</a>
+        <a href="/">Back to workspaces</a>
       </section>
     </main>
   );

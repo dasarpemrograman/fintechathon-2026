@@ -77,6 +77,28 @@ class WorkflowCommandTests(unittest.TestCase):
         self.tx.rollback()
         self.conn.close()
 
+    def test_scoped_audit_contains_workspace_and_linked_deal_only(self):
+        from starlette.requests import Request
+        from services.api.handlers import read_operation
+
+        # The HTTP conversion adapter normally persists this updated link.
+        store.save(self.conn, self.context["tenant"], "workspace", self.workspace)
+        for parent, action in [(self.workspace, "workspace-change"), (self.deal, "deal-change")]:
+            commands.audit(self.conn, self.context, action, None, parent, parent["id"])
+        unrelated = commands.new_workspace(self.conn, self.context, {
+            "mode": "sandbox", "business_profile": "reseller", "reporting_currency": "EUR",
+            "owner_timezone": "Africa/Nairobi", "product": {"description": "Unrelated goods"},
+        })
+        commands.audit(self.conn, self.context, "unrelated-change", None, unrelated, unrelated["id"])
+        request = Request({"type": "http", "path_params": {}, "query_string": ("workspace_id=" + self.workspace["id"] + "&limit=1").encode()})
+        first = read_operation(self.conn, self.context, "listAudit", None, request)["result"]
+        self.assertEqual(len(first["items"]), 1)
+        self.assertIsNotNone(first["next_cursor"])
+        request = Request({"type": "http", "path_params": {}, "query_string": ("workspace_id=" + self.workspace["id"] + "&limit=1&cursor=" + first["next_cursor"]).encode()})
+        second = read_operation(self.conn, self.context, "listAudit", None, request)["result"]
+        self.assertIsNone(second["next_cursor"])
+        self.assertEqual({row["action"] for row in first["items"] + second["items"]}, {"workspace-change", "deal-change"})
+
     def record(self, obligation, amount):
         return receipt_command(
             self.conn,
@@ -709,6 +731,11 @@ class WorkflowCommandTests(unittest.TestCase):
                 pack.json()["result"]["preparation_status"], "application_ready"
             )
             self.assertTrue(pack.json()["result"]["funds_use_schedule"])
+            content = pack.json()["result"]["artifact"]["content"]
+            self.assertIn("DRAFT", content)
+            self.assertIn("Funds-use schedule (preparation):", content)
+            self.assertIn("Document checklist:", content)
+            self.assertIn("Unresolved sections:", content)
             final = client.get("/v2/" + root, headers=headers).json()["result"]["deal"]
             self.assertEqual(
                 final["states"]["funding_preparation"], "application_ready"

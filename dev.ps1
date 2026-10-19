@@ -103,7 +103,20 @@ if (-not $native) {
 # Native Windows Docker CLI adapter. Shared checks/bootstrap run in containers.
 Push-Location $root
 try {
-    function D { & docker @args; if ($LASTEXITCODE) { throw 'Docker command failed. Run .\dev.ps1 doctor; existing data is retained.' } }
+    function D {
+        # BuildKit writes normal progress to stderr.  With the script-wide Stop
+        # preference, PowerShell otherwise turns that progress into a terminating
+        # NativeCommandError before Docker's exit code can be checked.
+        $previousErrorActionPreference = $ErrorActionPreference
+        try {
+            $ErrorActionPreference = 'Continue'
+            & docker @args
+            $dockerExitCode = $LASTEXITCODE
+        } finally {
+            $ErrorActionPreference = $previousErrorActionPreference
+        }
+        if ($dockerExitCode) { throw 'Docker command failed. Run .\dev.ps1 doctor; existing data is retained.' }
+    }
     $pythonImage = ((Get-Content docker/api.Dockerfile -TotalCount 1) -split '\s+')[1]
     function Helper { D run --rm --mount "type=bind,src=$root,dst=/checkout" $pythonImage python /checkout/scripts/dev_bootstrap.py @args }
     D compose version | Out-Null
@@ -166,7 +179,7 @@ try {
         Stage readiness { Ready 90 }
         Helper state --project $project --mode $Mode --ready yes
         "Ready: http://127.0.0.1:$webPort | mode=$Mode"
-        if ($Mode -eq 'demo') { 'SYNTHETIC OFFLINE DEMO: use Masuk demo; no provider keys or personal login required.' } else { 'Run .\dev.ps1 account to provision a normal local owner.' }
+        if ($Mode -eq 'demo') { 'SYNTHETIC OFFLINE DEMO: use Enter demo; no provider keys or personal login required.' } else { 'Run .\dev.ps1 account to provision a normal local owner.' }
         'Stop: .\dev.ps1 stop | Diagnose: .\dev.ps1 doctor | Live acceptance is separate.'
     }
 } catch { Write-Error $_.Exception.Message; exit 1 } finally { Pop-Location }

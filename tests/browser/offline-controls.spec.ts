@@ -3,14 +3,14 @@ import { execFileSync } from "node:child_process";
 async function enter(page: import("@playwright/test").Page, name: string) {
   await page.goto("/");
   await page.locator("#identity").selectOption("demo_id_owner");
-  await page.getByRole("button", { name: "Masuk demo", exact: true }).click();
+  await page.getByRole("button", { name: "Enter demo", exact: true }).click();
   await page
     .locator("article")
     .filter({ hasText: name })
-    .getByRole("button", { name: "Buka ruang kerja" })
+    .getByRole("button", { name: "Open workspace" })
     .click();
   await expect(
-    page.getByRole("button", { name: "Hitung ulang analisis" }),
+    page.getByRole("button", { name: "Recalculate analysis" }),
   ).toBeVisible();
 }
 test("offline Calendar shows delivered, conflict resolution and revocation from persisted state", async ({
@@ -19,60 +19,60 @@ test("offline Calendar shows delivered, conflict resolution and revocation from 
 }) => {
   await enter(page, "Synthetic coffee · negotiation");
   await page
-    .getByRole("button", { name: "Kesiapan & jadwal", exact: true })
+    .getByRole("button", { name: "Readiness & timeline", exact: true })
     .click();
   const milestoneForm = page.locator("section").filter({
-    has: page.getByRole("heading", { name: "Catat milestone eksternal" }),
+    has: page.getByRole("heading", { name: "Record an external milestone" }),
   });
   await milestoneForm
-    .getByLabel("Tanggal lokal (Asia/Jakarta)")
+    .getByLabel("Local date (Asia/Jakarta)")
     .fill("2026-11-01");
   await milestoneForm
-    .getByLabel("Bukti pendukung yang telah ditinjau")
+    .getByLabel("Reviewed supporting evidence")
     .selectOption({ index: 1 });
   await milestoneForm
-    .getByRole("button", { name: "Catat milestone", exact: true })
+    .getByRole("button", { name: "Record milestone", exact: true })
     .click();
-  await expect(page.getByText("Tersimpan.", { exact: true })).toBeVisible();
+  await expect(page.getByText("Saved.", { exact: true })).toBeVisible();
   const panel = page
     .locator("details")
-    .filter({ has: page.locator("summary", { hasText: "Kalender opsional" }) });
+    .filter({ has: page.locator("summary", { hasText: "Optional calendar" }) });
   await panel.locator("summary").click();
   await expect(
-    panel.getByText("DEMO SINTETIS · tidak ada panggilan Google"),
+    panel.getByText("SYNTHETIC DEMO · no Google requests"),
   ).toBeVisible();
   await panel
-    .getByRole("button", { name: "Hubungkan kalender demo", exact: true })
+    .getByRole("button", { name: "Connect demo calendar", exact: true })
     .click();
   await expect(
-    panel.getByText("Status koneksi: connected", { exact: false }),
+    panel.getByText("Connection status: connected", { exact: false }),
   ).toBeVisible();
   const connection = await panel
-    .getByRole("combobox", { name: "Koneksi kalender", exact: true })
+    .getByRole("combobox", { name: "Calendar connection", exact: true })
     .inputValue();
   const checkbox = panel
-    .getByRole("group", { name: "Milestone yang diproyeksikan" })
+    .getByRole("group", { name: "Milestones to project" })
     .getByRole("checkbox")
     .first();
   await checkbox.check();
   const label = await checkbox.locator("..").innerText();
   const milestone = label.split(" · ").at(-1)!.trim();
   await panel
-    .getByRole("button", { name: "Pratinjau proyeksi", exact: true })
+    .getByRole("button", { name: "Preview projection", exact: true })
     .click();
   await expect(
-    panel.getByText("Hash proyeksi:", { exact: false }),
+    panel.getByText("Projection hash:", { exact: false }),
   ).toBeVisible();
   await panel
-    .getByRole("button", { name: "Setujui hash proyeksi ini" })
+    .getByRole("button", { name: "Approve this projection hash" })
     .click();
   await expect(
     panel.getByRole("button", {
-      name: "Jalankan proyeksi demo yang disetujui",
+      name: "Run approved demo projection",
     }),
   ).toBeEnabled();
   await panel
-    .getByRole("button", { name: "Jalankan proyeksi demo yang disetujui" })
+    .getByRole("button", { name: "Run approved demo projection" })
     .click();
   await expect(page.getByTestId("job-state")).toHaveAttribute(
     "data-status",
@@ -81,9 +81,9 @@ test("offline Calendar shows delivered, conflict resolution and revocation from 
   );
   await expect(async () => {
     await panel
-      .getByRole("button", { name: "Perbarui status proyeksi" })
+      .getByRole("button", { name: "Refresh projection status" })
       .click();
-    await expect(panel.getByText(/status proyeksi: delivered/)).toBeVisible();
+    await expect(panel.getByText(/projection status: delivered/)).toBeVisible();
   }).toPass({ timeout: 20000 });
   const args = [
     "scripts/demo_calendar_conflict.py",
@@ -94,10 +94,13 @@ test("offline Calendar shows delivered, conflict resolution and revocation from 
   ];
   if (process.env.FINCATHON_BROWSER_COMPOSE === "1")
     execFileSync(
-      "python",
+      "docker",
       [
-        "scripts/compose_cloud.py",
-        "--demo",
+        "compose",
+        "-f",
+        "compose.yaml",
+        "-f",
+        "compose.demo.yaml",
         "exec",
         "-T",
         "api",
@@ -111,17 +114,17 @@ test("offline Calendar shows delivered, conflict resolution and revocation from 
       env: { ...process.env, APP_MODE: "demo" },
       timeout: 20000,
     });
-  await panel.getByRole("button", { name: "Perbarui status proyeksi" }).click();
-  await expect(panel.getByText(/status proyeksi: conflict/)).toBeVisible();
   await panel
-    .getByRole("button", { name: "Pertahankan perubahan eksternal" })
+    .getByRole("button", { name: "Refresh projection status" })
     .click();
+  await expect(panel.getByText(/projection status: conflict/)).toBeVisible();
+  await panel.getByRole("button", { name: "Keep external changes" }).click();
   await expect(
-    panel.getByText(/status proyeksi: external_retained/),
+    panel.getByText(/projection status: external_retained/),
   ).toBeVisible();
-  await panel.getByRole("button", { name: "Cabut koneksi ini" }).click();
+  await panel.getByRole("button", { name: "Revoke this connection" }).click();
   await expect(
-    panel.getByText("Status koneksi: revoked", { exact: false }),
+    panel.getByText("Connection status: revoked", { exact: false }),
   ).toBeVisible();
   const persisted = (
     await (
@@ -136,20 +139,20 @@ test("public-source demo preview and discovery retain synthetic provider receipt
 }) => {
   await enter(page, "Synthetic coffee · negotiation");
   await page
-    .getByRole("button", { name: "Bukti & dokumen", exact: true })
+    .getByRole("button", { name: "Evidence & documents", exact: true })
     .click();
   const panel = page.locator("details").filter({
     has: page.locator("summary", {
-      hasText: "Riset sumber publik menurut produk dan yurisdiksi",
+      hasText: "Research public sources for your product & route",
     }),
   });
   await panel.locator("summary").click();
+  await panel.getByRole("button", { name: "Preview research usage" }).click();
+  await expect(panel.getByRole("status")).toContainText(
+    "0 research allowance units",
+  );
   await panel
-    .getByRole("button", { name: "Pratinjau penggunaan riset" })
-    .click();
-  await expect(panel.getByRole("status")).toContainText("0 jatah riset");
-  await panel
-    .getByRole("button", { name: "Mulai riset dengan batas ini" })
+    .getByRole("button", { name: "Start research within these limits" })
     .click();
   await expect(page.getByTestId("job-state")).toHaveAttribute(
     "data-status",
@@ -158,7 +161,7 @@ test("public-source demo preview and discovery retain synthetic provider receipt
   );
   await page
     .getByTestId("job-state")
-    .getByText("Jejak akses sumber dan penyedia")
+    .getByText("Source & provider access trail")
     .click();
   await expect(page.getByTestId("job-state")).toContainText("synthetic_demo");
 });
@@ -169,7 +172,7 @@ test("pending seller payment can be verified and reversed through the browser", 
   const amount = "1." + Date.now().toString();
   await enter(page, "Synthetic coffee · reconciling");
   await page
-    .getByRole("button", { name: "Pembayaran & penutupan", exact: true })
+    .getByRole("button", { name: "Settlement & closure", exact: true })
     .click();
   const workspace = (
     await (
@@ -200,20 +203,20 @@ test("pending seller payment can be verified and reversed through the browser", 
   expect(obligation).toBeTruthy();
   const form = page.locator("details").filter({
     has: page.locator("summary", {
-      hasText: "Catat bukti pembayaran pending",
+      hasText: "Record pending payment evidence",
     }),
   });
   await form.locator("summary").click();
   await form
-    .getByRole("combobox", { name: "Kewajiban", exact: true })
+    .getByRole("combobox", { name: "Obligation", exact: true })
     .selectOption(obligation.id);
-  await form.getByLabel("Jumlah diterima", { exact: true }).fill(amount);
-  await form.getByLabel("Tanggal nilai", { exact: true }).fill("2026-10-15");
-  await form.getByRole("button", { name: "Simpan bukti pending" }).click();
-  await expect(page.getByText("Tersimpan.", { exact: true })).toBeVisible();
+  await form.getByLabel("Amount received", { exact: true }).fill(amount);
+  await form.getByLabel("Value date", { exact: true }).fill("2026-10-15");
+  await form.getByRole("button", { name: "Save pending evidence" }).click();
+  await expect(page.getByText("Saved.", { exact: true })).toBeVisible();
   const review = page.locator("section").filter({
     has: page.getByRole("heading", {
-      name: "Verifikasi dan koreksi bukti pembayaran",
+      name: "Verify & correct payment evidence",
     }),
   });
   let receipt = review
@@ -222,37 +225,33 @@ test("pending seller payment can be verified and reversed through the browser", 
     .last();
   await receipt.locator("summary").click();
   await receipt
-    .getByLabel("Waktu penyelesaian yang diketahui (UTC, opsional)")
+    .getByLabel("Known settlement time (UTC, optional)")
     .fill("2026-10-15T12:00");
   await receipt
-    .getByLabel("Bukti pendukung yang telah ditinjau")
+    .getByLabel("Reviewed supporting evidence")
     .selectOption({ index: 1 });
   await receipt
-    .getByLabel("Alasan / catatan tinjauan")
+    .getByLabel("Review reason / notes")
     .fill("Offline evaluator verified seller transfer");
-  await receipt
-    .getByRole("button", { name: "Simpan tinjauan pembayaran" })
-    .click();
-  await expect(page.getByText("Tersimpan.", { exact: true })).toBeVisible();
+  await receipt.getByRole("button", { name: "Save payment review" }).click();
+  await expect(page.getByText("Saved.", { exact: true })).toBeVisible();
   receipt = review
     .locator("details")
     .filter({ has: page.locator("summary", { hasText: amount }) })
     .last();
-  await expect(receipt.locator("summary")).toContainText("Terverifikasi");
+  await expect(receipt.locator("summary")).toContainText("Verified");
   if (!(await receipt.getAttribute("open")))
     await receipt.locator("summary").click();
   await receipt
-    .getByLabel("Bukti pendukung yang telah ditinjau")
+    .getByLabel("Reviewed supporting evidence")
     .selectOption({ index: 1 });
   await receipt
-    .getByLabel("Alasan / catatan tinjauan")
+    .getByLabel("Review reason / notes")
     .fill(
       "Reverse the synthetic evaluator transfer and restore the checkpoint",
     );
-  await receipt
-    .getByRole("button", { name: "Simpan tinjauan pembayaran" })
-    .click();
-  await expect(page.getByText("Tersimpan.", { exact: true })).toBeVisible();
+  await receipt.getByRole("button", { name: "Save payment review" }).click();
+  await expect(page.getByText("Saved.", { exact: true })).toBeVisible();
   const actual = (
     await (
       await context.request.get(
@@ -272,29 +271,29 @@ test("keyboard navigation works on a narrow screen and labels remain readable", 
   await page.locator("#identity").focus();
   await page.keyboard.press("Tab");
   await expect(
-    page.getByRole("button", { name: "Masuk demo", exact: true }),
+    page.getByRole("button", { name: "Enter demo", exact: true }),
   ).toBeFocused();
   await page.keyboard.press("Enter");
   await expect(
-    page.getByRole("heading", { name: "Ruang kerja Anda" }),
+    page.getByRole("heading", { name: "Your workspaces" }),
   ).toBeVisible();
   const open = page
     .locator("article")
     .filter({ hasText: "Synthetic coffee · negotiation" })
-    .getByRole("button", { name: "Buka ruang kerja" });
+    .getByRole("button", { name: "Open workspace" });
   await open.focus();
   await page.keyboard.press("Enter");
   await expect(
-    page.getByRole("button", { name: "Hitung ulang analisis" }),
+    page.getByRole("button", { name: "Recalculate analysis" }),
   ).toBeVisible();
   const economics = page.getByRole("button", {
-    name: "Biaya & arus kas",
+    name: "Economics & cash",
     exact: true,
   });
   await economics.focus();
   await page.keyboard.press("Enter");
   await expect(
-    page.getByRole("heading", { name: "Biaya yang dinyatakan" }),
+    page.getByRole("heading", { name: "Declared costs" }),
   ).toBeVisible();
   expect(
     await page.evaluate(
@@ -321,33 +320,35 @@ test("editing opening cash persists and requires a fresh resource review", async
   const path = "/api/gateway/deals/" + workspace.deal_id;
   const before = (await (await context.request.get(path)).json()).result.deal;
   const panel = page.locator("details").filter({
-    has: page.locator("summary", { hasText: "Batas dan preferensi pemilik" }),
+    has: page.locator("summary", {
+      hasText: "Owner constraints & preferences",
+    }),
   });
   await panel.locator("summary").click();
   await panel
-    .getByRole("combobox", { name: "Bukti yang telah ditinjau", exact: true })
+    .getByRole("combobox", { name: "Reviewed evidence", exact: true })
     .selectOption({ index: 1 });
   await panel
-    .getByLabel("Alasan perubahan batas pemilik")
+    .getByLabel("Reason for changing owner constraints")
     .fill("Review a synthetic updated bank opening balance");
   await panel
-    .getByLabel("Komitmen di luar transaksi", { exact: true })
+    .getByLabel("Commitments outside this deal", { exact: true })
     .fill("");
-  await panel.getByRole("button", { name: "Simpan batas pemilik" }).click();
-  await expect(panel.getByRole("alert")).toContainText("Lengkapi saldo");
+  await panel.getByRole("button", { name: "Save owner constraints" }).click();
+  await expect(panel.getByRole("alert")).toContainText("Complete the balance");
   const unchanged = (await (await context.request.get(path)).json()).result
     .deal;
   expect(unchanged.revision).toBe(before.revision);
   await panel
-    .getByLabel("Komitmen di luar transaksi", { exact: true })
+    .getByLabel("Commitments outside this deal", { exact: true })
     .fill(before.constraints.cash_snapshot.committed_elsewhere.amount);
   const changed =
     before.constraints.cash_snapshot.available.amount === "50000001"
       ? "50000002"
       : "50000001";
-  await panel.getByLabel("Saldo tersedia", { exact: true }).fill(changed);
-  await panel.getByRole("button", { name: "Simpan batas pemilik" }).click();
-  await expect(page.getByText("Tersimpan.", { exact: true })).toBeVisible();
+  await panel.getByLabel("Available balance", { exact: true }).fill(changed);
+  await panel.getByRole("button", { name: "Save owner constraints" }).click();
+  await expect(page.getByText("Saved.", { exact: true })).toBeVisible();
   const actual = (await (await context.request.get(path)).json()).result.deal;
   expect(actual.constraints.cash_snapshot.available.amount).toBe(changed);
   expect(actual.constraints.allowable_changes).toContain("funding");
@@ -360,16 +361,16 @@ test("editing opening cash persists and requires a fresh resource review", async
     ).status,
   ).toBe("unresolved");
   await panel
-    .getByLabel("Saldo tersedia", { exact: true })
+    .getByLabel("Available balance", { exact: true })
     .fill(before.constraints.cash_snapshot.available.amount);
   await panel
-    .getByRole("combobox", { name: "Bukti yang telah ditinjau", exact: true })
+    .getByRole("combobox", { name: "Reviewed evidence", exact: true })
     .selectOption({ index: 1 });
   await panel
-    .getByLabel("Alasan perubahan batas pemilik")
+    .getByLabel("Reason for changing owner constraints")
     .fill("Restore the evaluator opening amount");
-  await panel.getByRole("button", { name: "Simpan batas pemilik" }).click();
-  await expect(page.getByText("Tersimpan.", { exact: true })).toBeVisible();
+  await panel.getByRole("button", { name: "Save owner constraints" }).click();
+  await expect(page.getByText("Saved.", { exact: true })).toBeVisible();
   expect(
     (await (await context.request.get(path)).json()).result.deal.constraints
       .cash_snapshot.available.amount,

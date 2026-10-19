@@ -35,7 +35,7 @@ Users SHALL compare scenario contribution, cash minimum, timing and risk togethe
 - **THEN** receipt evidence remains viewable as permitted but verification is unavailable and a direct unauthorized request still fails
 
 ### Requirement: Accessible localized presentation
-The UI SHALL support keyboard navigation, labeled controls, readable tables, usable narrow layouts and explicit loading/empty/error states. Bahasa Indonesia SHALL be the default explanation language, with original source text retained and English commercial drafts available; money/dates SHALL follow declared units and timezone.
+The UI SHALL support keyboard navigation, labeled controls, readable tables, usable narrow layouts and explicit loading/empty/error states. English SHALL be the default interface and explanation language, with original source text retained and Indonesian commercial drafts available as an explicit alternative; money/dates SHALL follow declared units and timezone. The visual system SHALL use restrained green accents, legible neutral surfaces, clear information hierarchy and consistent navigation through evidence, economics, scenarios, approvals, readiness, settlement and history.
 
 #### Scenario: Local-date deadline is displayed
 - **WHEN** a date-only deadline is viewed from another timezone

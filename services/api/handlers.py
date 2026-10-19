@@ -200,17 +200,56 @@ def read_operation(conn, context, operation, parent, request):
             row,
         )
     if operation.endswith("Revisions"):
+        try:
+            limit = int(request.query_params.get("limit", "25"))
+            cursor = request.query_params.get("cursor")
+            after = int(cursor.removeprefix("revision_")) if cursor else 0
+            if cursor and cursor != f"revision_{after}":
+                raise ValueError
+        except ValueError:
+            raise DomainError(
+                "INVALID_PAGINATION",
+                "Use a valid revision cursor and integer page size.",
+                400,
+            )
+        if not 1 <= limit <= 100 or after < 0:
+            raise DomainError(
+                "INVALID_PAGINATION",
+                "Page size must be between 1 and 100; revision must be nonnegative.",
+                400,
+            )
         rows = list(
             conn.execute(
                 sa.select(store.snapshots.c.data)
                 .where(
                     store.snapshots.c.tenant_id == tenant,
                     store.snapshots.c.resource_id == parent["id"],
+                    store.snapshots.c.revision > after,
                 )
                 .order_by(store.snapshots.c.revision)
+                .limit(limit + 1)
             ).scalars()
         )
-        return env(context, {"items": rows, "next_cursor": None}, parent)
+        return env(
+            context,
+            {
+                "items": rows[:limit],
+                "next_cursor": f"revision_{rows[limit - 1]['revision']}"
+                if len(rows) > limit else None,
+            },
+            parent,
+        )
+    if operation == "listAudit" and request.query_params.get("workspace_id"):
+        workspace = get(conn, tenant, "workspace", request.query_params["workspace_id"])
+        from services.api.app import collection_response
+
+        # The workspace parent selects its own audit records; children() also
+        # includes workspace records when called with the linked deal.
+        audit_parent = (
+            get(conn, tenant, "deal", workspace["deal_id"])
+            if workspace.get("deal_id") else workspace
+        )
+        return collection_response(conn, context, audit_parent, "audit", request)
     if operation in {"exportWorkspace", "exportDeal"}:
         child_ids = list({parent["id"], parent.get("workspace_id", parent["id"])})
         for table in store.records.values():

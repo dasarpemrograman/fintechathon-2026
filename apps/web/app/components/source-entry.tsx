@@ -18,11 +18,11 @@ export function SourceEntry({
   const [documentId, setDocumentId] = useState("");
   return (
     <details className="card">
-      <summary>Tambahkan kutipan, penawaran, atau aturan secara manual</summary>
+      <summary>Manually add an excerpt, quotation, or rule</summary>
       <p className="muted">
-        Simpan teks asli, cakupan dan tanggalnya. Bukti baru tetap belum
-        ditinjau. Hash kutipan hanya mencakup teks yang dimasukkan, bukan
-        seluruh situs.
+        Preserve the original text, scope, and dates. New evidence remains
+        unreviewed. An excerpt hash covers the entered text, not the entire
+        website.
       </p>
       <form
         onSubmit={async (e) => {
@@ -75,7 +75,7 @@ export function SourceEntry({
                 unknowns: [],
               },
               limitations: [
-                "Kutipan dimasukkan pengguna; keberlakuan dan keaslian perlu ditinjau.",
+                "User-entered excerpt; applicability and authenticity require review.",
               ],
               review_status: "unreviewed",
             },
@@ -84,12 +84,12 @@ export function SourceEntry({
         }}
       >
         <label>
-          Dokumen asli (jika sudah diunggah)
+          Original document (if already uploaded)
           <select
             value={documentId}
             onChange={(e) => setDocumentId(e.target.value)}
           >
-            <option value="">Gunakan URL dan kutipan</option>
+            <option value="">Use a URL & excerpt</option>
             {documents.map((d) => (
               <option key={d.id} value={d.id}>
                 {d.filename}
@@ -98,49 +98,49 @@ export function SourceEntry({
           </select>
         </label>
         <label>
-          URL sumber
+          Source URL
           <input name="url" type="url" required={!documentId} />
         </label>
         <label>
-          Judul sumber
+          Source title
           <input name="title" required />
         </label>
         <label>
-          Penerbit / pemberi penawaran
+          Publisher / quotation provider
           <input name="publisher" required />
         </label>
         <label>
-          Bahasa
-          <select name="language">
-            <option value="id">Indonesia</option>
+          Language
+          <select name="language" defaultValue="en">
+            <option value="id">Indonesian</option>
             <option value="en">English</option>
             <option value="zh">中文</option>
-            <option value="und">Lainnya / belum diketahui</option>
+            <option value="und">Other / not yet known</option>
           </select>
         </label>
         <label>
-          Kutipan asli
+          Original excerpt
           <textarea name="claim" rows={5} required />
         </label>
         <label>
-          Lokasi kutipan (halaman / baris)
+          Excerpt location (page / line)
           <input name="locator" required />
         </label>
         <label>
-          Cakupan dan alasan keberlakuan
+          Scope & applicability reason
           <textarea name="applicability" required />
         </label>
         <div className="grid">
           <label>
-            Berlaku sejak (jika diketahui)
+            Effective from (if known)
             <input name="effective" type="date" />
           </label>
           <label>
-            Berlaku sampai (jika diketahui)
+            Valid until (if known)
             <input name="valid_until" type="date" />
           </label>
         </div>
-        <button>Simpan bukti belum ditinjau</button>
+        <button>Save unreviewed evidence</button>
       </form>
     </details>
   );

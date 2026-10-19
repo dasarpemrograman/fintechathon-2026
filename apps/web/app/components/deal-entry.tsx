@@ -12,10 +12,10 @@ type Props = { deal: S["Deal"]; evidence: S["Evidence"][]; command: Command };
 export function RuleEntry({ deal, evidence, command }: Props) {
   return (
     <details className="card">
-      <summary>Tambahkan persyaratan yang perlu diperiksa</summary>
+      <summary>Add a requirement to review</summary>
       <p>
-        Masukkan aturan yang bersumber dan alasan keberlakuannya untuk negara,
-        barang dan pengiriman ini. Aturan baru belum dinyatakan terpenuhi.
+        Record a sourced rule and explain how it applies to this country,
+        product, and shipment. A new rule is not automatically fulfilled.
       </p>
       <form
         onSubmit={(e) => {
@@ -40,28 +40,28 @@ export function RuleEntry({ deal, evidence, command }: Props) {
           });
         }}
       >
-        <Input name="country" label="Negara yurisdiksi aturan (ISO)" />
+        <Input name="country" label="Rule jurisdiction (ISO country code)" />
         <label>
-          Subjek persyaratan
+          Requirement subject
           <select name="subject">
-            <option value="exporter">Eksportir</option>
-            <option value="producer">Produsen</option>
-            <option value="importer">Importir</option>
-            <option value="shipment">Pengiriman</option>
+            <option value="exporter">Exporter</option>
+            <option value="producer">Producer</option>
+            <option value="importer">Importer</option>
+            <option value="shipment">Shipment</option>
           </select>
         </label>
-        <Input name="category" label="Nama persyaratan" />
-        <Input name="basis" label="Fakta yang menentukan keberlakuan" />
-        <Party deal={deal} name="owner" label="Pihak yang bertanggung jawab" />
+        <Input name="category" label="Requirement name" />
+        <Input name="basis" label="Facts that determine applicability" />
+        <Party deal={deal} name="owner" label="Responsible party" />
         <Input
           name="due"
           type="date"
-          label="Tinjau kembali pada tanggal (opsional)"
+          label="Review again on (optional)"
           required={false}
         />
         <Sources evidence={evidence} />
         <button disabled={!evidence.length}>
-          Catat persyaratan untuk ditinjau
+          Record requirement for review
         </button>
       </form>
     </details>
@@ -73,10 +73,10 @@ export function OwnerEntry({ deal, evidence, command }: Props) {
   const cash = constraints.cash_snapshot;
   return (
     <details className="card">
-      <summary>Batas dan preferensi pemilik</summary>
+      <summary>Owner constraints & preferences</summary>
       <p>
-        Perbandingan skenario mengikuti batas yang Anda tetapkan. Perubahan
-        batas atau saldo memerlukan perhitungan dan tinjauan baru.
+        Scenario comparisons follow your declared constraints. Changes to
+        constraints or cash require a new calculation and review.
       </p>
       <form
         key={deal.revision}
@@ -89,7 +89,7 @@ export function OwnerEntry({ deal, evidence, command }: Props) {
             !cashFields.every((key) => f.get(key))
           ) {
             setError(
-              "Lengkapi saldo, komitmen, cadangan dan waktu saldo bersama; nilai kosong tidak dianggap nol.",
+              "Complete the balance, commitments, buffer, and balance time together. Blank amounts are not treated as zero.",
             );
             return;
           }
@@ -141,50 +141,50 @@ export function OwnerEntry({ deal, evidence, command }: Props) {
         }}
       >
         <fieldset>
-          <legend>Saldo awal dan batas kas</legend>
+          <legend>Opening balance & cash limits</legend>
           <p>
-            Saldo ini belum diverifikasi. Perubahan saldo atau waktunya
-            membutuhkan tinjauan sumber saldo yang baru. Biarkan seluruh nilai
-            kas kosong jika belum diketahui.
+            This balance is unverified. Changes to its amount or time require a
+            new source review. Leave all cash values blank if they are not
+            known.
           </p>
           <Input
             name="cash"
-            label="Saldo tersedia"
+            label="Available balance"
             value={cash?.available.amount}
             required={false}
           />
           <Input
             name="committed"
-            label="Komitmen di luar transaksi"
+            label="Commitments outside this deal"
             value={cash?.committed_elsewhere.amount}
             required={false}
           />
           <Input
             name="buffer"
-            label="Cadangan kas minimum"
+            label="Minimum cash buffer"
             value={cash?.minimum_buffer.amount}
             required={false}
           />
           <Input
             name="cash_currency"
-            label="Mata uang saldo"
+            label="Balance currency"
             value={cash?.available.currency || deal.reporting_currency}
           />
           <Input
             name="committed_currency"
-            label="Mata uang komitmen di luar transaksi"
+            label="External commitment currency"
             value={
               cash?.committed_elsewhere.currency || deal.reporting_currency
             }
           />
           <Input
             name="buffer_currency"
-            label="Mata uang cadangan minimum"
+            label="Minimum buffer currency"
             value={cash?.minimum_buffer.currency || deal.reporting_currency}
           />
           <Input
             name="cash_at"
-            label="Waktu saldo yang diketahui (UTC)"
+            label="Known balance time (UTC)"
             type="datetime-local"
             value={
               cash ? new Date(cash.as_of).toISOString().replace(/Z$/, "") : ""
@@ -196,13 +196,13 @@ export function OwnerEntry({ deal, evidence, command }: Props) {
         {error && <p role="alert">{error}</p>}
         <Input
           name="margin"
-          label="Target margin kontribusi sebagai fraksi 0–1 (opsional)"
+          label="Target contribution margin as a fraction, 0–1 (optional)"
           value={constraints.target_contribution_margin || ""}
           required={false}
         />
         <Input
           name="tenor"
-          label="Batas tempo kredit dalam hari (opsional)"
+          label="Credit tenor limit in days (optional)"
           type="number"
           value={constraints.credit_tenor_limit_days?.toString()}
           required={false}
@@ -211,7 +211,7 @@ export function OwnerEntry({ deal, evidence, command }: Props) {
           name="deadline"
           type="date"
           label={
-            "Batas pengiriman lokal (" + deal.owner_timezone + "), opsional"
+            "Local delivery deadline (" + deal.owner_timezone + "), optional"
           }
           value={
             constraints.delivery_deadline &&
@@ -222,44 +222,40 @@ export function OwnerEntry({ deal, evidence, command }: Props) {
           required={false}
         />
         <label>
-          Prioritas perbandingan
+          Comparison priority
           <select
             name="ranking"
             defaultValue={constraints.ranking_preference || ""}
           >
-            <option value="">Belum dipilih</option>
-            <option value="cash">Ketersediaan kas</option>
+            <option value="">Not selected</option>
+            <option value="cash">Cash availability</option>
             <option value="margin">Margin</option>
-            <option value="payment_risk">Paparan pembayaran</option>
-            <option value="balanced">Seimbang</option>
+            <option value="payment_risk">Payment exposure</option>
+            <option value="balanced">Balanced</option>
           </select>
         </label>
         <fieldset>
-          <legend>Ketentuan yang boleh diusulkan berubah</legend>
+          <legend>Terms that may be proposed for change</legend>
           {[
-            [
-              "buyer payment terms",
-              "Syarat pembayaran pembeli",
-              "/payment_terms",
-            ],
+            ["buyer payment terms", "Buyer payment terms", "/payment_terms"],
             [
               "supplier payment terms",
-              "Syarat pembayaran pemasok",
+              "Supplier payment terms",
               "/payment_terms",
             ],
             [
               deal.business_profile === "producer"
                 ? "production inputs"
                 : "supplier procurement",
-              "Pengadaan atau produksi",
+              "Procurement or production",
               "/procurement",
             ],
-            ["invoice terms", "Nilai invoice", "/invoices"],
-            ["shipment terms", "Ketentuan pengiriman", "/shipments"],
-            ["goods specifications", "Spesifikasi barang", "/line_items"],
-            ["counterparty identities", "Identitas pihak terkait", "/parties"],
-            ["funding", "Pilihan pendanaan", "funding"],
-            ["owner constraints", "Batas pemilik", "/constraints"],
+            ["invoice terms", "Invoice value", "/invoices"],
+            ["shipment terms", "Shipment terms", "/shipments"],
+            ["goods specifications", "Goods specifications", "/line_items"],
+            ["counterparty identities", "Counterparty identities", "/parties"],
+            ["funding", "Funding options", "funding"],
+            ["owner constraints", "Owner constraints", "/constraints"],
           ].map(([category, label, path]) => (
             <label key={category}>
               <input
@@ -276,8 +272,8 @@ export function OwnerEntry({ deal, evidence, command }: Props) {
           ))}
         </fieldset>
         <Sources evidence={evidence} />
-        <Input name="reason" label="Alasan perubahan batas pemilik" />
-        <button disabled={!evidence.length}>Simpan batas pemilik</button>
+        <Input name="reason" label="Reason for changing owner constraints" />
+        <button disabled={!evidence.length}>Save owner constraints</button>
       </form>
     </details>
   );
@@ -285,7 +281,7 @@ export function OwnerEntry({ deal, evidence, command }: Props) {
 export function PartyEntry({ deal, evidence, command }: Props) {
   return (
     <details className="card">
-      <summary>Tambahkan pihak transaksi</summary>
+      <summary>Add a transaction party</summary>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -310,7 +306,7 @@ export function PartyEntry({ deal, evidence, command }: Props) {
                   op: "replace",
                   path: "/parties",
                   value: [...deal.parties, party],
-                  reason: "Menambahkan pihak dengan bukti identitas",
+                  reason: "Add a party supported by identity evidence",
                   evidence_ids: [source],
                   agreement_required_from: deal.parties.map((p) => p.id),
                 },
@@ -320,34 +316,34 @@ export function PartyEntry({ deal, evidence, command }: Props) {
           );
         }}
       >
-        <Input name="name" label="Nama tampilan pihak baru" />
+        <Input name="name" label="New party display name" />
         <Input
           name="legal"
-          label="Nama badan hukum (jika diketahui)"
+          label="Legal entity name (if known)"
           required={false}
         />
         <Input
           name="registration"
-          label="Nomor registrasi (jika diketahui)"
+          label="Registration number (if known)"
           required={false}
         />
-        <Input name="country" label="Negara pihak baru (ISO)" />
+        <Input name="country" label="New party country (ISO)" />
         <label>
-          Peran pihak baru
+          New party role
           <select name="role">
-            <option value="buyer">Pembeli</option>
-            <option value="supplier">Pemasok</option>
-            <option value="production_input">Pemasok input produksi</option>
-            <option value="carrier">Pengangkut</option>
+            <option value="buyer">Buyer</option>
+            <option value="supplier">Supplier</option>
+            <option value="production_input">Production input supplier</option>
+            <option value="carrier">Carrier</option>
             <option value="forwarder">Forwarder</option>
             <option value="broker">Broker</option>
-            <option value="lender">Pemberi dana</option>
-            <option value="laboratory">Laboratorium</option>
-            <option value="importer">Importir</option>
+            <option value="lender">Funder</option>
+            <option value="laboratory">Laboratory</option>
+            <option value="importer">Importer</option>
           </select>
         </label>
         <Sources evidence={evidence} />
-        <button disabled={!evidence.length}>Simpan pihak baru</button>
+        <button disabled={!evidence.length}>Save new party</button>
       </form>
     </details>
   );

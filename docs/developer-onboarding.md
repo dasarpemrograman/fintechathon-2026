@@ -16,7 +16,7 @@ Linux shell:
 ./dev up
 ```
 
-Open **http://127.0.0.1:3000/** and choose **Masuk demo**. This is synthetic offline data, not live trade evidence. Startup prepares missing local files, builds, migrates, starts the API/worker/web and seeds the existing demo. It announces readiness only after the worker-aware API, web and seeded identities respond. Existing credentials and data are preserved.
+Open **http://127.0.0.1:3000/** and choose **Enter demo**. English is the default interface language. This is synthetic offline data, not live trade evidence. Startup prepares missing local files, builds, migrates, starts the API/worker/web and seeds the existing demo. It announces readiness only after the worker-aware API, web and seeded identities respond. Existing credentials and data are preserved.
 
 On Windows, a usable native Docker CLI is preferred. Otherwise the launcher uses Docker in the default WSL distribution. It does not install or switch distributions, change global WSL settings, or install Docker. An owned hidden WSL helper keeps the app available after the command returns. The Windows loopback URL is checked before success.
 

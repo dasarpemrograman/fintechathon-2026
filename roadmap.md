@@ -283,6 +283,8 @@ Sources: [durable operations](openspec/specs/durable-operations/spec.md), [pilot
 
 ### R17: Audit, export, archival and recovery
 
+**Status:** In progress; browser revision comparison, scoped audit and archival gaps closed with [implementation evidence](docs/roadmap/R17-history-implementation.md). Full recovery rehearsal and package review remain open.
+
 **Owner:** Wisa · **Reviewer:** Faiz · **Depends on:** R01, R02, R18.
 
 Sources: [durable operations](openspec/specs/durable-operations/spec.md), [recovery procedure](docs/local-runtime.md#export-archival-and-recovery). Start in storage/command history, authenticated export handlers, migrations and runtime documentation.

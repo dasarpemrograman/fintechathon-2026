@@ -30,7 +30,7 @@ test("Google return preserves Strict session authentication and consumes state o
     otherSite.hostname === "localhost" ? "127.0.0.1" : "localhost";
   await page.goto(otherSite.toString());
   await page.evaluate((url) => window.location.assign(url), callback);
-  await expect(page.getByRole("status")).toContainText("Google terhubung");
+  await expect(page.getByRole("status")).toContainText("Google connected");
   expect(new URL(page.url()).search).toBe("");
   await expect(page.locator('meta[name="referrer"]')).toHaveAttribute(
     "content",
@@ -47,7 +47,9 @@ test("Google return preserves Strict session authentication and consumes state o
     ),
   ).toBe(true);
   await page.goto(callback);
-  await expect(page.getByRole("status")).toContainText("Koneksi Google gagal");
+  await expect(page.getByRole("status")).toContainText(
+    "The Google connection failed",
+  );
 });
 
 test("Google cancellation and malformed callbacks never submit an exchange", async ({
@@ -58,13 +60,11 @@ test("Google cancellation and malformed callbacks never submit an exchange", asy
     if (request.url().includes("/api/gateway/calendar/callback")) exchanges++;
   });
   await page.goto("/oauth/calendar/callback?error=access_denied&state=unused");
-  await expect(page.getByRole("status")).toContainText(
-    "dibatalkan atau ditolak",
-  );
+  await expect(page.getByRole("status")).toContainText("cancelled or denied");
   expect(new URL(page.url()).search).toBe("");
   await page.goto("/oauth/calendar/callback?code=one&code=two&state=unused");
   await expect(page.getByRole("status")).toContainText(
-    "Callback Google tidak valid",
+    "Invalid Google callback",
   );
   expect(exchanges).toBe(0);
 });
@@ -73,6 +73,6 @@ test("Google callback without a session requests a fresh login", async ({
   page,
 }) => {
   await page.goto("/oauth/calendar/callback?code=offline-demo&state=unowned");
-  await expect(page.getByRole("status")).toContainText("Sesi berakhir");
+  await expect(page.getByRole("status")).toContainText("Your session expired");
   expect(new URL(page.url()).search).toBe("");
 });

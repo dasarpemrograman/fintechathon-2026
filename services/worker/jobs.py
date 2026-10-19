@@ -934,7 +934,7 @@ def process_analysis(work):
             from packages.domain.artifacts import render
 
             content, placeholders = render(
-                parent, scenario, row, "recommendation", "id"
+                parent, scenario, row, "recommendation", "en"
             )
             content += "\n\nReviewed explanation sections: " + ", ".join(
                 selection["sections"]
@@ -1177,7 +1177,7 @@ def process_artifact(work):
         scenario,
         analysis,
         kind,
-        work.body.get("language", "id"),
+        work.body.get("language", "en"),
         work.body.get("recipient_party_id"),
         option if work.payload["kind"] == "finance_pack" else None,
     )
@@ -1276,7 +1276,7 @@ def process_artifact(work):
             use["obligation_ref"] = refs.get(
                 use["obligation_ref"]["id"], use["obligation_ref"]
             )
-        content += "\n\nJadwal penggunaan dana (persiapan):\n" + "\n".join(
+        content += "\n\nFunds-use schedule (preparation):\n" + "\n".join(
             use["amount"]["currency"]
             + " "
             + use["amount"]["amount"]
@@ -1284,11 +1284,11 @@ def process_artifact(work):
             + str(use["schedule"])
             for use in pack["funds_use_schedule"]
         )
-        content += "\n\nDaftar dokumen:\n" + "\n".join(
+        content += "\n\nDocument checklist:\n" + "\n".join(
             document["name"] + " · " + document["basis"] + " · " + document["status"]
             for document in pack["documents"]
         )
-        content += "\n\nBagian yang belum lengkap:\n" + "\n".join(
+        content += "\n\nUnresolved sections:\n" + "\n".join(
             gap["reason"] for gap in pack["gaps"]
         )
     artifact = work.put(

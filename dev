@@ -89,5 +89,5 @@ if [[ "$MODE" == demo ]]; then stage seed "${COMPOSE[@]}" run --rm -T seed; fi
 stage readiness ready 90
 helper state --project "$PROJECT" --mode "$MODE" --ready yes
 printf '%s\n' "Ready: http://127.0.0.1:$WEB_PORT | mode=$MODE"
-if [[ "$MODE" == demo ]]; then printf '%s\n' 'SYNTHETIC OFFLINE DEMO: use Masuk demo. Provider keys and personal login are unnecessary.'; else printf '%s\n' 'Normal authentication: run ./dev account to provision a local owner.'; fi
+if [[ "$MODE" == demo ]]; then printf '%s\n' 'SYNTHETIC OFFLINE DEMO: use Enter demo. Provider keys and personal login are unnecessary.'; else printf '%s\n' 'Normal authentication: run ./dev account to provision a local owner.'; fi
 printf '%s\n' 'Stop: ./dev stop | Diagnose: ./dev doctor | Live provider acceptance is separate.'

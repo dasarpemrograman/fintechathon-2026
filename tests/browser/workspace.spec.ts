@@ -65,10 +65,10 @@ test("funding dates preserve local dates and declared timezones", async ({
   await page
     .locator("article")
     .filter({ hasText: "Synthetic coffee · negotiation" })
-    .getByRole("button", { name: "Buka ruang kerja" })
+    .getByRole("button", { name: "Open workspace" })
     .click();
   await page
-    .getByRole("button", { name: "Skenario & pendanaan", exact: true })
+    .getByRole("button", { name: "Scenarios & funding", exact: true })
     .click();
   const option = page.locator("article").filter({ hasText: marker });
   await expect(option).toHaveCount(1);
@@ -76,7 +76,7 @@ test("funding dates preserve local dates and declared timezones", async ({
     option.getByText("2026-10-20 · Pacific/Kiritimati", { exact: true }),
   ).toBeVisible();
   const instant = await page.evaluate(() =>
-    new Intl.DateTimeFormat("id-ID", {
+    new Intl.DateTimeFormat("en-GB", {
       dateStyle: "medium",
       timeStyle: "short",
       timeZone: "America/Los_Angeles",
@@ -86,7 +86,7 @@ test("funding dates preserve local dates and declared timezones", async ({
     option.getByText(instant + " · America/Los_Angeles", { exact: true }),
   ).toBeVisible();
   await expect(
-    option.getByText("Relatif terhadap peristiwa", { exact: true }),
+    option.getByText("Relative to an event", { exact: true }),
   ).toHaveCount(0);
 });
 
@@ -98,12 +98,12 @@ test("seeded database journey uses the browser, API and worker", async ({
   page.on("pageerror", (e) => failures.push(e.message));
   await page.goto("/");
   await expect(
-    page.getByRole("button", { name: "Masuk demo", exact: true }),
+    page.getByRole("button", { name: "Enter demo", exact: true }),
   ).toBeVisible();
   await page.locator("#identity").selectOption("demo_id_owner");
-  await page.getByRole("button", { name: "Masuk demo", exact: true }).click();
+  await page.getByRole("button", { name: "Enter demo", exact: true }).click();
   await expect(
-    page.getByRole("heading", { name: "Ruang kerja Anda" }),
+    page.getByRole("heading", { name: "Your workspaces" }),
   ).toBeVisible();
   const cookies = await context.cookies();
   const session = cookies.find((c) => c.name === "fincathon_session");
@@ -112,13 +112,13 @@ test("seeded database journey uses the browser, API and worker", async ({
   const card = page
     .locator("article")
     .filter({ hasText: "Coffee" })
-    .filter({ hasText: "Transaksi" })
+    .filter({ hasText: "Deal" })
     .first();
-  await card.getByRole("button", { name: "Buka ruang kerja" }).click();
+  await card.getByRole("button", { name: "Open workspace" }).click();
   await expect(
-    page.getByRole("button", { name: "Hitung ulang analisis" }),
+    page.getByRole("button", { name: "Recalculate analysis" }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "Hitung ulang analisis" }).click();
+  await page.getByRole("button", { name: "Recalculate analysis" }).click();
   await expect(page.getByTestId("job-state")).toHaveAttribute(
     "data-status",
     "succeeded",
@@ -127,20 +127,20 @@ test("seeded database journey uses the browser, API and worker", async ({
     },
   );
   await page
-    .getByRole("button", { name: "Biaya & arus kas", exact: true })
+    .getByRole("button", { name: "Economics & cash", exact: true })
     .click();
   await expect(
     page.getByText("IDR 26000000.00", { exact: true }),
   ).toBeVisible();
   await expect(page.getByText("-52000000.00", { exact: true })).toBeVisible();
   await page
-    .getByRole("button", { name: "Bukti & dokumen", exact: true })
+    .getByRole("button", { name: "Evidence & documents", exact: true })
     .click();
   await expect(
-    page.getByRole("heading", { name: "Sumber dan kutipan" }),
+    page.getByRole("heading", { name: "Sources & excerpts" }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "Ringkasan", exact: true }).click();
-  await page.getByRole("button", { name: "Hitung ulang analisis" }).click();
+  await page.getByRole("button", { name: "Overview", exact: true }).click();
+  await page.getByRole("button", { name: "Recalculate analysis" }).click();
   await expect(page.getByTestId("job-state")).toHaveAttribute(
     "data-status",
     "succeeded",
@@ -150,7 +150,7 @@ test("seeded database journey uses the browser, API and worker", async ({
   );
   await page.reload();
   await expect(
-    page.getByRole("heading", { name: "Ruang kerja Anda" }),
+    page.getByRole("heading", { name: "Your workspaces" }),
   ).toBeVisible();
   expect(failures).toEqual([]);
 });
@@ -168,18 +168,18 @@ test("browser logout revokes its server token before clearing the HttpOnly cooki
 }) => {
   await page.goto("/");
   await page.locator("#identity").selectOption("demo_id_owner");
-  await page.getByRole("button", { name: "Masuk demo", exact: true }).click();
+  await page.getByRole("button", { name: "Enter demo", exact: true }).click();
   await expect(
-    page.getByRole("heading", { name: "Ruang kerja Anda" }),
+    page.getByRole("heading", { name: "Your workspaces" }),
   ).toBeVisible();
   const session = (await context.cookies()).find(
     (c) => c.name === "fincathon_session",
   )!;
   expect(session.httpOnly).toBe(true);
   expect(session.sameSite).toBe("Strict");
-  await page.getByRole("button", { name: "Keluar", exact: true }).click();
+  await page.getByRole("button", { name: "Sign out", exact: true }).click();
   await expect(
-    page.getByRole("heading", { name: "Masuk ke organisasi" }),
+    page.getByRole("heading", { name: "Sign in to your organization" }),
   ).toBeVisible();
   expect((await context.cookies()).some((c) => c.name === session.name)).toBe(
     false,
@@ -193,7 +193,7 @@ test("browser logout revokes its server token before clearing the HttpOnly cooki
   expect(rejected.status()).toBe(401);
   await page.reload();
   await expect(
-    page.getByRole("heading", { name: "Masuk ke organisasi" }),
+    page.getByRole("heading", { name: "Sign in to your organization" }),
   ).toBeVisible();
 });
 
@@ -202,15 +202,15 @@ test("funding comparison and analysis-bound draft use real worker outputs", asyn
 }) => {
   await page.goto("/");
   await page.locator("#identity").selectOption("demo_id_owner");
-  await page.getByRole("button", { name: "Masuk demo", exact: true }).click();
+  await page.getByRole("button", { name: "Enter demo", exact: true }).click();
   await page
     .locator("article")
     .filter({ hasText: "Coffee" })
-    .filter({ hasText: "Transaksi" })
+    .filter({ hasText: "Deal" })
     .first()
-    .getByRole("button", { name: "Buka ruang kerja" })
+    .getByRole("button", { name: "Open workspace" })
     .click();
-  await page.getByRole("button", { name: "Hitung ulang analisis" }).click();
+  await page.getByRole("button", { name: "Recalculate analysis" }).click();
   await expect(page.getByTestId("job-state")).toHaveAttribute(
     "data-status",
     "succeeded",
@@ -219,14 +219,16 @@ test("funding comparison and analysis-bound draft use real worker outputs", asyn
     },
   );
   await page
-    .getByRole("button", { name: "Skenario & pendanaan", exact: true })
+    .getByRole("button", { name: "Scenarios & funding", exact: true })
     .click();
-  await page.getByRole("button", { name: "Cari opsi pendanaan" }).click();
+  await page.getByRole("button", { name: "Find funding options" }).click();
   await expect(
-    page.getByRole("button", { name: "Hitung skenario pendanaan ini" }).first(),
+    page
+      .getByRole("button", { name: "Calculate this funding scenario" })
+      .first(),
   ).toBeVisible({ timeout: 20000 });
   await page
-    .getByRole("button", { name: "Hitung skenario pendanaan ini" })
+    .getByRole("button", { name: "Calculate this funding scenario" })
     .last()
     .click();
   await expect(page.getByTestId("job-state")).toHaveAttribute(
@@ -237,16 +239,18 @@ test("funding comparison and analysis-bound draft use real worker outputs", asyn
     },
   );
   await page
-    .getByRole("button", { name: "Biaya & arus kas", exact: true })
+    .getByRole("button", { name: "Economics & cash", exact: true })
     .click();
   await expect(
     page.getByText("IDR 23800000.00", { exact: true }),
   ).toBeVisible();
   await expect(page.getByText("7000000.00", { exact: true })).toBeVisible();
   await page
-    .getByRole("button", { name: "Draf & persetujuan", exact: true })
+    .getByRole("button", { name: "Drafts & approvals", exact: true })
     .click();
-  await page.getByRole("button", { name: "Buat draf dari analisis" }).click();
+  await page
+    .getByRole("button", { name: "Create a draft from analysis" })
+    .click();
   await expect(page.getByTestId("job-state")).toHaveAttribute(
     "data-status",
     "succeeded",
@@ -256,17 +260,17 @@ test("funding comparison and analysis-bound draft use real worker outputs", asyn
   );
   await page.locator("details").last().locator("summary").click();
   await expect(
-    page.getByRole("link", { name: "Unduh draf" }).last(),
+    page.getByRole("link", { name: "Download draft" }).last(),
   ).toBeVisible();
   const download = page.waitForEvent("download");
-  await page.getByRole("link", { name: "Unduh draf" }).last().click();
+  await page.getByRole("link", { name: "Download draft" }).last().click();
   const file = await download;
   expect(file.suggestedFilename()).toMatch(/artifact/);
   const stream = await file.createReadStream();
   let text = "";
   for await (const part of stream!) text += part.toString();
   expect(text).toContain("160000000");
-  expect(text).toContain("DRAF");
+  expect(text).toContain("DRAFT");
 });
 
 test("production review resolves only its goods gate and finance remains forbidden", async ({
@@ -278,36 +282,36 @@ test("production review resolves only its goods gate and finance remains forbidd
   await page
     .locator("#identity")
     .selectOption("demo_id_production_procurement");
-  await page.getByRole("button", { name: "Masuk demo", exact: true }).click();
+  await page.getByRole("button", { name: "Enter demo", exact: true }).click();
   await page
     .locator("article")
     .filter({ hasText: "Synthetic coffee · blocked goods" })
-    .getByRole("button", { name: "Buka ruang kerja" })
+    .getByRole("button", { name: "Open workspace" })
     .click();
   await page
-    .getByRole("button", { name: "Kesiapan & jadwal", exact: true })
+    .getByRole("button", { name: "Readiness & timeline", exact: true })
     .click();
   const section = page.locator("section").filter({
     has: page.getByRole("heading", {
-      name: "Inspeksi dan koreksi barang",
+      name: "Goods inspection & corrections",
       exact: true,
     }),
   });
   await section.locator("select").first().selectOption("ready");
-  await section.getByLabel("Hasil pengukuran jumlah (kg)").fill("10");
+  await section.getByLabel("Measured quantity (kg)").fill("10");
   await section
-    .getByLabel("Bukti pendukung yang telah ditinjau")
+    .getByLabel("Reviewed supporting evidence")
     .selectOption({ index: 1 });
   await section
-    .getByLabel("Alasan / catatan tinjauan")
+    .getByLabel("Review reason / notes")
     .fill("Synthetic measured inspection for browser acceptance");
-  await section.getByRole("button", { name: "Simpan inspeksi barang" }).click();
-  await expect(page.getByText("Tersimpan.", { exact: true })).toBeVisible();
+  await section.getByRole("button", { name: "Save goods inspection" }).click();
+  await expect(page.getByText("Saved.", { exact: true })).toBeVisible();
   await expect(
     page.getByText("GOODS_CONFORMITY", { exact: false }),
   ).toBeVisible();
   await expect(
-    page.getByRole("button", { name: "Verifikasi sumber saldo awal" }),
+    page.getByRole("button", { name: "Verify opening balance sources" }),
   ).toHaveCount(0);
   expect(
     await page.evaluate(
@@ -344,10 +348,10 @@ test("production review resolves only its goods gate and finance remains forbidd
   expect(denied.status()).toBe(403);
   await section.locator("select").first().selectOption("nonconforming");
   await section
-    .getByLabel("Alasan / catatan tinjauan")
+    .getByLabel("Review reason / notes")
     .fill("Restore the versioned nonconforming demonstration checkpoint");
-  await section.getByRole("button", { name: "Simpan inspeksi barang" }).click();
-  await expect(page.getByText("Tersimpan.", { exact: true })).toBeVisible();
+  await section.getByRole("button", { name: "Save goods inspection" }).click();
+  await expect(page.getByText("Saved.", { exact: true })).toBeVisible();
 });
 
 test("edits survive reload and the completed checkpoint reconciles through HTTP", async ({
@@ -356,79 +360,77 @@ test("edits survive reload and the completed checkpoint reconciles through HTTP"
 }) => {
   await page.goto("/");
   await page.locator("#identity").selectOption("demo_id_owner");
-  await page.getByRole("button", { name: "Masuk demo", exact: true }).click();
+  await page.getByRole("button", { name: "Enter demo", exact: true }).click();
   await page
     .locator("article")
     .filter({ hasText: "Synthetic coffee · negotiation" })
-    .getByRole("button", { name: "Buka ruang kerja" })
+    .getByRole("button", { name: "Open workspace" })
     .click();
-  const description = page.getByLabel("Deskripsi produk", { exact: true });
+  const description = page.getByLabel("Product description", { exact: true });
   const original = await description.inputValue();
   const changed = original + " · browser persistence";
   await description.fill(changed);
-  await page
-    .getByRole("button", { name: "Simpan perubahan", exact: true })
-    .click();
-  await expect(page.getByText("Tersimpan.", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Save changes", exact: true }).click();
+  await expect(page.getByText("Saved.", { exact: true })).toBeVisible();
   await page.reload();
   await page
     .locator("article")
     .filter({ hasText: "Synthetic coffee · negotiation" })
-    .getByRole("button", { name: "Buka ruang kerja" })
+    .getByRole("button", { name: "Open workspace" })
     .click();
   await expect(description).toHaveValue(changed);
   await description.fill(original);
-  await page
-    .getByRole("button", { name: "Simpan perubahan", exact: true })
-    .click();
-  await expect(page.getByText("Tersimpan.", { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "← Semua ruang kerja" }).click();
+  await page.getByRole("button", { name: "Save changes", exact: true }).click();
+  await expect(page.getByText("Saved.", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "← All workspaces" }).click();
   await page
     .locator("article")
     .filter({ hasText: "Synthetic coffee · reconciling" })
-    .getByRole("button", { name: "Buka ruang kerja" })
+    .getByRole("button", { name: "Open workspace" })
     .click();
   await page
-    .getByRole("button", { name: "Pembayaran & penutupan", exact: true })
+    .getByRole("button", { name: "Settlement & closure", exact: true })
     .click();
   await expect(
-    page.getByText(
-      "Pembeli lunas dan penutupan internal adalah dua status terpisah.",
-      { exact: false },
-    ),
+    page.getByText("Buyer payment and internal closure are separate states.", {
+      exact: false,
+    }),
   ).toBeVisible();
   await page
-    .getByRole("button", { name: "Jalankan rekonsiliasi", exact: true })
+    .getByRole("button", { name: "Run reconciliation", exact: true })
     .click();
-  await expect(page.getByText("Tersimpan.", { exact: true })).toBeVisible();
+  await expect(page.getByText("Saved.", { exact: true })).toBeVisible();
   await page
-    .getByRole("button", { name: "Evaluasi penutupan internal", exact: true })
+    .getByRole("button", { name: "Evaluate internal closure", exact: true })
     .click();
   await expect(
-    page.getByText("Penutupan masih terblokir. Tinjau kondisi gerbang.", {
+    page.getByText("Closure is still blocked. Review the gate conditions.", {
       exact: true,
     }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "← Semua ruang kerja" }).click();
+  await page.getByRole("button", { name: "← All workspaces" }).click();
   await page
     .locator("article")
     .filter({ hasText: "Synthetic coffee · closed" })
-    .getByRole("button", { name: "Buka ruang kerja" })
+    .getByRole("button", { name: "Open workspace" })
     .click();
   await page
-    .getByRole("button", { name: "Pembayaran & penutupan", exact: true })
+    .getByRole("button", { name: "Settlement & closure", exact: true })
     .click();
   await page
-    .getByRole("button", { name: "Jalankan rekonsiliasi", exact: true })
+    .getByRole("button", { name: "Run reconciliation", exact: true })
     .click();
-  await expect(page.getByText("Tersimpan.", { exact: true })).toBeVisible();
+  await expect(page.getByText("Saved.", { exact: true })).toBeVisible();
   await page
-    .getByRole("button", { name: "Evaluasi penutupan internal", exact: true })
+    .getByRole("button", { name: "Evaluate internal closure", exact: true })
     .click();
   await expect(
-    page.getByText("Transaksi ditutup setelah seluruh syarat terpenuhi.", {
-      exact: true,
-    }),
+    page.getByText(
+      "The deal is closed after all prerequisites have been met.",
+      {
+        exact: true,
+      },
+    ),
   ).toBeVisible();
   const workspace = await (
     await context.request.get("/api/gateway/workspaces/demo_stage_closed")

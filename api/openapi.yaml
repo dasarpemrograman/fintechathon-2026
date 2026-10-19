@@ -6386,6 +6386,11 @@ paths:
       tags:
       - Workspace
       parameters:
+      - name: workspace_id
+        in: query
+        description: Restrict audit records to this authorized workspace and its linked deal.
+        schema:
+          $ref: '#/components/schemas/Id'
       - name: limit
         in: query
         schema:

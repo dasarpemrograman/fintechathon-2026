@@ -22,11 +22,11 @@ export function DiscoveryPanel({
   ] as const satisfies readonly S["EvidenceCategory"][];
   return (
     <details className="card">
-      <summary>Riset sumber publik menurut produk dan yurisdiksi</summary>
+      <summary>Research public sources for your product & route</summary>
       <p>
         {workspace.execution_scope === "demo"
-          ? "Mode demo menggunakan sumber sintetis dan tidak menghubungi penyedia eksternal."
-          : "Hanya istilah barang dan yurisdiksi publik yang Anda tinjau dikirim ke penyedia pencarian. Hasil tetap memerlukan tinjauan sumber dan keberlakuan."}
+          ? "Demo mode uses synthetic sources without contacting external providers."
+          : "Only approved public product and jurisdiction terms are sent to the search provider. Results still require source and applicability review."}
       </p>
       <form
         onChange={() => setPreview(null)}
@@ -50,7 +50,7 @@ export function DiscoveryPanel({
               });
               const body = await response.json();
               if (!response.ok)
-                throw new Error(body.message || "Pratinjau penggunaan gagal.");
+                throw new Error(body.message || "Unable to preview usage.");
               setPreview(body.result);
             } catch (error) {
               setError((error as Error).message);
@@ -83,7 +83,7 @@ export function DiscoveryPanel({
         }}
       >
         <label>
-          Istilah produk publik yang disetujui (satu per baris)
+          Approved public product terms (one per line)
           <textarea
             name="terms"
             required={workspace.execution_scope !== "demo"}
@@ -91,12 +91,12 @@ export function DiscoveryPanel({
           />
         </label>
         <p className="muted">
-          Jangan masukkan nama pihak, bank, nomor rekening atau isi kontrak
-          pribadi. Pertanyaan direncanakan terpisah untuk ekspor asal dan impor
-          tujuan.
+          Exclude private party names, bank details, account numbers, and
+          contract text. Research is planned separately for origin exports and
+          destination imports.
         </p>
         <fieldset disabled={disabled}>
-          <legend>Jenis sumber</legend>
+          <legend>Source categories</legend>
           {categories.map((category) => (
             <label key={category}>
               <input
@@ -107,11 +107,11 @@ export function DiscoveryPanel({
               />
               {
                 {
-                  requirements: "Persyaratan resmi",
-                  freight: "Logistik dan cakupan penawaran",
-                  market_price: "Pembanding grosir tujuan",
-                  fx: "Kurs referensi",
-                  finance: "Produk pembiayaan",
+                  requirements: "Official requirements",
+                  freight: "Logistics & quotation coverage",
+                  market_price: "Destination wholesale comparables",
+                  fx: "Reference FX rates",
+                  finance: "Financing products",
                 }[category]
               }
             </label>
@@ -119,31 +119,31 @@ export function DiscoveryPanel({
         </fieldset>
         <div className="split">
           <label>
-            Mata uang dasar untuk riset kurs
+            Base currency for FX research
             <input name="base" placeholder="USD" maxLength={3} />
           </label>
           <label>
-            Mata uang kutipan (pisahkan koma)
+            Quote currencies (comma-separated)
             <input name="quotes" placeholder="IDR,EUR" />
           </label>
         </div>
         <p className="muted">
-          Kurs referensi tidak membuktikan saldo atau konversi bank. Batas
-          riset: 6 permintaan, 10 halaman, 20 tindakan dan satu percobaan ulang
-          penyedia.
+          Reference rates do not prove a bank balance or executed conversion.
+          Research limits: 6 requests, 10 pages, 20 actions, and one provider
+          retry.
         </p>
         {error && <p role="alert">{error}</p>}
         {preview && (
           <p role="status">
-            {preview.reason} · {preview.expected_runs} jatah riset,{" "}
-            {preview.expected_pages} halaman ·{" "}
-            {preview.admitted ? "Diizinkan" : "Belum diizinkan"}
+            {preview.reason} · {preview.expected_runs} research allowance units,{" "}
+            {preview.expected_pages} pages ·{" "}
+            {preview.admitted ? "Allowed" : "Not yet allowed"}
           </p>
         )}
         <button disabled={disabled || (!!preview && !preview.admitted)}>
           {preview
-            ? "Mulai riset dengan batas ini"
-            : "Pratinjau penggunaan riset"}
+            ? "Start research within these limits"
+            : "Preview research usage"}
         </button>
       </form>
     </details>

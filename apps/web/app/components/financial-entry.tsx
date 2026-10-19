@@ -38,7 +38,7 @@ export function Input({
 export function Sources({
   evidence,
   name = "evidence",
-  label = "Bukti yang telah ditinjau",
+  label = "Reviewed evidence",
 }: {
   evidence: S["Evidence"][];
   name?: string;
@@ -49,7 +49,7 @@ export function Sources({
       {label}
       <select name={name} required defaultValue="">
         <option value="" disabled>
-          Pilih bukti
+          Select evidence
         </option>
         {evidence.map((row) => (
           <option key={row.id} value={row.id}>
@@ -74,7 +74,7 @@ export function Party({
       {label}
       <select name={name} required defaultValue="">
         <option value="" disabled>
-          Pilih pihak
+          Select a party
         </option>
         {deal.parties.map((row) => (
           <option key={row.id} value={row.id}>
@@ -110,11 +110,11 @@ export function FinancialEntry({
     <>
       {finance && (
         <details className="card">
-          <summary>Catat kurs dengan bukti sumber</summary>
+          <summary>Record an evidenced FX rate</summary>
           <p>
-            Satu unit mata uang dasar setara dengan kurs mata uang kutipan.
-            Untuk aktual, pilih bukti konversi bank yang benar-benar terjadi;
-            kurs referensi tidak membuktikan dana tersedia.
+            One unit of the base currency equals this rate in the quote
+            currency. For actuals, select evidence of an executed bank
+            conversion. A reference rate does not prove available funds.
           </p>
           <form
             onSubmit={(e) => {
@@ -137,30 +137,30 @@ export function FinancialEntry({
               });
             }}
           >
-            <Input name="base" label="Mata uang dasar kurs" />
+            <Input name="base" label="FX base currency" />
             <Input
               name="quote"
-              label="Mata uang kutipan kurs"
+              label="FX quote currency"
               value={deal.reporting_currency}
             />
-            <Input name="rate" label="Kurs per satu unit mata uang dasar" />
+            <Input name="rate" label="Rate per base currency unit" />
             <Input
               name="at"
               type="datetime-local"
-              label="Waktu kurs yang diketahui (UTC)"
+              label="Known FX time (UTC)"
             />
             <Sources evidence={evidence} />
-            <button disabled={!evidence.length}>Simpan kurs bersumber</button>
+            <button disabled={!evidence.length}>Save sourced FX rate</button>
           </form>
         </details>
       )}
       {showCosts && (
         <details className="card">
-          <summary>Tambahkan biaya dan cakupan penawaran</summary>
+          <summary>Add a cost & quotation coverage</summary>
           <p>
-            Pisahkan komponen yang sudah termasuk penawaran menyeluruh. Jumlah
-            kosong tetap belum diketahui. Biaya aktual dicatat melalui tinjauan
-            keuangan.
+            Separate components already covered by an all-in quote. Blank
+            amounts remain unknown. Actual costs are recorded through financial
+            review.
           </p>
           <form
             onSubmit={(e) => {
@@ -207,7 +207,8 @@ export function FinancialEntry({
                       {
                         field_path: "/estimate/base",
                         status: "missing",
-                        reason: "Jumlah belum dikonfirmasi dalam penawaran.",
+                        reason:
+                          "The amount has not been confirmed in the quotation.",
                       },
                     ],
                 cash_treatment: f.get(
@@ -221,54 +222,48 @@ export function FinancialEntry({
               });
             }}
           >
-            <Input name="component" label="Nama komponen unik" />
-            <Input name="category" label="Kategori biaya" />
-            <Input name="location" label="Lokasi layanan" />
-            <Party deal={deal} name="payer" label="Pihak yang membayar" />
-            <Party
-              deal={deal}
-              name="bearer"
-              label="Pihak yang menanggung secara ekonomi"
-            />
+            <Input name="component" label="Unique component name" />
+            <Input name="category" label="Cost category" />
+            <Input name="location" label="Service location" />
+            <Party deal={deal} name="payer" label="Paying party" />
+            <Party deal={deal} name="bearer" label="Economic bearer" />
             <Input
               name="amount"
-              label="Jumlah penawaran (kosong jika belum diketahui)"
+              label="Quoted amount (leave blank if unknown)"
               required={false}
             />
             <Input
               name="currency"
-              label="Mata uang penawaran"
+              label="Quotation currency"
               value={deal.reporting_currency}
             />
             <Input
               name="coverage"
-              label="Komponen yang sudah termasuk, dipisahkan koma"
+              label="Included components, comma-separated"
             />
             <label>
-              Perlakuan ekonomi
+              Economic treatment
               <select name="treatment">
-                <option value="expense">Beban</option>
-                <option value="recoverable_tax">
-                  Pajak yang dapat dipulihkan
-                </option>
+                <option value="expense">Expense</option>
+                <option value="recoverable_tax">Recoverable tax</option>
                 <option value="reimbursable_advance">
-                  Talangan yang ditagihkan kembali
+                  Reimbursable advance
                 </option>
-                <option value="capital_allocation">Alokasi modal</option>
+                <option value="capital_allocation">Capital allocation</option>
               </select>
             </label>
             <label>
-              Waktu kas
+              Cash timing
               <select name="timing">
-                <option value="unknown">Belum diketahui</option>
-                <option value="scheduled">Mengikuti kewajiban terpilih</option>
+                <option value="unknown">Not yet known</option>
+                <option value="scheduled">Follow selected obligations</option>
                 <option value="paid_before_snapshot">
-                  Sudah dibayar sebelum saldo awal, dengan bukti
+                  Paid before the opening balance, with evidence
                 </option>
               </select>
             </label>
             <label>
-              Kewajiban pembayar (dapat memilih beberapa)
+              Payer obligations (select multiple if needed)
               <select
                 name="obligations"
                 multiple
@@ -283,26 +278,26 @@ export function FinancialEntry({
             </label>
             <Input
               name="valid_until"
-              label="Penawaran berlaku sampai (opsional)"
+              label="Quotation valid until (optional)"
               type="date"
               required={false}
             />
             <label>
               <input name="conditional" type="checkbox" />
-              Biaya masih bersyarat
+              This cost is conditional
             </label>
             <Sources evidence={evidence} />
-            <button disabled={!evidence.length}>Simpan biaya penawaran</button>
+            <button disabled={!evidence.length}>Save quoted cost</button>
           </form>
         </details>
       )}
       {finance && (
         <>
           <details className="card">
-            <summary>Tambahkan kewajiban pembayaran</summary>
+            <summary>Add a payment obligation</summary>
             <p>
-              Catatan kewajiban belum membuktikan pembayaran. Gunakan bukti dan
-              jadwal yang disepakati.
+              Recording an obligation does not prove payment. Use reviewed
+              evidence and the agreed schedule.
             </p>
             <form
               onSubmit={(e) => {
@@ -339,39 +334,35 @@ export function FinancialEntry({
                 });
               }}
             >
-              <Party deal={deal} name="payer" label="Pembayar kewajiban" />
-              <Party deal={deal} name="payee" label="Penerima kewajiban" />
+              <Party deal={deal} name="payer" label="Obligation payer" />
+              <Party deal={deal} name="payee" label="Obligation payee" />
               <Input
                 name="amount"
-                label="Jumlah kewajiban (kosong jika belum diketahui)"
+                label="Obligation amount (leave blank if unknown)"
                 required={false}
               />
               <Input
                 name="currency"
-                label="Mata uang kewajiban"
+                label="Obligation currency"
                 value={deal.reporting_currency}
               />
-              <Input
-                name="due"
-                label="Waktu jatuh tempo (UTC)"
-                type="datetime-local"
-              />
+              <Input name="due" label="Due time (UTC)" type="datetime-local" />
               <Input
                 name="sequence"
-                label="Urutan pada waktu yang sama, jika diketahui"
+                label="Same-time sequence, if known"
                 type="number"
                 required={false}
               />
               <Sources evidence={evidence} />
-              <button disabled={!evidence.length}>Simpan kewajiban</button>
+              <button disabled={!evidence.length}>Save obligation</button>
             </form>
           </details>
           <details className="card">
-            <summary>Penyesuaian penyelesaian dengan bukti</summary>
+            <summary>Evidenced settlement adjustments</summary>
             <p>
-              Potongan biaya bank mengurangi saldo dan mencatat beban sekali.
-              Hapus buku berbeda dari lunas. Klaim penggantian talangan
-              memerlukan biaya aktual yang sudah ditinjau.
+              A bank-fee deduction reduces the balance and records its expense
+              once. A write-off is different from payment. Reimbursement claims
+              require a reviewed actual advance.
             </p>
             <form
               onSubmit={(e) => {
@@ -413,27 +404,25 @@ export function FinancialEntry({
               }}
             >
               <label>
-                Jenis penyesuaian
+                Adjustment type
                 <select
                   value={kind}
                   onChange={(e) => setKind(e.target.value as typeof kind)}
                 >
-                  <option value="fee">
-                    Potongan biaya bank yang disepakati
-                  </option>
+                  <option value="fee">Agreed bank-fee deduction</option>
                   <option value="reimbursement">
-                    Klaim penggantian talangan aktual
+                    Actual advance reimbursement claim
                   </option>
                   <option value="write_off">
-                    Hapus buku sisa saldo, dengan tinjauan
+                    Reviewed remaining-balance write-off
                   </option>
                   <option value="settlement">
-                    Penyelesaian yang sudah dilakukan di luar aplikasi
+                    Settlement performed outside the app
                   </option>
                 </select>
               </label>
               <label>
-                Kewajiban terkait
+                Related obligation
                 <select name="obligation" required>
                   {obligations
                     .filter((row) => row.amount)
@@ -446,11 +435,11 @@ export function FinancialEntry({
               </label>
               <Input
                 name="amount"
-                label="Jumlah penyesuaian dalam mata uang kewajiban"
+                label="Adjustment amount in obligation currency"
               />
               {kind === "reimbursement" && (
                 <label>
-                  Talangan aktual terkait
+                  Related actual advance
                   <select name="cost" required>
                     {costs
                       .filter(
@@ -470,12 +459,12 @@ export function FinancialEntry({
                 <>
                   <Input
                     name="value_date"
-                    label="Tanggal nilai penyelesaian"
+                    label="Settlement value date"
                     type="date"
                   />
                   <Input
                     name="settled_at"
-                    label="Waktu penyelesaian (UTC, jika diketahui)"
+                    label="Settlement time (UTC, if known)"
                     type="datetime-local"
                     required={false}
                   />
@@ -484,12 +473,12 @@ export function FinancialEntry({
               <Sources
                 evidence={evidence}
                 name="agreement"
-                label="Bukti kesepakatan penyesuaian"
+                label="Adjustment agreement evidence"
               />
-              <Sources evidence={evidence} label="Bukti aktual pendukung" />
-              <Input name="reason" label="Alasan penyesuaian" />
+              <Sources evidence={evidence} label="Supporting actual evidence" />
+              <Input name="reason" label="Adjustment reason" />
               <button disabled={!evidence.length}>
-                Catat penyesuaian dan rekonsiliasi
+                Record adjustment & reconcile
               </button>
             </form>
           </details>

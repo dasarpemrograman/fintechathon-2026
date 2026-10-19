@@ -1,1 +1,2 @@
 /dev text eol=lf
+fixtures/demo/** -text

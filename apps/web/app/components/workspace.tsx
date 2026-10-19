@@ -8,6 +8,15 @@ import { RuleEntry, OwnerEntry, PartyEntry } from "./deal-entry";
 import { CalendarPanel } from "./calendar-panel";
 import { SourceEntry } from "./source-entry";
 import { ReviewControls } from "./review-controls";
+import { HistoryPanel } from "./history-panel";
+import {
+  AppShell,
+  AuthIntroduction,
+  Brand,
+  Icon,
+  type HomeSection,
+} from "./app-shell";
+import { WorkspacePortfolio } from "./workspace-portfolio";
 import type { components } from "../../../../packages/contracts/api";
 type S = components["schemas"];
 type W = S["Workspace"];
@@ -32,7 +41,7 @@ async function api<T>(
   const data = await response.json();
   if (!response.ok) {
     const error = new Error(
-      data.message || data.reason || data.code || "Permintaan gagal.",
+      data.message || data.reason || data.code || "Request failed.",
     ) as Error & { status: number };
     error.status = response.status;
     throw error;
@@ -40,100 +49,100 @@ async function api<T>(
   return data.result as T;
 }
 const formatDate = (s: string, timezone = "Asia/Jakarta") =>
-  new Intl.DateTimeFormat("id-ID", {
+  new Intl.DateTimeFormat("en-GB", {
     dateStyle: "medium",
     timeStyle: "short",
     timeZone: timezone,
   }).format(new Date(s));
 const money = (m: S["Money"] | S["SignedMoney"] | null | undefined) =>
-  m ? m.currency + " " + m.amount : "Belum diketahui";
+  m ? m.currency + " " + m.amount : "Not yet known";
 const labels: Record<string, string> = {
-  analysis: "Analisis",
-  commercial_terms: "Kesepakatan",
-  funding_preparation: "Persiapan dana",
-  execution_gate: "Gerbang tindakan",
-  goods: "Barang",
-  shipment: "Pengiriman",
-  buyer_payment: "Pembayaran pembeli",
-  internal_closure: "Penutupan",
-  not_started: "Belum dimulai",
-  not_booked: "Belum dipesan",
-  booking_review: "Tinjauan pemesanan",
-  booked: "Pemesanan tercatat",
-  in_transit: "Dalam perjalanan",
-  delivered: "Diterima",
-  exception: "Pengecualian",
-  not_due: "Belum jatuh tempo",
-  due: "Belum lunas",
-  verification_pending: "Menunggu verifikasi",
-  partially_paid: "Dibayar sebagian",
-  overdue: "Lewat jatuh tempo",
-  disputed: "Disengketakan",
-  open: "Terbuka",
-  not_needed: "Tidak diperlukan",
-  needed: "Diperlukan",
-  preparing: "Disiapkan",
-  comparing: "Dibandingkan",
-  application_ready: "Paket persiapan siap ditinjau",
-  agreed: "Diterima pihak terkait",
-  owner_reviewed: "Ditinjau pemilik",
-  awaiting_counterparties: "Menunggu penerimaan pihak",
-  superseded: "Digantikan",
-  draft: "Draf",
-  scoped_complete: "Lengkap untuk cakupan ini",
-  expense: "Beban",
-  user_assumed: "Asumsi pengguna",
-  quoted: "Penawaran",
-  published_tariff: "Tarif terbit",
-  modeled: "Perkiraan",
-  unknown: "Belum diketahui",
-  recoverable_tax: "Pajak dapat dipulihkan",
-  reimbursable_advance: "Talangan",
-  capital_allocation: "Alokasi modal",
-  synthetic_demo: "Demo sintetis",
-  cached: "Tembolok",
-  user_provided: "Diberikan pengguna",
-  live: "Sumber langsung",
-  loan_draw: "Pencairan pinjaman",
-  principal_repayment: "Pelunasan pokok",
-  finance_cost: "Biaya pendanaan",
-  withheld_fee: "Biaya dipotong",
-  interest: "Bunga",
-  reserve_release: "Pelepasan cadangan",
-  packaging: "Kemasan",
-  administration: "Administrasi",
-  origin_trucking: "Angkutan asal",
-  main_freight: "Angkutan utama",
-  destination_delivery: "Pengantaran tujuan",
-  production: "Produksi",
-  procurement: "Pengadaan",
-  materials: "Bahan",
-  labor: "Tenaga kerja",
-  process: "Proses produksi",
-  overhead: "Alokasi overhead",
-  analyzed_complete: "Analisis tersedia",
-  analyzed_partial: "Analisis parsial",
-  needs_input: "Perlu data",
-  not_analyzed: "Belum dianalisis",
-  owner: "Pemilik",
-  export_admin: "Admin ekspor",
-  finance_reviewer: "Peninjau keuangan",
-  production_procurement: "Produksi dan pengadaan",
-  paid: "Lunas pembeli",
-  resolved_with_writeoff: "Diselesaikan dengan hapus buku",
-  reconciling: "Rekonsiliasi internal",
-  closed: "Ditutup",
-  blocked: "Terblokir",
-  ready_for_next_action: "Siap untuk tahap berikut",
-  proposed: "Usulan",
-  pending: "Menunggu verifikasi",
-  verified: "Terverifikasi",
-  succeeded: "Selesai",
-  failed: "Gagal",
-  partial: "Parsial",
-  cancelled: "Dibatalkan",
-  queued: "Menunggu",
-  running: "Berjalan",
+  analysis: "Analysis",
+  commercial_terms: "Agreement",
+  funding_preparation: "Funding preparation",
+  execution_gate: "Action gate",
+  goods: "Goods",
+  shipment: "Shipment",
+  buyer_payment: "Buyer payment",
+  internal_closure: "Closure",
+  not_started: "Not started",
+  not_booked: "Not booked",
+  booking_review: "Booking review",
+  booked: "Booking recorded",
+  in_transit: "In transit",
+  delivered: "Delivered",
+  exception: "Exception",
+  not_due: "Not due",
+  due: "Outstanding",
+  verification_pending: "Awaiting verification",
+  partially_paid: "Partially paid",
+  overdue: "Overdue",
+  disputed: "Disputed",
+  open: "Open",
+  not_needed: "Not required",
+  needed: "Required",
+  preparing: "Preparing",
+  comparing: "Comparing",
+  application_ready: "Preparation pack ready for review",
+  agreed: "Accepted by relevant parties",
+  owner_reviewed: "Owner reviewed",
+  awaiting_counterparties: "Awaiting counterparties",
+  superseded: "Superseded",
+  draft: "Draft",
+  scoped_complete: "Complete for this scope",
+  expense: "Expense",
+  user_assumed: "User assumption",
+  quoted: "Quoted",
+  published_tariff: "Published tariff",
+  modeled: "Estimated",
+  unknown: "Not yet known",
+  recoverable_tax: "Recoverable tax",
+  reimbursable_advance: "Advance",
+  capital_allocation: "Capital allocation",
+  synthetic_demo: "Synthetic demo",
+  cached: "Cached",
+  user_provided: "User provided",
+  live: "Live source",
+  loan_draw: "Loan drawdown",
+  principal_repayment: "Principal repayment",
+  finance_cost: "Financing cost",
+  withheld_fee: "Withheld fee",
+  interest: "Interest",
+  reserve_release: "Reserve release",
+  packaging: "Packaging",
+  administration: "Administration",
+  origin_trucking: "Origin trucking",
+  main_freight: "Main freight",
+  destination_delivery: "Destination delivery",
+  production: "Production",
+  procurement: "Procurement",
+  materials: "Materials",
+  labor: "Labor",
+  process: "Production process",
+  overhead: "Allocated overhead",
+  analyzed_complete: "Analysis available",
+  analyzed_partial: "Partial analysis",
+  needs_input: "Inputs needed",
+  not_analyzed: "Not analyzed",
+  owner: "Owner",
+  export_admin: "Export admin",
+  finance_reviewer: "Finance reviewer",
+  production_procurement: "Production & procurement",
+  paid: "Buyer paid",
+  resolved_with_writeoff: "Resolved with write-off",
+  reconciling: "Internal reconciliation",
+  closed: "Closed",
+  blocked: "Blocked",
+  ready_for_next_action: "Ready for the next action",
+  proposed: "Proposed",
+  pending: "Awaiting verification",
+  verified: "Verified",
+  succeeded: "Completed",
+  failed: "Failed",
+  partial: "Partial",
+  cancelled: "Cancelled",
+  queued: "Queued",
+  running: "Running",
 };
 const title = (s: string) => labels[s] || s.replaceAll("_", " ");
 function componentTitle(key: string, deal: D | null) {
@@ -141,7 +150,7 @@ function componentTitle(key: string, deal: D | null) {
     const line = deal?.line_items.find(
       (row) => row.id === key.slice("procurement:".length),
     );
-    return "Pengadaan" + (line ? " · " + line.product.description : " barang");
+    return "Procurement" + (line ? " · " + line.product.description : " goods");
   }
   if (key.startsWith("production-input:")) {
     const plan = deal?.procurement;
@@ -151,7 +160,7 @@ function componentTitle(key: string, deal: D | null) {
             (row) => row.id === key.slice("production-input:".length),
           )
         : null;
-    return "Input produksi" + (input ? " · " + input.description : "");
+    return "Production input" + (input ? " · " + input.description : "");
   }
   if (key.startsWith("production-"))
     return title(key.split(":")[0].slice("production-".length));
@@ -195,6 +204,8 @@ export default function Workspace() {
   const viewEpoch = useRef(0);
   const [session, setSession] = useState<S["Session"] | null>(null),
     [loading, setLoading] = useState(true),
+    [listLoading, setListLoading] = useState(false),
+    [authBusy, setAuthBusy] = useState(false),
     [error, setError] = useState(""),
     [identities, setIdentities] = useState<
       S["DemoIdentitiesResponse"]["result"]["users"]
@@ -202,18 +213,33 @@ export default function Workspace() {
     [workspaces, setWorkspaces] = useState<W[]>([]),
     [selected, setSelected] = useState<W | null>(null),
     [creating, setCreating] = useState(false),
+    [homeSection, setHomeSection] = useState<HomeSection>("workspaces"),
     [workspaceCursor, setWorkspaceCursor] = useState<string | null>(null);
   async function load(append = false) {
     const epoch = viewEpoch.current;
-    const page = await api<S["WorkspacePage"]>(
-      "workspaces?limit=25" +
-        (append && workspaceCursor
-          ? "&cursor=" + encodeURIComponent(workspaceCursor)
-          : ""),
-    );
-    if (epoch !== viewEpoch.current) return;
-    setWorkspaces((old) => (append ? [...old, ...page.items] : page.items));
-    setWorkspaceCursor(page.next_cursor);
+    setListLoading(true);
+    try {
+      const page = await api<S["WorkspacePage"]>(
+        "workspaces?limit=25" +
+          (append && workspaceCursor
+            ? "&cursor=" + encodeURIComponent(workspaceCursor)
+            : ""),
+      );
+      if (epoch !== viewEpoch.current) return;
+      setWorkspaces((old) =>
+        append
+          ? [
+              ...old,
+              ...page.items.filter(
+                (item) => !old.some((row) => row.id === item.id),
+              ),
+            ]
+          : page.items,
+      );
+      setWorkspaceCursor(page.next_cursor);
+    } finally {
+      if (epoch === viewEpoch.current) setListLoading(false);
+    }
   }
   useEffect(() => {
     api<S["Session"]>("auth/session")
@@ -223,33 +249,45 @@ export default function Workspace() {
       })
       .catch(() =>
         api<S["DemoIdentitiesResponse"]["result"]>("auth/demo-identities")
-          .then((d) => setIdentities(d.users))
+          .then((data) => setIdentities(data.users))
           .catch(() => {}),
       )
       .finally(() => setLoading(false));
   }, []);
+  useEffect(() => {
+    if (selected || !session) return;
+    const frame = requestAnimationFrame(() =>
+      document.getElementById(homeSection)?.scrollIntoView({ block: "start" }),
+    );
+    return () => cancelAnimationFrame(frame);
+  }, [homeSection, selected, session?.organization_id]);
   function clearWorkspaceView() {
     viewEpoch.current += 1;
     setSelected(null);
     setWorkspaces([]);
     setWorkspaceCursor(null);
     setCreating(false);
+    setHomeSection("workspaces");
   }
   async function login(body: unknown) {
     setError("");
+    setAuthBusy(true);
     try {
-      const r = await fetch("/api/session", {
+      const response = await fetch("/api/session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-      const d = await r.json();
-      if (!r.ok) throw new Error(d.message || d.code || "Tidak dapat masuk");
+      const data = await response.json();
+      if (!response.ok)
+        throw new Error(data.message || data.code || "Unable to sign in.");
       clearWorkspaceView();
-      setSession(d.session);
+      setSession(data.session);
       await load();
-    } catch (e) {
-      setError((e as Error).message);
+    } catch (error) {
+      setError((error as Error).message);
+    } finally {
+      setAuthBusy(false);
     }
   }
   async function logout() {
@@ -257,9 +295,28 @@ export default function Workspace() {
     try {
       const response = await fetch("/api/session", { method: "DELETE" });
       if (!response.ok)
-        throw new Error("Tidak dapat mencabut sesi. Coba keluar lagi.");
+        throw new Error(
+          "Unable to revoke the session. Please try signing out again.",
+        );
       setSession(null);
       clearWorkspaceView();
+      const demo = await api<S["DemoIdentitiesResponse"]["result"]>(
+        "auth/demo-identities",
+      ).catch(() => null);
+      setIdentities(demo?.users || []);
+    } catch (error) {
+      setError((error as Error).message);
+    }
+  }
+  async function selectOrganization(id: string) {
+    setError("");
+    try {
+      const updated = await api<S["Session"]>("auth/organization", {
+        organization_id: id,
+      });
+      clearWorkspaceView();
+      setSession(updated);
+      await load();
     } catch (error) {
       setError((error as Error).message);
     }
@@ -267,105 +324,113 @@ export default function Workspace() {
   const member = session?.memberships.find(
     (m) => m.organization_id === session.organization_id,
   );
-  if (loading) return <main className="loading">Memuat ruang ekspor…</main>;
+  const canCreate = !!member?.roles.some(
+    (role) => role === "owner" || role === "export_admin",
+  );
+  const demo =
+    selected?.execution_scope === "demo" ||
+    !!session?.user.id.startsWith("demo_");
+  if (loading)
+    return (
+      <main className="loading">
+        <Brand />
+        <p role="status">Loading your export workspace…</p>
+      </main>
+    );
   return (
-    <>
-      <header>
-        <div className="brand">
-          fin<span>cathon</span> <small> / ruang ekspor</small>
+    <AppShell
+      session={session}
+      title={
+        selected
+          ? selected.product.description
+          : homeSection === "usage"
+            ? "Usage & plans"
+            : homeSection === "team"
+              ? "Team & access"
+              : "Portfolio"
+      }
+      demo={demo}
+      section={selected ? "workspaces" : homeSection}
+      onNavigate={(section) => {
+        setSelected(null);
+        setHomeSection(section);
+        setCreating(false);
+      }}
+      onLogout={logout}
+      onOrganization={selectOrganization}
+    >
+      {error && (
+        <div className="notice error" role="alert">
+          {error}
         </div>
-        {session && (
-          <div className="actions">
-            <small>
-              {session.user.display_name} · {member?.organization_name}
-              <br />
-              {member?.roles.map(title).join(" / ")}
-            </small>
-            <label>
-              Organisasi
-              <select
-                value={session.organization_id || ""}
-                onChange={async (e) => {
-                  try {
-                    const updated = await api<S["Session"]>(
-                      "auth/organization",
-                      { organization_id: e.target.value },
-                    );
-                    clearWorkspaceView();
-                    setSession(updated);
-                    await load();
-                  } catch (error) {
-                    setError((error as Error).message);
-                  }
-                }}
-              >
-                <option value="" disabled>
-                  Pilih organisasi
-                </option>
-                {session.memberships.map((m) => (
-                  <option key={m.id} value={m.organization_id}>
-                    {m.organization_name}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <button className="secondary" onClick={logout}>
-              Keluar
-            </button>
-          </div>
-        )}
-      </header>
-      <main>
-        {session && error && (
-          <div role="alert" className="notice error">
-            {error}
-          </div>
-        )}
-        {!session ? (
-          <div className="login">
-            <div className="eyebrow">Dari bukti ke keputusan</div>
-            <h1>Rencanakan ekspor dengan lebih jelas.</h1>
-            <p className="muted">
-              Telusuri biaya, arus kas, persetujuan, dan kesiapan transaksi
-              dalam satu ruang kerja.
-            </p>
-            {error && (
-              <div role="alert" className="notice error">
-                {error}
-              </div>
-            )}
+      )}
+      {!session ? (
+        <div className="auth-layout">
+          <AuthIntroduction />
+          <div className="auth-forms">
             <form
-              className="card"
-              onSubmit={(e) => {
-                e.preventDefault();
-                const f = new FormData(e.currentTarget);
-                login({ email: f.get("email"), password: f.get("password") });
+              className="card sign-in-card"
+              onSubmit={(event) => {
+                event.preventDefault();
+                const form = new FormData(event.currentTarget);
+                void login({
+                  email: form.get("email"),
+                  password: form.get("password"),
+                });
               }}
             >
-              <h2>Masuk ke organisasi</h2>
-              <Field name="email" label="Email" type="email" />
-              <Field name="password" label="Kata sandi" type="password" />
-              <button>Masuk</button>
+              <div className="eyebrow">WELCOME BACK</div>
+              <h2>Sign in to your organization</h2>
+              <p className="muted">
+                Pick up where your last decision left off.
+              </p>
+              <label>
+                Email
+                <input
+                  name="email"
+                  type="email"
+                  autoComplete="username"
+                  required
+                  placeholder="you@company.com"
+                />
+              </label>
+              <label>
+                Password
+                <input
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  placeholder="Enter your password"
+                />
+              </label>
+              <button disabled={authBusy}>
+                {authBusy ? "Signing in…" : "Sign in"}
+                <Icon name="arrow" size={17} />
+              </button>
             </form>
             {identities.length > 0 && (
-              <section className="card">
-                <h2>Coba demo offline</h2>
+              <section className="card demo-entry">
+                <div className="row">
+                  <h2>Take a look around.</h2>
+                  <span className="tag">Offline demo</span>
+                </div>
                 <p className="muted">
-                  Data sintetis. Sumber, pembiayaan, dan hasil bukan penawaran
-                  atau bukti transaksi nyata.
+                  Try the full workflow with clearly labeled synthetic data.
                 </p>
                 <label>
-                  Identitas demo
+                  Demo identity
                   <select id="identity">
-                    {identities.map((i) => (
-                      <option key={i.id} value={i.id}>
-                        {i.display_name} · {i.email}
+                    {identities.map((identity) => (
+                      <option key={identity.id} value={identity.id}>
+                        {identity.display_name} · {identity.email}
                       </option>
                     ))}
                   </select>
                 </label>
                 <button
-                  style={{ marginTop: 14 }}
+                  className="secondary"
+                  disabled={authBusy}
                   onClick={() =>
                     login({
                       user_id: (
@@ -374,102 +439,91 @@ export default function Workspace() {
                     })
                   }
                 >
-                  Masuk demo
+                  Enter demo
+                  <Icon name="arrow" size={16} />
                 </button>
+                <small>
+                  Sample sources, financing, and results are illustrative.
+                </small>
               </section>
             )}
           </div>
-        ) : selected ? (
-          <Detail
-            workspace={selected}
-            session={session}
-            onBack={() => {
-              setSelected(null);
-              load();
+        </div>
+      ) : selected ? (
+        <Detail
+          key={selected.id}
+          workspace={selected}
+          session={session}
+          onBack={() => {
+            setSelected(null);
+            setHomeSection("workspaces");
+            void load().catch((error) => setError(error.message));
+          }}
+          onWorkspace={(updated) =>
+            setSelected((current) =>
+              current?.id === updated.id ? updated : current,
+            )
+          }
+        />
+      ) : (
+        <>
+          <WorkspacePortfolio
+            key={session.organization_id}
+            workspaces={workspaces}
+            onOpen={(workspace) => {
+              setSelected(workspace);
+              setHomeSection("workspaces");
             }}
-            onWorkspace={(updated) =>
-              setSelected((current) =>
-                current?.id === updated.id ? updated : current,
-              )
-            }
-          />
-        ) : (
-          <>
-            <div className="row">
-              <div>
-                <div className="eyebrow">Portofolio ekspor</div>
-                <h1>Ruang kerja Anda</h1>
-                <p className="muted">
-                  Mulai dari eksplorasi, lanjutkan dengan fakta dan bukti yang
-                  ditinjau.
-                </p>
-              </div>
-              <button onClick={() => setCreating(!creating)}>
-                + Ruang kerja baru
-              </button>
-            </div>
+            onNew={() => setCreating(!creating)}
+            creating={creating}
+            canCreate={canCreate}
+            loading={listLoading}
+          >
             {creating && (
               <Create
-                onCreate={(w) => {
+                onCreate={(workspace) => {
                   setCreating(false);
-                  setSelected(w);
-                  load();
+                  setSelected(workspace);
+                  void load().catch((error) => setError(error.message));
                 }}
               />
             )}
-            <div className="grid">
-              {workspaces.map((w) => (
-                <article className="card" key={w.id}>
-                  <div className="row">
-                    <span
-                      className={
-                        "tag " + (w.execution_scope === "demo" ? "demo" : "")
-                      }
-                    >
-                      {w.execution_scope === "demo"
-                        ? "DEMO SINTETIS"
-                        : "DATA ORGANISASI"}
-                    </span>
-                    <span className="tag">
-                      {w.mode === "sandbox" ? "Eksplorasi" : "Transaksi"}
-                    </span>
-                  </div>
-                  <h2 style={{ marginTop: 22 }}>{w.product.description}</h2>
-                  <p className="muted">
-                    {w.seller_domicile || "?"} → {w.destination_country || "?"}{" "}
-                    ·{" "}
-                    {w.business_profile === "producer"
-                      ? "Produsen"
-                      : "Reseller"}
-                  </p>
-                  <div className="row">
-                    <small className="muted">
-                      {w.reporting_currency} · revisi {w.revision}
-                    </small>
-                    <button className="link" onClick={() => setSelected(w)}>
-                      Buka ruang kerja →
-                    </button>
-                  </div>
-                </article>
-              ))}
-            </div>
-            {workspaces.length === 0 && (
-              <p className="empty">
-                Belum ada ruang kerja. Mulai dengan produk dan tujuan ekspor.
+          </WorkspacePortfolio>
+          {listLoading && (
+            <p className="loading-inline" role="status">
+              Loading workspaces…
+            </p>
+          )}
+          {workspaceCursor && (
+            <button
+              className="secondary load-more"
+              disabled={listLoading}
+              onClick={() =>
+                load(true).catch((error) => setError(error.message))
+              }
+            >
+              Load more workspaces
+            </button>
+          )}
+          <section id="usage" className="organization-section">
+            <div className="section-heading">
+              <div className="eyebrow">WORKSPACE RESOURCES</div>
+              <h2>Usage & plans</h2>
+              <p className="muted">
+                Understand your allowance before starting new research.
               </p>
-            )}
-            {workspaceCursor && (
-              <button
-                className="secondary"
-                onClick={() =>
-                  load(true).catch((error) => setError(error.message))
-                }
-              >
-                Muat ruang kerja berikutnya
-              </button>
-            )}
+            </div>
             <Settings key={session.organization_id} />
-            {session && member?.roles.includes("owner") && (
+          </section>
+          {member?.roles.includes("owner") && (
+            <section id="team" className="organization-section">
+              <div className="section-heading">
+                <div className="eyebrow">WORK BETTER TOGETHER</div>
+                <h2>Team & access</h2>
+                <p className="muted">
+                  Keep responsibilities clear and access deliberate.
+                </p>
+              </div>
               <MemberAdmin
                 key={session.organization_id}
                 session={session}
@@ -480,18 +534,18 @@ export default function Workspace() {
                   else setWorkspaces([]);
                 }}
               />
-            )}
-          </>
-        )}
-        <p className="foot">
-          Fincathon · Waktu mengikuti zona ruang kerja. Tanggal lokal pada bukti
-          tetap dipertahankan.
-          <br />
-          Persiapan dan pencatatan saja. Tidak ada pengiriman pesan, pembayaran,
-          pemesanan, atau pengajuan pembiayaan.
-        </p>
-      </main>
-    </>
+            </section>
+          )}
+        </>
+      )}
+      <footer className="foot">
+        <span>
+          fincathon<span className="brand-dot">.</span>{" "}
+          <span className="footer-note">Evidence to decisions.</span>
+        </span>
+        <span>Workspace timezones apply · English</span>
+      </footer>
+    </AppShell>
   );
 }
 function Create({ onCreate }: { onCreate: (w: W) => void }) {
@@ -520,47 +574,47 @@ function Create({ onCreate }: { onCreate: (w: W) => void }) {
         }
       }}
     >
-      <h2>Mulai dari produk Anda</h2>
+      <h2>Start with your product</h2>
       <div className="grid">
-        <Field name="description" label="Produk dan bentuk barang" />
+        <Field name="description" label="Product & goods description" />
         <label>
-          Profil usaha
+          Business profile
           <select name="profile">
             <option value="reseller">Reseller</option>
-            <option value="producer">Produsen</option>
+            <option value="producer">Producer</option>
           </select>
         </label>
         <label>
           Mode
           <select name="mode">
-            <option value="sandbox">Eksplorasi / sandbox</option>
-            <option value="deal">Transaksi</option>
+            <option value="sandbox">Exploration / sandbox</option>
+            <option value="deal">Deal</option>
           </select>
         </label>
         <Field
           name="origin"
-          label="Domisili penjual (kode ISO, contoh ID)"
+          label="Seller domicile (ISO code, e.g. ID)"
           required={false}
         />
         <Field
           name="destination"
-          label="Negara tujuan (contoh SG)"
+          label="Destination country (e.g. SG)"
           required={false}
         />
         <Field
           name="dispatch"
-          label="Negara keberangkatan barang (ISO, jika diketahui)"
+          label="Goods dispatch country (ISO, if known)"
           required={false}
         />
-        <Field name="currency" label="Mata uang laporan" value="IDR" />
+        <Field name="currency" label="Reporting currency" value="IDR" />
         <Field
           name="timezone"
-          label="Zona waktu pemilik (IANA)"
+          label="Owner timezone (IANA)"
           value="Asia/Jakarta"
         />
       </div>
       {error && <div role="alert">{error}</div>}
-      <button>Buat ruang kerja</button>
+      <button>Create workspace</button>
     </form>
   );
 }
@@ -577,10 +631,11 @@ function Detail({
 }) {
   const [w, setW] = useState(workspace),
     [loaded, setLoaded] = useState(false),
+    [archiveConfirmed, setArchiveConfirmed] = useState(false),
     [deal, setDeal] = useState<D | null>(null),
-    [tab, setTab] = useState("Ringkasan"),
+    [tab, setTab] = useState("Overview"),
     [draftKind, setDraftKind] = useState<S["ArtifactKind"]>("agreement"),
-    [draftLanguage, setDraftLanguage] = useState("id"),
+    [draftLanguage, setDraftLanguage] = useState("en"),
     [draftRecipient, setDraftRecipient] = useState(""),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false),
@@ -605,7 +660,6 @@ function Detail({
       path: string;
       body: Record<string, unknown>;
     } | null>(null),
-    [audit, setAudit] = useState<S["AuditRecord"][]>([]),
     [reviewContext, setReviewContext] = useState<S["ReviewContext"] | null>(
       null,
     ),
@@ -619,8 +673,14 @@ function Detail({
     session.memberships.find(
       (m) => m.organization_id === session.organization_id,
     )?.roles || [];
-  const editor = roles.some((r) => r === "owner" || r === "export_admin");
-  const finance = roles.some((r) => r === "owner" || r === "finance_reviewer");
+  const archived = w.archived || !!deal?.archived;
+  const canArchive = roles.some((r) => r === "owner" || r === "export_admin");
+  const editor = !archived && canArchive;
+  const finance =
+    !archived && roles.some((r) => r === "owner" || r === "finance_reviewer");
+  useEffect(() => {
+    setArchiveConfirmed(false);
+  }, [archived]);
   async function list<K extends keyof S>(path: string): Promise<S[K][]> {
     const rows: S[K][] = [];
     let cursor: string | null = null;
@@ -634,7 +694,7 @@ function Detail({
       rows.push(...page.items);
       cursor = page.next_cursor;
       if (cursor && seen.has(cursor))
-        throw new Error("Pagination tidak bergerak; muat ulang ruang kerja.");
+        throw new Error("Pagination did not advance. Refresh the workspace.");
       if (cursor) seen.add(cursor);
     } while (cursor);
     return rows.sort((a, b) => {
@@ -675,7 +735,6 @@ function Detail({
         list<"Obligation">(r + "/obligations").then(setObligations),
         list<"Receipt">(r + "/receipts").then(setReceipts),
         list<"Milestone">(r + "/milestones").then(setMilestones),
-        list<"AuditRecord">("audit").then(setAudit),
         api<S["Gate"]>(r + "/readiness?stage=shipment").then(setGate),
         api<S["ReviewContext"]>(r + "/review-context").then(setReviewContext),
         list<"Reconciliation">(r + "/reconciliations").then(setReconciliations),
@@ -701,8 +760,16 @@ function Detail({
     return () => clearTimeout(timer);
   }, [job]);
   async function command(path: string, body: unknown, method = "POST") {
+    if ((deal?.archived || w.archived) && !path.endsWith("/archive")) {
+      setError(
+        "This workspace is archived. Reactivate it before changing records.",
+      );
+      return null;
+    }
     if (processing && path !== "runs/" + job?.id + "/cancel") {
-      setError("Tunggu pekerjaan selesai sebelum mengubah masukan terkait.");
+      setError(
+        "Wait for the current job to finish before changing its inputs.",
+      );
       return null;
     }
     setBusy(true);
@@ -718,7 +785,7 @@ function Detail({
             : { path, body: body as Record<string, unknown> },
         );
       await refresh();
-      setMessage("Tersimpan.");
+      setMessage("Saved.");
       return r;
     } catch (e) {
       if ((e as Error & { status?: number }).status === 409) {
@@ -741,7 +808,7 @@ function Detail({
     const accepted = result && "job" in result ? result.job : result;
     if (accepted) {
       setJob(accepted.run);
-      setMessage("Pekerjaan diterima; menunggu worker.");
+      setMessage("Job accepted; waiting for the worker.");
     }
   }
   const analysis = analyses.at(-1);
@@ -750,63 +817,133 @@ function Detail({
     return (
       <>
         <button className="link" onClick={onBack}>
-          ← Semua ruang kerja
+          ← All workspaces
         </button>
-        <p role="status">{error || "Memuat konteks ruang kerja…"}</p>
+        <p role="status">{error || "Loading workspace context…"}</p>
       </>
     );
   return (
     <>
       <button className="link" onClick={onBack}>
-        ← Semua ruang kerja
+        ← All workspaces
       </button>
-      <div className="row">
+      <div className="row workspace-heading">
         <div>
           <div className="eyebrow">
-            {w.business_profile === "producer" ? "Produsen" : "Reseller"} ·{" "}
+            {w.business_profile === "producer" ? "Producer" : "Reseller"} ·{" "}
             {w.seller_domicile} → {w.destination_country}
           </div>
           <h1>{w.product.description}</h1>
           <p className="muted">
-            {deal ? "Transaksi" : "Eksplorasi"} · {w.reporting_currency} ·
-            revisi {revision}
+            {deal ? "Deal" : "Exploration"} · {w.reporting_currency} · revision{" "}
+            {revision}
           </p>
         </div>
         <span className={"tag " + (w.execution_scope === "demo" ? "demo" : "")}>
           {w.execution_scope === "demo"
-            ? "DEMO · SELURUH DATA SINTETIS"
-            : "RUANG ORGANISASI"}
+            ? "DEMO · ALL DATA IS SYNTHETIC"
+            : "ORGANIZATION WORKSPACE"}
         </span>
       </div>
       {deal && (
-        <div className="actions">
-          {Object.entries(deal.states).map(([k, v]) => (
-            <span key={k} className="status">
-              {title(k)}: {title(v)}
-            </span>
-          ))}
-        </div>
+        <>
+          <div className="state-summary" aria-label="Current deal status">
+            {(
+              [
+                "execution_gate",
+                "goods",
+                "buyer_payment",
+                "internal_closure",
+              ] as const
+            ).map((key) => (
+              <div key={key}>
+                <small>{title(key)}</small>
+                <strong>{title(deal.states[key])}</strong>
+              </div>
+            ))}
+          </div>
+          <details className="state-details">
+            <summary>All status dimensions</summary>
+            <div className="actions">
+              {Object.entries(deal.states).map(([key, value]) => (
+                <span key={key} className="status">
+                  {title(key)}: {title(value)}
+                </span>
+              ))}
+            </div>
+          </details>
+        </>
       )}
-      <nav className="tabs" aria-label="Bagian ruang kerja">
+      {(w.archived || deal?.archived) && (
+        <p className="notice" role="status">
+          This workspace is archived. Evidence, history, and exports remain
+          available.
+        </p>
+      )}
+      <nav className="tabs" aria-label="Workspace sections">
         {[
-          "Ringkasan",
-          "Bukti & dokumen",
-          "Biaya & arus kas",
-          "Skenario & pendanaan",
-          "Draf & persetujuan",
-          "Kesiapan & jadwal",
-          "Pembayaran & penutupan",
-          "Riwayat",
-        ].map((t) => (
+          "Overview",
+          "Evidence & documents",
+          "Economics & cash",
+          "Scenarios & funding",
+          "Drafts & approvals",
+          "Readiness & timeline",
+          "Settlement & closure",
+          "History",
+        ].map((t, index) => (
           <button
             className={tab === t ? "active" : ""}
             key={t}
+            aria-label={t}
+            aria-current={tab === t ? "page" : undefined}
             onClick={() => setTab(t)}
           >
+            <span className="tab-number" aria-hidden="true">
+              {String(index + 1).padStart(2, "0")}
+            </span>
             {t}
           </button>
         ))}
       </nav>
+      {tab === "Overview" && !archived && (
+        <section className="context-note" aria-label="Workspace guide">
+          <div>
+            <strong>
+              {!deal
+                ? "Start with a question. Shape it with evidence."
+                : analysis?.current_for_use === false
+                  ? "Your inputs have changed."
+                  : analysis
+                    ? "Understand the trade-offs before moving forward."
+                    : "Build your first financial picture."}
+            </strong>
+            <p>
+              {!deal
+                ? "Set your planning assumptions below, or add source evidence as it becomes available. You can explore before a buyer or quotation is confirmed."
+                : analysis?.current_for_use === false
+                  ? "Refresh the analysis and review its sources before using an earlier approval or draft."
+                  : analysis
+                    ? "Review cash timing, remaining gaps, and the evidence behind each result. A completed analysis does not establish transaction readiness."
+                    : "Review your product, costs, and payment dates, then run a traceable analysis."}
+            </p>
+          </div>
+          <button
+            className="link"
+            onClick={() =>
+              setTab(
+                analysis && analysis.current_for_use !== false
+                  ? "Economics & cash"
+                  : "Evidence & documents",
+              )
+            }
+          >
+            {analysis && analysis.current_for_use !== false
+              ? "Explore the economics"
+              : "Review evidence"}
+            <Icon name="arrow" size={16} />
+          </button>
+        </section>
+      )}
       {error && (
         <div className="notice error" role="alert">
           {error}
@@ -820,7 +957,7 @@ function Detail({
           data-testid="job-state"
           data-status={job.status}
         >
-          Pekerjaan {title(job.status)} <code>{job.id}</code>
+          Job {title(job.status)} <code>{job.id}</code>
           {["queued", "running"].includes(job.status) && (
             <button
               className="link"
@@ -832,7 +969,7 @@ function Detail({
                 if (cancelled) setJob(cancelled);
               }}
             >
-              Batalkan
+              Cancel
             </button>
           )}
           {["failed", "cancelled"].includes(job.status) &&
@@ -850,24 +987,24 @@ function Detail({
                   })
                 }
               >
-                Ulangi dengan revisi terbaru
+                Retry with the latest revision
               </button>
             )}
           <Issues items={[...(job.blockers || []), ...(job.warnings || [])]} />
           {!!job.provider_receipts?.length && (
             <details>
-              <summary>Jejak akses sumber dan penyedia</summary>
+              <summary>Source & provider access trail</summary>
               {job.provider_receipts.map((receipt, index) => (
                 <p key={index}>
                   {receipt.provider} · {receipt.status} ·{" "}
-                  {receipt.data_mode || "tidak ada data"}
+                  {receipt.data_mode || "no data"}
                   <br />
                   {receipt.fetched_at} ·{" "}
-                  {receipt.request_id || "ID penyedia tidak tersedia"}
+                  {receipt.request_id || "Provider ID unavailable"}
                   <br />
                   {receipt.limitations.join(" · ")}
                   {receipt.retry_after !== null && (
-                    <> · Jendela ulang penyedia: {receipt.retry_after} detik</>
+                    <> · Provider retry window: {receipt.retry_after} seconds</>
                   )}
                   {receipt.source_url && (
                     <>
@@ -877,7 +1014,7 @@ function Detail({
                         target="_blank"
                         rel="noreferrer"
                       >
-                        Buka sumber asli
+                        Open original source
                       </a>
                     </>
                   )}
@@ -887,16 +1024,16 @@ function Detail({
           )}
         </section>
       )}
-      {tab === "Ringkasan" && (
+      {tab === "Overview" && (
         <>
           <div className="split">
             <section className="card">
-              <h2>Fakta produk</h2>
+              <h2>Product facts</h2>
               <p>{w.product.description}</p>
               <p className="muted">
                 {w.dispatch_country} → {w.destination_country}
                 <br />
-                Zona waktu pemilik: {w.owner_timezone}
+                Owner timezone: {w.owner_timezone}
               </p>
               {editor && (
                 <form
@@ -910,7 +1047,7 @@ function Detail({
                         patches: [
                           {
                             op: "replace",
-                            reason: "Deskripsi produk diperbarui pemilik",
+                            reason: "Product description updated by owner",
                             agreement_required_from: [],
                             path: "/product",
                             value: {
@@ -927,27 +1064,25 @@ function Detail({
                 >
                   <Field
                     name="product"
-                    label="Deskripsi produk"
+                    label="Product description"
                     value={w.product.description}
                   />
-                  <button disabled={busy || processing}>
-                    Simpan perubahan
-                  </button>
+                  <button disabled={busy || processing}>Save changes</button>
                 </form>
               )}
             </section>
             <section className="card">
-              <h2>Analisis terakhir</h2>
+              <h2>Latest analysis</h2>
               {analysis ? (
                 <>
                   <span className="tag">{title(analysis.completeness)}</span>
                   {analysis.current_for_use === false && (
                     <span className="status">
-                      Masukan berubah / sumber kedaluwarsa
+                      Inputs changed / source expired
                     </span>
                   )}
                   <p>
-                    Kontribusi:{" "}
+                    Contribution:{" "}
                     <strong>
                       {money(analysis.after_financing.contribution)}
                     </strong>
@@ -955,7 +1090,7 @@ function Detail({
                   <p className="muted">
                     {date(analysis.created_at)}
                     <br />
-                    Kelengkapan berlaku untuk masukan yang dinyatakan.
+                    Completeness applies to the declared inputs.
                   </p>
                   <Issues
                     items={[
@@ -966,7 +1101,8 @@ function Detail({
                 </>
               ) : (
                 <p className="muted">
-                  Tambahkan asumsi perencanaan, lalu hitung melalui worker.
+                  Add planning assumptions, then run a calculation through the
+                  worker.
                 </p>
               )}
               {editor && (
@@ -981,7 +1117,7 @@ function Detail({
                     })
                   }
                 >
-                  Hitung ulang analisis
+                  Recalculate analysis
                 </button>
               )}
             </section>
@@ -991,11 +1127,11 @@ function Detail({
               <Planning w={w} command={command} evidence={confirmed} />
               {w.planning_inputs && (
                 <section className="card">
-                  <h2>Lanjutkan ke transaksi</h2>
+                  <h2>Move to a deal</h2>
                   <p className="muted">
-                    Masukan perencanaan dipertahankan sebagai sumber. Identitas,
-                    jadwal, dan harga masih memerlukan bukti dan persetujuan
-                    pihak terkait.
+                    Planning inputs remain as source records. Identities,
+                    schedules, and prices still require evidence and
+                    relevant-party agreement.
                   </p>
                   <button
                     disabled={busy || processing}
@@ -1008,7 +1144,7 @@ function Detail({
                       });
                     }}
                   >
-                    Buat transaksi dari masukan ini
+                    Create a deal from these inputs
                   </button>
                 </section>
               )}
@@ -1016,7 +1152,7 @@ function Detail({
           )}
           {deal && (
             <section className="card">
-              <h2>Struktur transaksi</h2>
+              <h2>Deal structure</h2>
               <div className="grid">
                 {deal.parties.map((p) => (
                   <div key={p.id}>
@@ -1030,14 +1166,14 @@ function Detail({
                 ))}
               </div>
               <p className="muted">
-                {deal.line_items.length} baris barang · {deal.shipments.length}{" "}
-                pengiriman · {deal.invoices.length} faktur
+                {deal.line_items.length} goods lines · {deal.shipments.length}{" "}
+                shipments · {deal.invoices.length} invoices
               </p>
             </section>
           )}
         </>
       )}
-      {tab === "Bukti & dokumen" && (
+      {tab === "Evidence & documents" && (
         <>
           {editor && (
             <DiscoveryPanel
@@ -1056,7 +1192,7 @@ function Detail({
             />
           )}
           <section className="card">
-            <h2>Dokumen asli</h2>
+            <h2>Original documents</h2>
             {editor && (
               <form
                 onSubmit={async (e) => {
@@ -1072,7 +1208,7 @@ function Detail({
                 }}
               >
                 <label>
-                  Unggah TXT, PDF, PNG, atau JPEG (maks. 10 MiB)
+                  Upload TXT, PDF, PNG, or JPEG (max. 10 MiB)
                   <input
                     name="files"
                     type="file"
@@ -1081,7 +1217,7 @@ function Detail({
                   />
                 </label>
                 <button disabled={busy || processing}>
-                  Unggah dan ekstrak kandidat
+                  Upload & extract candidates
                 </button>
               </form>
             )}
@@ -1116,17 +1252,17 @@ function Detail({
                         )
                       }
                     >
-                      Coba ekstraksi ulang
+                      Retry extraction
                     </button>
                   )}
               </p>
             ))}
           </section>
           <section className="card">
-            <h2>Kandidat fakta</h2>
+            <h2>Fact candidates</h2>
             <p className="muted">
-              Hasil ekstraksi tetap memerlukan tinjauan. Konfirmasi sumber tidak
-              otomatis mengubah nilai transaksi.
+              Extracted facts still require review. Confirming a source does not
+              automatically change deal values.
             </p>
             {facts.map((f) => (
               <details key={f.id}>
@@ -1149,7 +1285,7 @@ function Detail({
                               candidate_id: f.id,
                               disposition,
                               patch: null,
-                              reason: "Ditinjau melalui ruang kerja",
+                              reason: "Reviewed through the workspace",
                             })
                           }
                         >
@@ -1163,7 +1299,7 @@ function Detail({
             ))}
           </section>
           <section className="card">
-            <h2>Sumber dan kutipan</h2>
+            <h2>Sources & excerpts</h2>
             {evidence.map((s) => (
               <details key={s.id}>
                 <summary>
@@ -1174,19 +1310,19 @@ function Detail({
                   {s.publisher} · {date(s.retrieved_at)}
                 </p>
                 <div className="source">{s.claim}</div>
-                <p>Lokasi: {s.locator}</p>
+                <p>Location: {s.locator}</p>
                 <p>
-                  Berlaku sejak {s.effective_from || "belum dikonfirmasi"} ·
-                  hingga {s.valid_until || "belum dikonfirmasi"}
+                  Effective from {s.effective_from || "not confirmed"} · until{" "}
+                  {s.valid_until || "not confirmed"}
                 </p>
                 <p>
-                  Yurisdiksi sumber:{" "}
-                  {s.applicability.jurisdictions.join(", ") || "perlu ditinjau"}{" "}
-                  · {s.applicability.validity_reason}
+                  Source jurisdictions:{" "}
+                  {s.applicability.jurisdictions.join(", ") || "needs review"} ·{" "}
+                  {s.applicability.validity_reason}
                 </p>
                 {s.canonical_url && (
                   <a href={s.canonical_url} rel="noreferrer" target="_blank">
-                    Sumber publik ↗
+                    Public source ↗
                   </a>
                 )}
                 <p className="muted">{s.limitations.join(" · ")}</p>
@@ -1200,11 +1336,11 @@ function Detail({
                         expected_revision: revision,
                         evidence_id: s.id,
                         disposition: "confirmed",
-                        reason: "Sumber ditinjau untuk transaksi ini",
+                        reason: "Source reviewed for this deal",
                       })
                     }
                   >
-                    Konfirmasi sumber
+                    Confirm source
                   </button>
                 )}
               </details>
@@ -1212,18 +1348,18 @@ function Detail({
           </section>
         </>
       )}
-      {tab === "Biaya & arus kas" && (
+      {tab === "Economics & cash" && (
         <>
           <section className="card">
-            <h2>Biaya yang dinyatakan</h2>
+            <h2>Declared costs</h2>
             <div className="scroll">
               <table>
                 <thead>
                   <tr>
-                    <th>Komponen / perlakuan</th>
-                    <th>Estimasi</th>
-                    <th>Aktual</th>
-                    <th>Sumber</th>
+                    <th>Component / treatment</th>
+                    <th>Estimate</th>
+                    <th>Actual</th>
+                    <th>Source</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1233,7 +1369,7 @@ function Detail({
                         {componentTitle(c.component_key, deal)}
                         <br />
                         <small>
-                          {title(c.treatment)} · {title(c.status)} · Cakupan:{" "}
+                          {title(c.treatment)} · {title(c.status)} · Coverage:{" "}
                           {c.covered_components
                             .map((key) => componentTitle(key, deal))
                             .join(", ")}
@@ -1254,7 +1390,7 @@ function Detail({
                             href="#"
                             onClick={(e) => {
                               e.preventDefault();
-                              setTab("Bukti & dokumen");
+                              setTab("Evidence & documents");
                             }}
                           >
                             {evidence.find((e) => e.id === id)?.title || id}
@@ -1271,22 +1407,22 @@ function Detail({
           {analysis && (
             <>
               <section className="card">
-                <h2>Kontribusi dan kebutuhan kas</h2>
+                <h2>Contribution & cash needs</h2>
                 <div className="grid">
                   <Metric
-                    label="Kontribusi sesudah pembiayaan"
+                    label="Contribution after financing"
                     value={money(analysis.after_financing.contribution)}
                   />
                   <Metric
-                    label="Kas minimum"
+                    label="Minimum cash"
                     value={analysis.cash_metrics?.minimum_cash}
                   />
                   <Metric
-                    label="Kekurangan buffer"
+                    label="Buffer shortfall"
                     value={analysis.cash_metrics?.buffer_shortfall}
                   />
                   <Metric
-                    label="Kas akhir"
+                    label="Closing cash"
                     value={analysis.cash_metrics?.final_cash}
                   />
                 </div>
@@ -1301,22 +1437,24 @@ function Detail({
                     date(analysis.cash_metrics.horizon_end)}
                 </p>
                 <Issues items={[...analysis.blockers, ...analysis.warnings]} />
-                <h3>Urutan arus kas dari server</h3>
+                <h3>Server-calculated cash sequence</h3>
                 <div className="scroll">
                   <table>
                     <thead>
                       <tr>
-                        <th>Waktu</th>
-                        <th>Arah</th>
-                        <th>Jumlah</th>
-                        <th>Saldo sesudah kejadian</th>
+                        <th>Time</th>
+                        <th>Direction</th>
+                        <th>Quantity</th>
+                        <th>Balance after event</th>
                       </tr>
                     </thead>
                     <tbody>
                       {analysis.cash_metrics?.event_balances?.map((p, n) => (
                         <tr key={n}>
                           <td>{date(p.at)}</td>
-                          <td>{p.direction === "in" ? "Masuk" : "Keluar"}</td>
+                          <td>
+                            {p.direction === "in" ? "Sign in" : "Sign out"}
+                          </td>
                           <td>{money(p.amount)}</td>
                           <td>{money(p.balance)}</td>
                         </tr>
@@ -1324,25 +1462,27 @@ function Detail({
                     </tbody>
                   </table>
                 </div>
-                <h3>Interval kas negatif</h3>
+                <h3>Negative cash intervals</h3>
                 {analysis.cash_metrics?.negative_intervals.map((i, n) => (
                   <p key={n}>
                     {date(i.start)} →{" "}
-                    {i.end ? date(i.end) : "Masih terbuka pada akhir horizon"}
+                    {i.end
+                      ? date(i.end)
+                      : "Still open at the end of the horizon"}
                   </p>
                 ))}
-                <h3>Harga dan pembanding</h3>
+                <h3>Pricing & comparables</h3>
                 <div className="grid">
                   <Metric
-                    label="Harga dasar penjual per satuan"
+                    label="Seller floor per unit"
                     value={analysis.price_range.seller_floor || undefined}
                   />
                   <Metric
-                    label="Pembanding pasar rendah"
+                    label="Low market comparable"
                     value={analysis.price_range.market_low || undefined}
                   />
                   <Metric
-                    label="Pembanding pasar tinggi"
+                    label="High market comparable"
                     value={analysis.price_range.market_high || undefined}
                   />
                 </div>
@@ -1356,16 +1496,16 @@ function Detail({
                 ))}
                 {analysis.price_range.rejected_comparators.map((c) => (
                   <p key={c.id} className="muted">
-                    Pembanding dikeluarkan: {c.reason}
+                    Excluded comparable: {c.reason}
                   </p>
                 ))}
                 <p className="muted">
-                  {title(analysis.price_range.label)} · Pembanding yang tidak
-                  sebanding tidak menjadi harga transaksi.
+                  {title(analysis.price_range.label)} · Noncomparable
+                  observations do not become transaction prices.
                 </p>
                 <Lineage analysis={analysis} />
                 <code>
-                  Analisis {analysis.snapshot_hash} ·{" "}
+                  Analysis {analysis.snapshot_hash} ·{" "}
                   {analysis.calculator_version}
                 </code>
               </section>
@@ -1373,7 +1513,7 @@ function Detail({
           )}
         </>
       )}
-      {tab === "Skenario & pendanaan" && (
+      {tab === "Scenarios & funding" && (
         <>
           {deal && editor && (
             <ScenarioEditor
@@ -1385,10 +1525,10 @@ function Detail({
             />
           )}
           <section className="card">
-            <h2>Pembiayaan: persiapan saja</h2>
+            <h2>Financing: preparation only</h2>
             <p className="muted">
-              Penawaran hipotetis tidak membuktikan ketersediaan dana, kelayakan
-              pemberi pinjaman, atau pencairan.
+              Hypothetical offers do not prove fund availability, lender
+              eligibility, or disbursement.
             </p>
             {deal && editor && (
               <button
@@ -1410,7 +1550,7 @@ function Detail({
                   })
                 }
               >
-                Cari opsi pendanaan
+                Find funding options
               </button>
             )}
             {funding.map((f) => (
@@ -1434,7 +1574,7 @@ function Detail({
                               : event.schedule.due.date) +
                             " · " +
                             event.schedule.due.timezone
-                          : "Relatif terhadap peristiwa"}
+                          : "Relative to an event"}
                       </small>
                     </article>
                   ))}
@@ -1454,26 +1594,27 @@ function Detail({
                       if (r) setJob(r.job.run);
                     }}
                   >
-                    Hitung skenario pendanaan ini
+                    Calculate this funding scenario
                   </button>
                 )}
               </article>
             ))}
           </section>
           <section className="card">
-            <h2>Perbandingan skenario</h2>
+            <h2>Scenario comparison</h2>
             {analyses.map((a) => (
               <p key={a.id}>
                 <code>{a.scenario_id}</code>
                 <br />
-                {money(a.after_financing.contribution)} · kas minimum{" "}
+                {money(a.after_financing.contribution)} · minimum cash{" "}
                 {a.cash_metrics?.minimum_cash} · {title(a.completeness)}
                 {a.owner_comparison && (
                   <>
                     <br />
-                    Peringkat relatif:{" "}
-                    {a.owner_comparison.rank || "belum tersedia"} · preferensi{" "}
-                    {a.owner_comparison.ranking_preference || "belum dipilih"}
+                    Relative rank: {a.owner_comparison.rank ||
+                      "not available"}{" "}
+                    · preference{" "}
+                    {a.owner_comparison.ranking_preference || "not selected"}
                     <br />
                     {a.owner_comparison.checks.map((check) => (
                       <span className="tag" key={check.code}>
@@ -1481,14 +1622,15 @@ function Detail({
                       </span>
                     ))}
                     <br />
-                    Pihak yang perlu menerima:{" "}
+                    Parties whose acceptance is required:{" "}
                     {a.owner_comparison.required_counterparty_ids
                       .map(
                         (id) =>
                           deal?.parties.find((p) => p.id === id)
                             ?.display_name || id,
                       )
-                      .join(", ") || "sesuai penerimaan kontrak yang berlaku"}
+                      .join(", ") ||
+                      "according to applicable contractual acceptance"}
                     <br />
                     <small>{a.owner_comparison.basis}</small>
                   </>
@@ -1498,50 +1640,52 @@ function Detail({
           </section>
         </>
       )}
-      {tab === "Draf & persetujuan" && (
+      {tab === "Drafts & approvals" && (
         <>
           <section className="card">
-            <h2>Draf komersial</h2>
+            <h2>Commercial drafts</h2>
             <p className="muted">
-              Draf dapat diunduh dan ditinjau. Placeholder harus diselesaikan
-              sebelum digunakan.
+              Download and review drafts. Complete all placeholders before using
+              them.
             </p>
             {deal && analysis && editor && (
               <>
                 <label>
-                  Jenis draf
+                  Draft type
                   <select
                     value={draftKind}
                     onChange={(event) =>
                       setDraftKind(event.target.value as S["ArtifactKind"])
                     }
                   >
-                    <option value="agreement">Perjanjian</option>
-                    <option value="message">Pesan untuk pihak terkait</option>
-                    <option value="recommendation">Rekomendasi internal</option>
-                    <option value="clause_revision">Usulan klausul</option>
+                    <option value="agreement">Agreement</option>
+                    <option value="message">Counterparty message</option>
+                    <option value="recommendation">
+                      Internal recommendation
+                    </option>
+                    <option value="clause_revision">Proposed clause</option>
                     <option value="amendment">
-                      Usulan perubahan perjanjian
+                      Proposed agreement amendment
                     </option>
                   </select>
                 </label>
                 <label>
-                  Bahasa draf
+                  Draft language
                   <select
                     value={draftLanguage}
                     onChange={(event) => setDraftLanguage(event.target.value)}
                   >
-                    <option value="id">Bahasa Indonesia</option>
+                    <option value="id">Indonesian</option>
                     <option value="en">English</option>
                   </select>
                 </label>
                 <label>
-                  Penerima draf
+                  Draft recipient
                   <select
                     value={draftRecipient}
                     onChange={(event) => setDraftRecipient(event.target.value)}
                   >
-                    <option value="">Sesuai konteks draf</option>
+                    <option value="">Based on draft context</option>
                     {deal.parties.map((party) => (
                       <option key={party.id} value={party.id}>
                         {party.display_name}
@@ -1562,7 +1706,7 @@ function Detail({
                     })
                   }
                 >
-                  Buat draf dari analisis
+                  Create a draft from analysis
                 </button>
               </>
             )}
@@ -1572,7 +1716,7 @@ function Detail({
                   {title(a.kind)} · {title(a.state)}
                 </summary>
                 <div className="source">{a.content}</div>
-                <p>Placeholder: {a.placeholders.join(", ")}</p>
+                <p>Placeholders: {a.placeholders.join(", ")}</p>
                 <code>{a.content_hash}</code>
                 <p>
                   <a
@@ -1580,7 +1724,7 @@ function Detail({
                       "/api/gateway/" + root + "/artifacts/" + a.id + "/content"
                     }
                   >
-                    Unduh draf
+                    Download draft
                   </a>
                 </p>
               </details>
@@ -1588,10 +1732,10 @@ function Detail({
           </section>
           {deal && analysis && roles.includes("owner") && (
             <section className="card">
-              <h2>Tinjauan pemilik</h2>
+              <h2>Owner review</h2>
               <p className="muted">
-                Berlaku untuk hash analisis dan bukti saat ini. Tidak
-                menggantikan penerimaan pihak lain atau verifikasi dana.
+                Applies to the current analysis and evidence hashes. It does not
+                replace counterparty acceptance or funds verification.
               </p>
               <button
                 disabled={busy || processing}
@@ -1606,16 +1750,16 @@ function Detail({
                   })
                 }
               >
-                Catat persetujuan rencana
+                Record plan approval
               </button>
             </section>
           )}
         </>
       )}
-      {tab === "Kesiapan & jadwal" && (
+      {tab === "Readiness & timeline" && (
         <>
           <section className="card">
-            <h2>Gerbang kesiapan pengiriman</h2>
+            <h2>Shipment readiness gate</h2>
             {gate ? (
               <>
                 <span className="status">{title(gate.status)}</span>
@@ -1630,15 +1774,14 @@ function Detail({
                       const source = evidence.find((row) => row.id === ref.id);
                       return source ? (
                         <details key={ref.id}>
-                          <summary>Bukti: {source.title}</summary>
+                          <summary>Evidence: {source.title}</summary>
                           <p>
                             {source.publisher} · {title(source.mode)} ·{" "}
                             {title(source.review_status)} · {source.locator}
                           </p>
                           <blockquote>{source.claim}</blockquote>
                           <p>
-                            Berlaku sampai:{" "}
-                            {source.valid_until || "Tidak dinyatakan"}
+                            Valid until: {source.valid_until || "Not stated"}
                           </p>
                           {source.document_id && (
                             <a
@@ -1650,13 +1793,13 @@ function Detail({
                                 "/content"
                               }
                             >
-                              Unduh sumber asli
+                              Download original source
                             </a>
                           )}
                         </details>
                       ) : (
                         <p key={ref.id}>
-                          Sumber {ref.id} · lihat riwayat yang diizinkan
+                          Source {ref.id} · see authorized history
                         </p>
                       );
                     })}
@@ -1664,9 +1807,7 @@ function Detail({
                 ))}
               </>
             ) : (
-              <p className="muted">
-                Tersedia setelah konversi menjadi transaksi.
-              </p>
+              <p className="muted">Available after conversion to a deal.</p>
             )}
           </section>
           {deal && roles.includes("owner") && (
@@ -1680,7 +1821,7 @@ function Detail({
             />
           )}
           <section className="card">
-            <h2>Persyaratan</h2>
+            <h2>Requirements</h2>
             {requirements.map((r) => (
               <article key={r.id}>
                 <h3>{r.category}</h3>
@@ -1688,22 +1829,22 @@ function Detail({
                   {title(r.applicability)} · {title(r.fulfillment_status)}
                 </p>
                 <p className="muted">
-                  {r.evidence_ids.length} sumber ·{" "}
-                  {r.fulfillment_evidence_ids.length} bukti pemenuhan
+                  {r.evidence_ids.length} sources ·{" "}
+                  {r.fulfillment_evidence_ids.length} fulfillment evidence
                 </p>
               </article>
             ))}
           </section>
           <section className="card">
-            <h2>Jadwal internal</h2>
+            <h2>Internal timeline</h2>
             <div className="timeline">
               {milestones.map((m) => (
                 <article key={m.id}>
                   <strong>{title(m.kind)}</strong>
                   <p>
                     {m.schedule.kind === "fixed"
-                      ? "Tanggal tetap"
-                      : "Relatif terhadap " + m.schedule.anchor_milestone_id}
+                      ? "Fixed date"
+                      : "Relative to " + m.schedule.anchor_milestone_id}
                   </p>
                   {m.resolved_forecast && (
                     <p>
@@ -1715,33 +1856,33 @@ function Detail({
                     </p>
                   )}
                   <Issues items={m.resolution_issues || []} />
-                  {m.actual && <span className="tag">Aktual diverifikasi</span>}
+                  {m.actual && <span className="tag">Verified actual</span>}
                 </article>
               ))}
             </div>
             {milestones.length === 0 && (
               <p className="muted">
-                Belum ada milestone tercatat. Tanggal pembayaran berada pada
-                kewajiban masing-masing.
+                No milestones recorded yet. Payment dates appear on their
+                respective obligations.
               </p>
             )}
           </section>
         </>
       )}
-      {tab === "Pembayaran & penutupan" && (
+      {tab === "Settlement & closure" && (
         <>
           <section className="card">
-            <h2>Kewajiban dan bukti pembayaran</h2>
+            <h2>Obligations & payment evidence</h2>
             <p className="muted">
-              Pembeli lunas dan penutupan internal adalah dua status terpisah.
-              Bukti pending tidak melunasi kewajiban.
+              Buyer payment and internal closure are separate states. Pending
+              evidence does not settle an obligation.
             </p>
             <div className="scroll">
               <table>
                 <thead>
                   <tr>
-                    <th>Kewajiban</th>
-                    <th>Jumlah</th>
+                    <th>Obligation</th>
+                    <th>Quantity</th>
                     <th>Status</th>
                   </tr>
                 </thead>
@@ -1766,7 +1907,7 @@ function Detail({
               <p key={r.id}>
                 {money(r.received_amount)} · {r.value_date} ·{" "}
                 <strong>{title(r.status)}</strong>{" "}
-                {r.supersedes && <small>Menggantikan {r.supersedes}</small>}
+                {r.supersedes && <small>Supersedes {r.supersedes}</small>}
               </p>
             ))}
             {deal && finance && (
@@ -1781,22 +1922,22 @@ function Detail({
           </section>
           {deal && finance && (
             <section className="card">
-              <h2>Rekonsiliasi internal</h2>
+              <h2>Internal reconciliation</h2>
               {reconciliations.map((r) => (
                 <details key={r.id}>
                   <summary>
                     {date(r.created_at)} · {title(r.closure_gate.status)}
                   </summary>
-                  <p>Kontribusi aktual: {money(r.actual_contribution)}</p>
+                  <p>Actual contribution: {money(r.actual_contribution)}</p>
                   <p>
-                    {r.unresolved_obligation_ids.length} kewajiban belum selesai
+                    {r.unresolved_obligation_ids.length} unresolved obligations
                   </p>
                   <Issues items={r.unresolved_disputes} />
                   {r.dimensions?.map((row, n) => (
                     <p key={n}>
                       {title(row.category)} · {title(row.baseline_kind)} ·{" "}
-                      {row.baseline_value ?? "Belum diketahui"} →{" "}
-                      {row.actual_value ?? "Belum diketahui"} {row.unit}
+                      {row.baseline_value ?? "Not yet known"} →{" "}
+                      {row.actual_value ?? "Not yet known"} {row.unit}
                       <br />
                       <small>{row.basis}</small>
                     </p>
@@ -1805,10 +1946,10 @@ function Detail({
                     <table>
                       <thead>
                         <tr>
-                          <th>Komponen</th>
+                          <th>Component</th>
                           <th>Baseline</th>
-                          <th>Aktual</th>
-                          <th>Selisih</th>
+                          <th>Actual</th>
+                          <th>Variance</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -1842,19 +1983,19 @@ function Detail({
                       setGate(r.gate);
                       setMessage(
                         r.gate.status === "blocked"
-                          ? "Penutupan masih terblokir. Tinjau kondisi gerbang."
-                          : "Transaksi ditutup setelah seluruh syarat terpenuhi.",
+                          ? "Closure is still blocked. Review the gate conditions."
+                          : "The deal is closed after all prerequisites have been met.",
                       );
                     }
                   }}
                 >
-                  Evaluasi penutupan internal
+                  Evaluate internal closure
                 </button>
               )}
 
               <p className="muted">
-                Bandingkan aktual dengan baseline yang dipertahankan. Penutupan
-                tetap diblokir selama syarat belum terpenuhi.
+                Compare actuals with the retained baseline. Closure remains
+                blocked while prerequisites are unmet.
               </p>
               <button
                 disabled={busy || processing}
@@ -1866,28 +2007,29 @@ function Detail({
                   })
                 }
               >
-                Jalankan rekonsiliasi
+                Run reconciliation
               </button>
             </section>
           )}
         </>
       )}
-      {deal && editor && tab === "Ringkasan" && (
+      {deal && editor && tab === "Overview" && (
         <fieldset disabled={busy || processing}>
           <PartyEntry deal={deal} evidence={confirmed} command={command} />
           <OwnerEntry deal={deal} evidence={confirmed} command={command} />
         </fieldset>
       )}
       {deal &&
+        !archived &&
         roles.some(
           (role) => role === "owner" || role === "production_procurement",
         ) &&
-        tab === "Kesiapan & jadwal" && (
+        tab === "Readiness & timeline" && (
           <fieldset disabled={busy || processing}>
             <RuleEntry deal={deal} evidence={confirmed} command={command} />
           </fieldset>
         )}
-      {deal && finance && tab === "Skenario & pendanaan" && (
+      {deal && finance && tab === "Scenarios & funding" && (
         <fieldset disabled={busy || processing}>
           <FinanceEntry
             deal={deal}
@@ -1902,8 +2044,8 @@ function Detail({
         </fieldset>
       )}
       {deal &&
-        (tab === "Biaya & arus kas" ||
-          (finance && tab === "Pembayaran & penutupan")) && (
+        (tab === "Economics & cash" ||
+          (finance && tab === "Settlement & closure")) && (
           <fieldset disabled={busy || processing}>
             <FinancialEntry
               deal={deal}
@@ -1911,8 +2053,8 @@ function Detail({
               obligations={obligations}
               costs={costs}
               fx={fx}
-              finance={finance && tab === "Pembayaran & penutupan"}
-              showCosts={tab === "Biaya & arus kas"}
+              finance={finance && tab === "Settlement & closure"}
+              showCosts={tab === "Economics & cash"}
               command={command}
             />
           </fieldset>
@@ -1932,33 +2074,52 @@ function Detail({
           editor={editor}
           finance={finance}
           production={
-            roles.includes("owner") || roles.includes("production_procurement")
+            !archived &&
+            (roles.includes("owner") ||
+              roles.includes("production_procurement"))
           }
         />
       )}
-      {tab === "Riwayat" && (
-        <section className="card">
-          <h2>Jejak perubahan</h2>
-          <p>
-            <a href={"/api/gateway/" + root + "/export"}>
-              Unduh snapshot, bukti, dan riwayat
-            </a>
-          </p>
-          {audit.map((a) => (
-            <p key={a.id}>
-              <strong>{a.action}</strong>
-              <br />
-              <small>
-                {date(a.created_at)} · {a.created_by}
-              </small>
-            </p>
-          ))}
-          {audit.length === 0 && (
-            <p className="muted">
-              Riwayat transaksi belum tersedia pada tampilan ini.
-            </p>
+      {tab === "History" && (
+        <>
+          <HistoryPanel workspace={w} deal={deal} read={api} date={date} />
+          {canArchive && (
+            <section className="card">
+              <h2>
+                {w.archived ? "Reactivate workspace" : "Archive workspace"}
+              </h2>
+              <p>
+                Archival pauses changes to this workspace and its linked deal.
+                Evidence, original files, and history are retained. Reactivation
+                follows the current plan limits.
+              </p>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={archiveConfirmed}
+                  onChange={(event) =>
+                    setArchiveConfirmed(event.target.checked)
+                  }
+                />{" "}
+                I have reviewed this {w.archived ? "reactivation" : "archival"}{" "}
+                action.
+              </label>
+              <button
+                className="secondary"
+                disabled={!archiveConfirmed || busy || processing}
+                onClick={async () => {
+                  const result = await command(root + "/archive", {
+                    expected_revision: revision,
+                    archived: !w.archived,
+                  });
+                  if (result) setArchiveConfirmed(false);
+                }}
+              >
+                {w.archived ? "Reactivate" : "Archive workspace"}
+              </button>
+            </section>
           )}
-        </section>
+        </>
       )}
     </>
   );
@@ -1967,7 +2128,7 @@ function Metric({ label, value }: { label: string; value?: string }) {
   return (
     <div className="metric">
       <small>{label}</small>
-      <strong>{value || "Belum diketahui"}</strong>
+      <strong>{value || "Not yet known"}</strong>
     </div>
   );
 }
@@ -2002,7 +2163,7 @@ function Planning({
           !cashKeys.every((key) => f.get(key))
         ) {
           setError(
-            "Lengkapi saldo, komitmen, cadangan dan waktu saldo bersama; nilai kosong tidak dianggap nol.",
+            "Complete the balance, commitments, buffer, and balance time together. Blank amounts are not treated as zero.",
           );
           return;
         }
@@ -2045,61 +2206,57 @@ function Planning({
         });
       }}
     >
-      <h2>Asumsi awal perencanaan</h2>
+      <h2>Initial planning assumptions</h2>
       <p className="muted">
-        Semua nilai dalam {w.reporting_currency}. Masukan yang belum ada tetap
-        tidak diketahui. Waktu skenario memakai zona {w.owner_timezone}; tidak
-        ada waktu yang diasumsikan dari tanggal saja.
+        All values are in {w.reporting_currency}. Missing inputs remain unknown.
+        Scenario times use {w.owner_timezone}; no time is assumed from a date
+        alone.
       </p>
       <div className="grid">
-        <Field name="quantity" label="Jumlah" value="10" />
-        <Field name="unit" label="Satuan" value="kg" />
-        <Field name="cash" label="Saldo awal tersedia" required={false} />
+        <Field name="quantity" label="Quantity" value="10" />
+        <Field name="unit" label="Unit" value="kg" />
+        <Field name="cash" label="Available opening balance" required={false} />
         <Field
           name="committed"
-          label="Dana terikat di luar transaksi"
+          label="Funds committed outside this deal"
           required={false}
         />
-        <Field
-          name="buffer"
-          label="Buffer minimum yang Anda pilih"
-          required={false}
-        />
+        <Field name="buffer" label="Your minimum buffer" required={false} />
         <Field
           name="cash_date"
-          label="Waktu saldo pada zona pemilik"
+          label="Balance time in owner's timezone"
           type="datetime-local"
           required={false}
         />
         <Field
           name="margin"
-          label="Target margin kontribusi (%)"
+          label="Target contribution margin (%)"
           required={false}
         />
-        <Field name="cost" label="Biaya per satuan" required={false} />
-        <Field name="invoice" label="Total faktur pembeli" required={false} />
-        <Field name="deposit" label="Uang muka pembeli" required={false} />
+        <Field name="cost" label="Cost per unit" required={false} />
+        <Field name="invoice" label="Total buyer invoice" required={false} />
+        <Field name="deposit" label="Buyer deposit" required={false} />
         <Field
           name="deposit_at"
-          label="Waktu skenario uang muka"
+          label="Deposit scenario time"
           type="datetime-local"
           required={false}
         />
         <Field
           name="balance_at"
-          label="Waktu skenario pelunasan pembeli"
+          label="Buyer balance scenario time"
           type="datetime-local"
           required={false}
         />
         <Field
           name="cost_at"
-          label="Waktu skenario pembayaran input"
+          label="Input payment scenario time"
           type="datetime-local"
           required={false}
         />
       </div>
       <label>
-        Sumber yang mendasari asumsi ini
+        Sources supporting these assumptions
         <select name="evidence" multiple>
           {evidence.map((source) => (
             <option key={source.id} value={source.id}>
@@ -2109,7 +2266,7 @@ function Planning({
         </select>
       </label>
       {error && <p role="alert">{error}</p>}
-      <button>Simpan asumsi perencanaan</button>
+      <button>Save planning assumptions</button>
     </form>
   );
 }
@@ -2128,7 +2285,7 @@ function ReceiptForm({
 }) {
   return (
     <details>
-      <summary>Catat bukti pembayaran pending</summary>
+      <summary>Record pending payment evidence</summary>
       <form
         onSubmit={async (e) => {
           e.preventDefault();
@@ -2151,7 +2308,7 @@ function ReceiptForm({
         }}
       >
         <label>
-          Kewajiban
+          Obligation
           <select name="obligation">
             {obligations.map((o) => (
               <option value={o.id} key={o.id}>
@@ -2160,10 +2317,10 @@ function ReceiptForm({
             ))}
           </select>
         </label>
-        <Field name="amount" label="Jumlah diterima" />
-        <Field name="date" label="Tanggal nilai" type="date" />
+        <Field name="amount" label="Amount received" />
+        <Field name="date" label="Value date" type="date" />
         <label>
-          Bukti yang sudah ditinjau
+          Reviewed evidence
           <select name="evidence" required>
             {evidence.map((e) => (
               <option key={e.id} value={e.id}>
@@ -2172,7 +2329,7 @@ function ReceiptForm({
             ))}
           </select>
         </label>
-        <button disabled={!evidence.length}>Simpan bukti pending</button>
+        <button disabled={!evidence.length}>Save pending evidence</button>
       </form>
     </details>
   );
@@ -2186,22 +2343,22 @@ function Settings() {
   }, []);
   return data ? (
     <details className="card">
-      <summary>Penggunaan & paket · {data.plan}</summary>
+      <summary>Usage & plans · {data.plan}</summary>
       <p>{title(data.status)}</p>
       <p>
-        Slot transaksi aktif: {data.active_deals} / {data.active_deal_limit} ·
-        batas anggota {data.user_limit}
+        Active deal slots: {data.active_deals} / {data.active_deal_limit} ·
+        member limit {data.user_limit}
       </p>
       {data.allowances.map((a) => (
         <p key={a.unit}>
-          {title(a.unit)}: {a.included_remaining} tersisa · tambahan{" "}
-          {a.addon_remaining} · berlaku hingga{" "}
-          {a.expires_at || "sesuai periode paket"}
+          {title(a.unit)}: {a.included_remaining} remaining · add-on{" "}
+          {a.addon_remaining} · valid until{" "}
+          {a.expires_at || "according to the plan period"}
         </p>
       ))}
       <p className="muted">
-        Perhitungan deterministik dan pencatatan pembayaran manual tidak memakai
-        jatah pencarian diperkaya.
+        Deterministic calculations and manual payment records do not consume
+        enriched research allowance.
       </p>
     </details>
   ) : null;
@@ -2214,7 +2371,7 @@ function Lineage({ analysis }: { analysis: A }) {
     [error, setError] = useState("");
   return (
     <details>
-      <summary>Telusuri rumus dan versi sumber</summary>
+      <summary>Trace formulas & source revisions</summary>
       {analysis.numeric_lineage?.map((line, n) => (
         <article key={n}>
           <h3>{title(line.metric)}</h3>
@@ -2233,19 +2390,19 @@ function Lineage({ analysis }: { analysis: A }) {
                     .catch((e) => setError(e.message))
                 }
               >
-                Sumber revisi {ref.revision} · {ref.id.slice(-8)}
+                Source revision {ref.revision} · {ref.id.slice(-8)}
               </button>
             ))}
           </div>
           <p className="muted">
-            {line.input_refs.length} masukan versi tetap; perubahan berikutnya
-            tidak menimpa analisis ini.
+            {line.input_refs.length} fixed-version inputs; later changes do not
+            overwrite this analysis.
           </p>
         </article>
       ))}
       {!analysis.numeric_lineage && (
         <p className="muted">
-          Hitung ulang untuk mendapatkan referensi versi sumber.
+          Recalculate to obtain source revision references.
         </p>
       )}
       {source && "claim" in source && (
@@ -2287,11 +2444,10 @@ function MemberAdmin({
   ];
   return (
     <details className="card">
-      <summary>Anggota dan izin organisasi</summary>
+      <summary>Organization members & permissions</summary>
       <p>
-        Gunakan ID akun lokal yang telah dibuat oleh operator. Mengosongkan
-        semua peran mencabut keanggotaan; organisasi harus tetap memiliki
-        pemilik.
+        Use a local account ID provisioned by your operator. Clearing all roles
+        revokes membership. The organization must retain an owner.
       </p>
       {error && <p role="alert">{error}</p>}
       {message && <p role="status">{message}</p>}
@@ -2314,15 +2470,15 @@ function MemberAdmin({
             });
             await refresh();
             await onChanged();
-            setMessage("Izin anggota diperbarui.");
+            setMessage("Member permissions updated.");
           } catch (error) {
             setError((error as Error).message);
           }
         }}
       >
-        <Field name="user" label="ID akun anggota" />
+        <Field name="user" label="Member account ID" />
         <fieldset>
-          <legend>Peran yang diberikan</legend>
+          <legend>Assigned roles</legend>
           {roles.map((role) => (
             <label key={role}>
               <input type="checkbox" name="roles" value={role} />
@@ -2330,7 +2486,7 @@ function MemberAdmin({
             </label>
           ))}
         </fieldset>
-        <button>Simpan izin anggota</button>
+        <button>Save member permissions</button>
       </form>
     </details>
   );

@@ -15,14 +15,11 @@ async function proxy(
     path.join("/") !== "auth/organization"
   )
     return NextResponse.json(
-      { message: "Jalur tidak tersedia." },
+      { message: "This route is unavailable." },
       { status: 404 },
     );
   if (path.some((p) => !/^[-a-zA-Z0-9_]+$/.test(p)))
-    return NextResponse.json(
-      { message: "Jalur tidak valid." },
-      { status: 400 },
-    );
+    return NextResponse.json({ message: "Invalid route." }, { status: 400 });
   const headers = new Headers();
   const token = request.cookies.get(cookieName)?.value;
   if (token) headers.set("Authorization", "Bearer " + token);
@@ -39,7 +36,7 @@ async function proxy(
   } catch (error) {
     if (!(error instanceof RangeError)) throw error;
     return NextResponse.json(
-      { message: "Isi permintaan melebihi batas 16 MiB." },
+      { message: "The request exceeds the 16 MiB limit." },
       { status: 413 },
     );
   }

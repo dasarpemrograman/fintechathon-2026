@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     return NextResponse.json(
-      { message: "Isi sesi tidak valid atau terlalu besar." },
+      { message: "The session request is invalid or too large." },
       { status: error instanceof RangeError ? 413 : 400 },
     );
   }
@@ -58,7 +58,7 @@ export async function DELETE(request: NextRequest) {
         status: revoked.status,
       });
   }
-  const response = NextResponse.json({ message: "Keluar" });
+  const response = NextResponse.json({ message: "Sign out" });
   response.cookies.delete(cookieName);
   return response;
 }

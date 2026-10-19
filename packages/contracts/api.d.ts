@@ -9731,6 +9731,8 @@ export interface operations {
     listAudit: {
         parameters: {
             query?: {
+                /** @description Restrict audit records to this authorized workspace and its linked deal. */
+                workspace_id?: components["schemas"]["Id"];
                 limit?: number;
                 cursor?: components["schemas"]["Id"];
             };

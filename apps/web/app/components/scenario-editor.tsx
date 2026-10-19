@@ -26,11 +26,11 @@ export function ScenarioEditor({
   const root = "deals/" + deal.id;
   return (
     <details className="card">
-      <summary>Negosiasikan ketentuan pembeli, pemasok dan produksi</summary>
+      <summary>Negotiate buyer, supplier & production terms</summary>
       <p>
-        Ubah beberapa ketentuan bersama dalam satu skenario. Jumlah cicilan
-        harus tetap sesuai faktur; kalkulasi dilakukan server. Membandingkan
-        usulan tidak mencatat penerimaan pihak lain.
+        Change multiple terms together in one scenario. Installments must still
+        match the invoice; calculations run on the server. Comparing proposals
+        does not record another party's acceptance.
       </p>
       <form
         onSubmit={async (event) => {
@@ -73,7 +73,7 @@ export function ScenarioEditor({
               op: "replace",
               path: "/payment_terms",
               value: terms,
-              reason: "Usulan ketentuan pembayaran gabungan untuk ditinjau.",
+              reason: "Proposed combined payment terms for review.",
               evidence_ids: [],
               agreement_required_from: required,
             });
@@ -121,7 +121,7 @@ export function ScenarioEditor({
               path: "/procurement",
               value: procurement,
               reason:
-                "Usulan biaya dan kapasitas pengadaan/produksi untuk ditinjau.",
+                "Proposed procurement/production costs and capacity for review.",
               evidence_ids: [],
               agreement_required_from: required,
             });
@@ -146,21 +146,21 @@ export function ScenarioEditor({
         }}
       >
         <fieldset disabled={disabled}>
-          <legend>Cicilan dan tanggal yang dinegosiasikan</legend>
+          <legend>Negotiated installments & dates</legend>
           {deal.payment_terms.map((term) => (
             <div className="split" key={term.id}>
               <label>
-                {term.side === "buyer" ? "Pembeli" : "Pemasok / penyedia"} ·{" "}
+                {term.side === "buyer" ? "Buyer" : "Supplier / provider"} ·{" "}
                 {term.id} · {term.amount?.currency || deal.reporting_currency}
                 <input
                   name={"amount:" + term.id}
                   defaultValue={term.amount?.amount || ""}
                   inputMode="decimal"
-                  aria-label={"Jumlah cicilan " + term.id}
+                  aria-label={"Installment amount " + term.id}
                 />
               </label>
               <label>
-                Waktu pembayaran dengan offset zona
+                Payment time with timezone offset
                 <input
                   name={"date:" + term.id}
                   defaultValue={
@@ -169,7 +169,7 @@ export function ScenarioEditor({
                       : ""
                   }
                   placeholder="2026-11-01T12:00:00+07:00"
-                  aria-label={"Waktu pembayaran " + term.id}
+                  aria-label={"Payment time " + term.id}
                 />
               </label>
             </div>
@@ -178,8 +178,8 @@ export function ScenarioEditor({
         <fieldset disabled={disabled}>
           <legend>
             {deal.business_profile === "producer"
-              ? "Input dan biaya produksi"
-              : "Harga satuan pengadaan"}
+              ? "Production inputs & costs"
+              : "Procurement unit price"}
           </legend>
           {deal.procurement.business_profile === "reseller" ? (
             deal.procurement.purchase_lines.map((line) => (
@@ -220,21 +220,21 @@ export function ScenarioEditor({
               ))}
               <div className="split">
                 <label>
-                  Jumlah batch
+                  Batch quantity
                   <input
                     name="batch_quantity"
                     defaultValue={deal.procurement.batch_quantity || ""}
                   />
                 </label>
                 <label>
-                  Kapasitas tersedia
+                  Available capacity
                   <input
                     name="capacity_quantity"
                     defaultValue={deal.procurement.capacity_quantity || ""}
                   />
                 </label>
                 <label>
-                  Hasil layak pakai (fraksi, 0.9 = 90%)
+                  Usable yield (fraction, 0.9 = 90%)
                   <input
                     name="usable_yield"
                     defaultValue={deal.procurement.usable_yield || ""}
@@ -245,7 +245,7 @@ export function ScenarioEditor({
           )}
         </fieldset>
         <fieldset disabled={disabled}>
-          <legend>Opsi pendanaan untuk dibandingkan</legend>
+          <legend>Funding options to compare</legend>
           {funding.map((option) => (
             <label key={option.id}>
               <input type="checkbox" name="funding" value={option.id} />
@@ -255,14 +255,16 @@ export function ScenarioEditor({
           ))}
         </fieldset>
         <div className="actions">
-          <button disabled={disabled}>Bandingkan seluruh usulan bersama</button>
+          <button disabled={disabled}>
+            Compare all proposed terms together
+          </button>
           <button
             disabled={disabled}
             className="secondary"
             type="submit"
             value="apply"
           >
-            Simpan sebagai fakta usulan transaksi
+            Save as proposed deal facts
           </button>
         </div>
       </form>

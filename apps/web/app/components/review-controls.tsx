@@ -10,10 +10,10 @@ type Command = (
 function Source({ evidence }: { evidence: S["Evidence"][] }) {
   return (
     <label>
-      Bukti pendukung yang telah ditinjau
+      Reviewed supporting evidence
       <select name="evidence" required defaultValue="">
         <option value="" disabled>
-          Pilih bukti
+          Select evidence
         </option>
         {evidence.map((e) => (
           <option key={e.id} value={e.id}>
@@ -27,7 +27,7 @@ function Source({ evidence }: { evidence: S["Evidence"][] }) {
 function Reason() {
   return (
     <label>
-      Alasan / catatan tinjauan
+      Review reason / notes
       <textarea name="reason" required rows={2} />
     </label>
   );
@@ -35,12 +35,12 @@ function Reason() {
 function Amount() {
   return (
     <label>
-      Jumlah aktual
+      Actual amount
       <input
         name="amount"
         inputMode="decimal"
         required
-        placeholder="Contoh: 1500000.50"
+        placeholder="Example: 1500000.50"
       />
     </label>
   );
@@ -79,15 +79,15 @@ export function ReviewControls({
   if (!context) return null;
   return (
     <>
-      {tab === "Ringkasan" && editor && (
+      {tab === "Overview" && editor && (
         <Parties deal={deal} evidence={evidence} command={command} />
       )}
-      {tab === "Draf & persetujuan" && editor && (
+      {tab === "Drafts & approvals" && editor && (
         <section className="card">
-          <h2>Penerimaan pihak terkait</h2>
+          <h2>Counterparty acceptance</h2>
           <p className="muted">
-            Catat bukti penerimaan yang dilakukan di luar aplikasi. Tinjauan
-            pemilik tidak mewakili pihak lain.
+            Record evidence of acceptance obtained outside the app. The owner's
+            review does not represent other parties.
           </p>
           <form
             onSubmit={(e) => {
@@ -103,7 +103,7 @@ export function ReviewControls({
             }}
           >
             <label>
-              Pihak yang menerima ketentuan saat ini
+              Party accepting the current terms
               <select name="party">
                 {deal.parties
                   .filter((p) => !p.roles.includes("seller"))
@@ -117,15 +117,15 @@ export function ReviewControls({
             <Source evidence={evidence} />
             <label>
               <span>
-                <input type="checkbox" required style={{ width: "auto" }} />{" "}
-                Saya memeriksa bukti penerimaan ketentuan revisi {revision}.
+                <input type="checkbox" required style={{ width: "auto" }} /> I
+                reviewed acceptance evidence for revision {revision}.
               </span>
             </label>
-            <button>Catat penerimaan eksternal</button>
+            <button>Record external acceptance</button>
           </form>
         </section>
       )}
-      {tab === "Kesiapan & jadwal" && (
+      {tab === "Readiness & timeline" && (
         <>
           {editor && (
             <ShipmentEntry deal={deal} evidence={evidence} command={command} />
@@ -133,10 +133,10 @@ export function ReviewControls({
 
           {finance && context.cash_snapshot_hash && (
             <section className="card">
-              <h2>Tinjau saldo awal</h2>
+              <h2>Review opening balance</h2>
               <p className="muted">
-                Verifikasi bukti saldo dan komitmen di luar transaksi. Ini tidak
-                mencatat pembayaran atau pencairan.
+                Verify evidence of the opening balance and commitments outside
+                this deal. This does not record payment or drawdown.
               </p>
               <form
                 onSubmit={(e) => {
@@ -153,14 +153,14 @@ export function ReviewControls({
               >
                 <Source evidence={evidence} />
                 <Reason />
-                <button>Verifikasi sumber saldo awal</button>
+                <button>Verify opening balance sources</button>
               </form>
             </section>
           )}
           {production && (
             <>
               <section className="card">
-                <h2>Tinjau persyaratan</h2>
+                <h2>Review requirements</h2>
                 {requirements.map((r) => (
                   <details key={r.id}>
                     <summary>{r.category}</summary>
@@ -184,34 +184,34 @@ export function ReviewControls({
                       }}
                     >
                       <label>
-                        Keberlakuan
+                        Applicability
                         <select
                           name="applicability"
                           defaultValue={r.applicability}
                         >
-                          <option value="unresolved">Belum dipastikan</option>
-                          <option value="applies">Berlaku</option>
+                          <option value="unresolved">Not confirmed</option>
+                          <option value="applies">Applies</option>
                           <option value="not_applicable">
-                            Tidak berlaku, dengan bukti
+                            Does not apply, with evidence
                           </option>
                         </select>
                       </label>
                       <label>
-                        Pemenuhan
+                        Fulfillment
                         <select
                           name="fulfillment"
                           defaultValue={r.fulfillment_status}
                         >
-                          <option value="missing">Belum ada</option>
-                          <option value="submitted">Bukti diajukan</option>
-                          <option value="verified">Bukti diverifikasi</option>
-                          <option value="rejected">Ditolak</option>
-                          <option value="expired">Kedaluwarsa</option>
+                          <option value="missing">None yet</option>
+                          <option value="submitted">Evidence submitted</option>
+                          <option value="verified">Evidence verified</option>
+                          <option value="rejected">Rejected</option>
+                          <option value="expired">Expired</option>
                         </select>
                       </label>
                       <Source evidence={evidence} />
                       <Reason />
-                      <button>Simpan tinjauan persyaratan</button>
+                      <button>Save requirement review</button>
                     </form>
                   </details>
                 ))}
@@ -226,11 +226,11 @@ export function ReviewControls({
           )}
           {editor && (
             <section className="card">
-              <h2>Catat pelaksanaan pengiriman eksternal</h2>
+              <h2>Record external shipment activity</h2>
               <p className="muted">
-                Catatan ini tidak memesan angkutan atau mengajukan dokumen. Jika
-                tindakan dilakukan saat gerbang terblokir, simpan alasan
-                pengecualiannya.
+                This record does not book transport or submit documents. If the
+                activity occurred while its gate was blocked, record the
+                exception reason.
               </p>
               <form
                 onSubmit={(e) => {
@@ -250,7 +250,7 @@ export function ReviewControls({
                 }}
               >
                 <label>
-                  Pengiriman
+                  Shipment
                   <select name="shipment">
                     {deal.shipments.map((s) => (
                       <option key={s.id} value={s.id}>
@@ -261,35 +261,35 @@ export function ReviewControls({
                   </select>
                 </label>
                 <label>
-                  Peristiwa
+                  Event
                   <select name="kind">
                     <option value="booking">
-                      Pemesanan dilakukan di luar aplikasi
+                      Booking performed outside the app
                     </option>
-                    <option value="in_transit">Dalam perjalanan</option>
-                    <option value="delivered">Diserahkan</option>
-                    <option value="exception">Pengecualian</option>
+                    <option value="in_transit">In transit</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="exception">Exception</option>
                   </select>
                 </label>
                 <label>
-                  Waktu kejadian (UTC)
+                  Event time (UTC)
                   <input name="occurred_at" type="datetime-local" required />
                 </label>
                 <Source evidence={evidence} />
                 <label>
-                  Alasan pengecualian jika gerbang belum terpenuhi
+                  Exception reason if prerequisites are unmet
                   <textarea name="exception_reason" />
                 </label>
-                <button>Catat kejadian eksternal</button>
+                <button>Record external event</button>
               </form>
             </section>
           )}
           {(editor || finance || production) && (
             <section className="card">
-              <h2>Catat milestone eksternal</h2>
+              <h2>Record an external milestone</h2>
               <p className="muted">
-                Jadwal internal tetap tersedia tanpa Calendar. Perubahan
-                prakiraan tidak mengubah janji tanggal tetap.
+                The internal timeline works without Calendar. Forecast changes
+                do not alter fixed commitments.
               </p>
               <form
                 onSubmit={(e) => {
@@ -316,47 +316,47 @@ export function ReviewControls({
                 }}
               >
                 <label>
-                  Peristiwa
+                  Event
                   <select name="kind">
-                    <option value="arrival">Perkiraan tiba</option>
-                    <option value="acceptance">Penerimaan barang</option>
+                    <option value="arrival">Estimated arrival</option>
+                    <option value="acceptance">Goods acceptance</option>
                     <option value="production_complete">
-                      Produksi selesai
+                      Production complete
                     </option>
-                    <option value="delivery">Pengantaran</option>
+                    <option value="delivery">Delivery</option>
                   </select>
                 </label>
                 <label>
-                  Jenis tanggal
+                  Date type
                   <select name="date_kind">
-                    <option value="forecast">Prakiraan</option>
-                    <option value="agreed">Disepakati</option>
-                    <option value="actual">Aktual dengan bukti</option>
+                    <option value="forecast">Forecast</option>
+                    <option value="agreed">Agreed</option>
+                    <option value="actual">Actual, with evidence</option>
                   </select>
                 </label>
                 <label>
-                  Tanggal lokal ({deal.owner_timezone})
+                  Local date ({deal.owner_timezone})
                   <input name="date" type="date" required />
                 </label>
                 <Source evidence={evidence} />
-                <button>Catat milestone</button>
+                <button>Record milestone</button>
               </form>
             </section>
           )}
         </>
       )}
-      {tab === "Biaya & arus kas" && finance && (
+      {tab === "Economics & cash" && finance && (
         <section className="card">
-          <h2>Finalisasi biaya aktual</h2>
+          <h2>Finalize actual costs</h2>
           <p className="muted">
-            Nilai aktual menggantikan estimasi untuk komponen yang sama.
-            Estimasi dan baseline awal tetap tersimpan.
+            An actual replaces the estimate for the same component. The estimate
+            and original baseline remain available.
           </p>
           {costs.map((c) => (
             <details key={c.id}>
               <summary>
                 {c.component_key} ·{" "}
-                {c.actual_amount ? "Aktual tercatat" : "Belum final"}
+                {c.actual_amount ? "Actual recorded" : "Not final"}
               </summary>
               <form
                 onSubmit={(e) => {
@@ -378,10 +378,10 @@ export function ReviewControls({
               >
                 <Amount />
                 <label>
-                  Konversi aktual yang ditinjau (wajib untuk mata uang asing)
+                  Reviewed executed conversion (required for foreign currency)
                   <select name="fx">
                     <option value="">
-                      Tidak berlaku untuk mata uang laporan
+                      Not applicable to reporting currency
                     </option>
                     {fx.map((row) => (
                       <option key={row.id} value={row.id}>
@@ -392,7 +392,7 @@ export function ReviewControls({
                   </select>
                 </label>
                 <label>
-                  Mata uang
+                  Currency
                   <input
                     name="currency"
                     required
@@ -406,18 +406,18 @@ export function ReviewControls({
                 </label>
                 <Source evidence={evidence} />
                 <Reason />
-                <button>Catat biaya aktual</button>
+                <button>Record actual cost</button>
               </form>
             </details>
           ))}
         </section>
       )}
-      {tab === "Pembayaran & penutupan" && finance && (
+      {tab === "Settlement & closure" && finance && (
         <section className="card">
-          <h2>Verifikasi dan koreksi bukti pembayaran</h2>
+          <h2>Verify & correct payment evidence</h2>
           <p className="muted">
-            Setiap verifikasi atau pembalikan menambah riwayat. Bukti asli tetap
-            dapat ditelusuri.
+            Each verification or reversal adds to history. Original evidence
+            remains traceable.
           </p>
           {receipts
             .filter(
@@ -431,8 +431,8 @@ export function ReviewControls({
                   {r.received_amount.currency} {r.received_amount.amount} ·{" "}
                   {r.value_date} ·{" "}
                   {r.status === "pending"
-                    ? "Menunggu verifikasi"
-                    : "Terverifikasi"}
+                    ? "Awaiting verification"
+                    : "Verified"}
                 </summary>
                 <form
                   onSubmit={(e) => {
@@ -454,31 +454,29 @@ export function ReviewControls({
                   }}
                 >
                   <label>
-                    Tindakan
+                    Action
                     <select name="disposition">
                       {r.status === "pending" ? (
                         <>
-                          <option value="verified">
-                            Verifikasi pembayaran
-                          </option>
-                          <option value="rejected">Tolak bukti</option>
+                          <option value="verified">Verify payment</option>
+                          <option value="rejected">Reject evidence</option>
                         </>
                       ) : (
                         <option value="reversed">
-                          Balikkan verifikasi, dengan alasan
+                          Reverse verification, with a reason
                         </option>
                       )}
                     </select>
                   </label>
                   <label>
-                    Waktu penyelesaian yang diketahui (UTC, opsional)
+                    Known settlement time (UTC, optional)
                     <input name="settled_at" type="datetime-local" />
                   </label>
                   <label>
-                    Konversi aktual yang ditinjau (wajib untuk mata uang asing)
+                    Reviewed executed conversion (required for foreign currency)
                     <select name="fx">
                       <option value="">
-                        Tidak berlaku untuk mata uang laporan
+                        Not applicable to reporting currency
                       </option>
                       {fx.map((row) => (
                         <option key={row.id} value={row.id}>
@@ -490,7 +488,7 @@ export function ReviewControls({
                   </label>
                   <Source evidence={evidence} />
                   <Reason />
-                  <button>Simpan tinjauan pembayaran</button>
+                  <button>Save payment review</button>
                 </form>
               </details>
             ))}
@@ -514,10 +512,10 @@ function Goods({
     useState<S["GoodsReview"]["status"]>("evidence_review");
   return (
     <section className="card">
-      <h2>Inspeksi dan koreksi barang</h2>
+      <h2>Goods inspection & corrections</h2>
       <p className="muted">
-        Foto saja tidak menetapkan mutu yang belum diukur. Isi hasil pengukuran
-        dan pilih bukti inspeksi.
+        Photos alone cannot establish unmeasured quality. Enter measurements and
+        select inspection evidence.
       </p>
       <form
         onSubmit={(e) => {
@@ -555,14 +553,16 @@ function Goods({
         }}
       >
         <label>
-          Hasil tinjauan
+          Review outcome
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value as typeof status)}
           >
-            <option value="evidence_review">Perlu bukti lebih lanjut</option>
-            <option value="nonconforming">Tidak sesuai, perlu koreksi</option>
-            <option value="ready">Sesuai berdasarkan inspeksi</option>
+            <option value="evidence_review">Further evidence needed</option>
+            <option value="nonconforming">
+              Nonconforming; correction needed
+            </option>
+            <option value="ready">Conforming, based on inspection</option>
           </select>
         </label>
         {status === "ready" &&
@@ -574,15 +574,15 @@ function Goods({
                 ...(line.product.attributes || []),
               ].map((a) => (
                 <label key={a.name}>
-                  Hasil pengukuran {a.name === "quantity" ? "jumlah" : a.name} (
-                  {a.unit})<input name={line.id + "_" + a.name} required />
+                  Measured {a.name} ({a.unit})
+                  <input name={line.id + "_" + a.name} required />
                 </label>
               ))}
             </div>
           ))}
         <Source evidence={evidence} />
         <Reason />
-        <button>Simpan inspeksi barang</button>
+        <button>Save goods inspection</button>
       </form>
     </section>
   );
@@ -599,10 +599,9 @@ function Parties({
 }) {
   return (
     <section className="card">
-      <h2>Lengkapi identitas pihak terkait</h2>
+      <h2>Complete counterparty identities</h2>
       <p className="muted">
-        Perubahan identitas atau peran memerlukan analisis dan penerimaan
-        ketentuan yang baru.
+        Identity or role changes require a new analysis and acceptance of terms.
       </p>
       {deal.parties.map((p) => (
         <details key={p.id}>
@@ -629,7 +628,7 @@ function Parties({
                     op: "replace",
                     path: "/parties",
                     value: parties,
-                    reason: "Identitas pihak terkait diperiksa",
+                    reason: "Counterparty identity reviewed",
                     evidence_ids: [String(f.get("evidence"))],
                     agreement_required_from: parties.map((p) => p.id),
                   },
@@ -639,19 +638,19 @@ function Parties({
             }}
           >
             <label>
-              Nama tampilan
+              Display name
               <input name="name" required defaultValue={p.display_name} />
             </label>
             <label>
-              Nama badan hukum
+              Legal entity name
               <input name="legal" defaultValue={p.legal_name || ""} />
             </label>
             <label>
-              Negara (kode ISO)
+              Country (ISO code)
               <input name="country" defaultValue={p.country || ""} />
             </label>
             <Source evidence={evidence} />
-            <button>Simpan identitas</button>
+            <button>Save identity</button>
           </form>
         </details>
       ))}
@@ -669,7 +668,7 @@ function ShipmentEntry({
 }) {
   return (
     <details className="card">
-      <summary>Tambahkan pengiriman dan alokasi barang</summary>
+      <summary>Add a shipment & goods allocations</summary>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -697,7 +696,7 @@ function ShipmentEntry({
                 op: "replace",
                 path: "/shipments",
                 value: [...deal.shipments, shipment],
-                reason: "Lingkup pengiriman diperbarui",
+                reason: "Shipment scope updated",
                 evidence_ids: [String(f.get("evidence"))],
                 agreement_required_from: deal.parties.map((p) => p.id),
               },
@@ -707,7 +706,7 @@ function ShipmentEntry({
         }}
       >
         <label>
-          Negara keberangkatan (ISO)
+          Dispatch country (ISO)
           <input
             name="dispatch"
             required
@@ -715,40 +714,40 @@ function ShipmentEntry({
           />
         </label>
         <label>
-          Negara tujuan (ISO)
+          Destination country (ISO)
           <input name="destination" required />
         </label>
         <label>
-          Moda
+          Transport mode
           <select name="mode">
-            <option value="sea_lcl">Laut LCL</option>
-            <option value="sea_fcl">Laut FCL</option>
-            <option value="air">Udara</option>
-            <option value="road">Darat</option>
-            <option value="rail">Kereta</option>
-            <option value="multimodal">Multimoda</option>
+            <option value="sea_lcl">Sea LCL</option>
+            <option value="sea_fcl">Sea FCL</option>
+            <option value="air">Air</option>
+            <option value="road">Road</option>
+            <option value="rail">Rail</option>
+            <option value="multimodal">Multimodal</option>
           </select>
         </label>
         <label>
-          Incoterm (jika diketahui)
+          Incoterm (if known)
           <input name="incoterm" />
         </label>
         <label>
-          Tempat yang disebut dalam ketentuan
+          Named place in the terms
           <input name="place" />
         </label>
         {deal.line_items.map((l) => (
           <label key={l.id}>
-            Jumlah {l.product.description} ({l.unit})
+            Quantity {l.product.description} ({l.unit})
             <input
               name={l.id}
               inputMode="decimal"
-              placeholder="Kosongkan jika tidak dialokasikan"
+              placeholder="Leave blank if not allocated"
             />
           </label>
         ))}
         <Source evidence={evidence} />
-        <button>Tambahkan pengiriman</button>
+        <button>Add shipment</button>
       </form>
     </details>
   );

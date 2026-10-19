@@ -32,11 +32,11 @@ export function FinanceEntry({
   return (
     <>
       <details className="card">
-        <summary>Catat syarat produk pembiayaan dari sumber</summary>
+        <summary>Record sourced financing product terms</summary>
         <p>
-          Hanya syarat yang dinyatakan sumber. Tarif kosong tetap memerlukan
-          penawaran. Pemeriksaan kecocokan dan kesiapan dokumen bukan
-          persetujuan pemberi dana.
+          Record only terms stated by the source. A missing rate still requires
+          a quotation. Product fit and document readiness are not lender
+          approval.
         </p>
         <form
           onSubmit={(e) => {
@@ -82,7 +82,7 @@ export function FinanceEntry({
               rate_basis: rate ? String(f.get("rate_basis")) : null,
               fees: [
                 {
-                  name: "Biaya fasilitas yang dipublikasikan",
+                  name: "Published facility fee",
                   amount: fee ? { amount: fee, currency } : null,
                   rate: null,
                   basis: "fixed",
@@ -93,7 +93,7 @@ export function FinanceEntry({
                         {
                           field_path: "/fees",
                           status: "missing",
-                          reason: "Biaya fasilitas belum dikonfirmasi.",
+                          reason: "The facility fee has not been confirmed.",
                         },
                       ],
                 },
@@ -120,125 +120,125 @@ export function FinanceEntry({
             });
           }}
         >
-          <Input name="provider" label="Nama penyedia pembiayaan" />
+          <Input name="provider" label="Financing provider name" />
           <Input
             name="country"
-            label="Negara badan usaha yang memenuhi syarat (ISO)"
+            label="Eligible entity country (ISO)"
             value={deal.seller_domicile || undefined}
           />
           <Input
             name="currency"
-            label="Mata uang produk"
+            label="Product currency"
             value={deal.reporting_currency}
           />
           <label>
-            Tahap pendanaan
+            Funding stage
             <select name="stage">
-              <option value="pre_shipment">Sebelum pengiriman</option>
-              <option value="post_shipment">Sesudah pengiriman</option>
-              <option value="working_capital">Modal kerja</option>
+              <option value="pre_shipment">Pre-shipment</option>
+              <option value="post_shipment">Post-shipment</option>
+              <option value="working_capital">Working capital</option>
             </select>
           </label>
           <label>
-            Jenis badan usaha yang didukung (satu per baris)
+            Supported entity types (one per line)
             <textarea name="entities" />
           </label>
           <label>
-            Instrumen pembeli yang didukung
+            Supported buyer instruments
             <select name="instrument">
               <option value="open_account">Open account</option>
               <option value="lc">Letter of credit</option>
-              <option value="milestone">Pembayaran milestone</option>
+              <option value="milestone">Milestone payments</option>
               <option value="collection">Collection</option>
-              <option value="advance">Di muka</option>
-              <option value="other">Lainnya</option>
+              <option value="advance">Advance payment</option>
+              <option value="other">Other</option>
             </select>
           </label>
           <div className="split">
             <Input
               name="minimum"
-              label="Jumlah minimum (opsional)"
+              label="Minimum amount (optional)"
               required={false}
             />
             <Input
               name="maximum"
-              label="Jumlah maksimum (opsional)"
+              label="Maximum amount (optional)"
               required={false}
             />
             <Input
               name="min_tenor"
               type="number"
-              label="Tenor minimum hari (opsional)"
+              label="Minimum tenor in days (optional)"
               required={false}
             />
             <Input
               name="max_tenor"
               type="number"
-              label="Tenor maksimum hari (opsional)"
+              label="Maximum tenor in days (optional)"
               required={false}
             />
           </div>
           <Input
             name="rate"
-            label="Tarif sebagai fraksi, misalnya 0.12 (opsional)"
+            label="Rate as a fraction, e.g. 0.12 (optional)"
             required={false}
           />
           <label>
-            Dasar tarif
+            Rate basis
             <select name="rate_basis">
-              <option value="annual_simple">Bunga sederhana per tahun</option>
-              <option value="monthly_simple">Bunga sederhana per bulan</option>
-              <option value="flat_total">Total tetap</option>
+              <option value="annual_simple">Annual simple interest</option>
+              <option value="monthly_simple">Monthly simple interest</option>
+              <option value="flat_total">Fixed total</option>
             </select>
           </label>
           <Input
             name="fee"
-            label="Biaya fasilitas tetap; isi 0 hanya jika dinyatakan sumber"
+            label="Fixed facility fee; enter 0 only if the source confirms it"
             required={false}
           />
           <label>
             <input name="withheld" type="checkbox" />
-            Biaya dipotong saat pencairan
+            Fee withheld at drawdown
           </label>
           <Input
             name="lead"
             type="number"
-            label="Perkiraan waktu proses hari (opsional)"
+            label="Estimated processing time in days (optional)"
             required={false}
           />
           <label>
-            Hak regres
+            Recourse
             <select name="recourse">
-              <option value="unknown">Belum diketahui</option>
-              <option value="yes">Ada</option>
-              <option value="no">Tidak ada</option>
+              <option value="unknown">Not yet known</option>
+              <option value="yes">Yes</option>
+              <option value="no">None</option>
             </select>
           </label>
           <label>
-            Jaminan yang disyaratkan (satu per baris)
+            Required security (one per line)
             <textarea name="security" />
           </label>
           <label>
-            Dokumen wajib penyedia (satu per baris)
+            Provider-required documents (one per line)
             <textarea name="documents" />
           </label>
           <label>
             <input type="checkbox" name="documents_reviewed" />
-            Bukti terpilih mencakup dokumen yang sudah diperiksa
+            Selected evidence covers documents already reviewed
           </label>
           <Input
             name="valid_until"
-            label="Syarat berlaku sampai (opsional)"
+            label="Terms valid until (optional)"
             type="date"
             required={false}
           />
           <Sources evidence={evidence} />
-          <button disabled={!evidence.length}>Simpan syarat produk</button>
+          <button disabled={!evidence.length}>Save product terms</button>
         </form>
       </details>
       {analysis && (
         <details className="card">
-          <summary>Periksa kecocokan syarat pembiayaan</summary>
+          <summary>Check financing product fit</summary>
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -262,7 +262,7 @@ export function FinanceEntry({
                     .map((name) => ({
                       name,
                       status: "satisfied",
-                      reason: "Jaminan diperiksa terhadap bukti terpilih",
+                      reason: "Security checked against selected evidence",
                       evidence_ids: [source],
                     })),
                   unknowns: [],
@@ -284,39 +284,33 @@ export function FinanceEntry({
               run(root + "/finance-options", body);
             }}
           >
-            <Input name="entity" label="Jenis badan usaha pemohon" />
-            <Input name="amount" label="Jumlah dana yang diperlukan" />
+            <Input name="entity" label="Applicant entity type" />
+            <Input name="amount" label="Required funding amount" />
             <Input
               name="currency"
-              label="Mata uang dana yang diperlukan"
+              label="Required funding currency"
               value={deal.reporting_currency}
             />
-            <Input
-              name="tenor"
-              type="number"
-              label="Tenor yang diminta dalam hari"
-            />
+            <Input name="tenor" type="number" label="Requested tenor in days" />
             <Input
               name="required"
               type="date"
               label={
-                "Dana diperlukan pada tanggal lokal (" +
-                deal.owner_timezone +
-                ")"
+                "Funding needed on local date (" + deal.owner_timezone + ")"
               }
             />
             <label>
-              Tahap kebutuhan dana
+              Funding need stage
               <select name="stage">
-                <option value="pre_shipment">Sebelum pengiriman</option>
-                <option value="post_shipment">Sesudah pengiriman</option>
-                <option value="working_capital">Modal kerja</option>
+                <option value="pre_shipment">Pre-shipment</option>
+                <option value="post_shipment">Post-shipment</option>
+                <option value="working_capital">Working capital</option>
               </select>
             </label>
             <label>
-              Invoice yang dibiayai
+              Invoice to finance
               <select name="invoice">
-                <option value="">Seluruh invoice pembeli terkait</option>
+                <option value="">All related buyer invoices</option>
                 {deal.invoices.map((row) => (
                   <option key={row.id} value={row.id}>
                     {row.id} · {row.amount.currency} {row.amount.amount}
@@ -325,30 +319,28 @@ export function FinanceEntry({
               </select>
             </label>
             <label>
-              Jaminan yang sudah dibuktikan (satu per baris)
+              Evidenced security (one per line)
               <textarea name="security" />
             </label>
             <Sources
               evidence={evidence}
-              label="Bukti registrasi dan jaminan yang diperiksa"
+              label="Reviewed registration & security evidence"
             />
             <Sources
               evidence={evidence}
               name="financial"
-              label="Laporan keuangan yang diperiksa"
+              label="Reviewed financial statements"
             />
-            <button disabled={!evidence.length}>
-              Periksa produk yang tercatat
-            </button>
+            <button disabled={!evidence.length}>Check recorded products</button>
           </form>
         </details>
       )}
       <details className="card">
-        <summary>Catat skenario jadwal pendanaan</summary>
+        <summary>Record a funding schedule scenario</summary>
         <p>
-          Usulan ini tetap hipotetis. Catat pencairan bruto, biaya yang
-          dipotong, bunga dan pelunasan secara terpisah; jumlah kosong tidak
-          diasumsikan nol.
+          This proposal remains hypothetical. Record gross drawdown, withheld
+          fees, interest, and repayment separately. Blank amounts are not
+          assumed to be zero.
         </p>
         <form
           onSubmit={(e) => {
@@ -381,10 +373,10 @@ export function FinanceEntry({
               product_id: String(f.get("product")) || null,
               fit: "needs_information",
               fit_reasons: [
-                "Jadwal usulan pengguna; kecocokan dan pencairan aktual memerlukan tinjauan terpisah.",
+                "User-proposed schedule; product fit and actual disbursement require separate review.",
               ],
               failed_predicates: [],
-              unknown_predicates: ["Belum merupakan komitmen pemberi dana"],
+              unknown_predicates: ["Not a lender commitment"],
               draw: { amount: String(f.get("draw")), currency },
               earliest_draw_milestone_id: null,
               schedule,
@@ -392,7 +384,7 @@ export function FinanceEntry({
                 {
                   field_path: "/funding",
                   status: "unreviewed",
-                  reason: "Skenario jadwal yang dimasukkan pengguna",
+                  reason: "User-entered funding schedule scenario",
                 },
               ],
               status: "proposed",
@@ -405,9 +397,9 @@ export function FinanceEntry({
           }}
         >
           <label>
-            Produk sumber (opsional)
+            Source product (optional)
             <select name="product">
-              <option value="">Asumsi pengguna</option>
+              <option value="">User assumption</option>
               {products.map((row) => (
                 <option key={row.id} value={row.id}>
                   {row.provider} · {row.stage}
@@ -417,15 +409,15 @@ export function FinanceEntry({
           </label>
           <Input
             name="currency"
-            label="Mata uang jadwal pendanaan"
+            label="Funding schedule currency"
             value={deal.reporting_currency}
           />
-          <Input name="draw" label="Pokok pencairan nominal" />
+          <Input name="draw" label="Nominal principal drawdown" />
           {Array.from({ length: eventRows }, (_, n) => (
             <fieldset key={n}>
-              <legend>Peristiwa pendanaan {n + 1}</legend>
+              <legend>Funding events {n + 1}</legend>
               <label>
-                Jenis arus dana
+                Cash movement type
                 <select
                   name={"kind" + n}
                   defaultValue={
@@ -436,27 +428,26 @@ export function FinanceEntry({
                         : "principal_repayment"
                   }
                 >
-                  <option value="loan_draw">Pencairan bruto</option>
+                  <option value="loan_draw">Gross drawdown</option>
                   <option value="withheld_fee">
-                    Biaya dipotong dari pencairan
+                    Fee withheld from drawdown
                   </option>
-                  <option value="interest">Bunga</option>
-                  <option value="finance_cost">Biaya dibayar terpisah</option>
-                  <option value="principal_repayment">Pelunasan pokok</option>
+                  <option value="interest">Interest</option>
+                  <option value="finance_cost">Separately paid fee</option>
+                  <option value="principal_repayment">
+                    Principal repayment
+                  </option>
                 </select>
               </label>
-              <Input
-                name={"amount" + n}
-                label={"Jumlah peristiwa " + (n + 1)}
-              />
+              <Input name={"amount" + n} label={"Event amount " + (n + 1)} />
               <Input
                 name={"at" + n}
-                label={"Waktu peristiwa " + (n + 1) + " (UTC)"}
+                label={"Event time " + (n + 1) + " (UTC)"}
                 type="datetime-local"
               />
               <Input
                 name={"order" + n}
-                label="Urutan pada waktu sama jika diketahui"
+                label="Same-time sequence, if known"
                 type="number"
                 required={false}
               />
@@ -467,11 +458,11 @@ export function FinanceEntry({
             className="secondary"
             onClick={() => setEventRows((n) => n + 1)}
           >
-            Tambah peristiwa dana
+            Add funding event
           </button>
           <Sources evidence={evidence} />
           <button disabled={!evidence.length}>
-            Simpan jadwal pendanaan usulan
+            Save proposed funding schedule
           </button>
         </form>
       </details>
@@ -479,11 +470,12 @@ export function FinanceEntry({
         funding.map((option) => (
           <details className="card" key={option.id}>
             <summary>
-              Persiapan aplikasi · {option.draw?.currency} {option.draw?.amount}
+              Application preparation · {option.draw?.currency}{" "}
+              {option.draw?.amount}
             </summary>
             <p>
-              Memerlukan skenario aktif yang memilih fasilitas ini. Paket tidak
-              dikirim dan tidak menyatakan persetujuan atau pencairan.
+              Requires a current scenario selecting this facility. The pack is
+              not submitted and does not indicate approval or disbursement.
             </p>
             <button
               disabled={!option.product_id}
@@ -496,25 +488,25 @@ export function FinanceEntry({
                 })
               }
             >
-              Susun paket persiapan dari analisis ini
+              Prepare a pack from this analysis
             </button>
           </details>
         ))}
       {packs.map((pack) => (
         <details className="card" key={pack.id}>
           <summary>
-            Paket tersimpan · {pack.preparation_status || "perlu tinjauan"}
+            Saved pack · {pack.preparation_status || "needs review"}
           </summary>
           <p>
             {pack.requested_amount?.currency} {pack.requested_amount?.amount} ·
-            tenor {pack.tenor_days ?? "belum diketahui"} hari
+            tenor {pack.tenor_days ?? "not yet known"} days
           </p>
           {pack.documents.map((row, n) => (
             <p key={n}>
               {row.name} ·{" "}
               {row.basis === "provider_required"
-                ? "Wajib penyedia"
-                : "Disarankan analisis"}{" "}
+                ? "Required by provider"
+                : "Recommended by analysis"}{" "}
               · {row.status}
             </p>
           ))}
@@ -530,7 +522,7 @@ export function FinanceEntry({
               "/content"
             }
           >
-            Unduh draf paket persiapan
+            Download preparation pack draft
           </a>
         </details>
       ))}

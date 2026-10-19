@@ -474,13 +474,16 @@ async def endpoint(request: Request):
                                     response=store_value,
                                 )
                             )
+                            audit_parent = parent
+                            if operation == "createWorkspace":
+                                audit_parent = response["result"]
                             commands.audit(
                                 conn,
                                 context,
                                 operation,
                                 before,
-                                parent,
-                                parent["id"] if parent else None,
+                                audit_parent,
+                                audit_parent["id"] if audit_parent else None,
                             )
             if isinstance(response, Response):
                 return response

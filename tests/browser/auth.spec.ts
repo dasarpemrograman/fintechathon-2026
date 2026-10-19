@@ -42,13 +42,13 @@ test("normal account login and organization selection persist, then logout revok
   try {
     await page.goto("/");
     await page.getByLabel("Email", { exact: true }).fill(email);
-    await page.getByLabel("Kata sandi", { exact: true }).fill(password);
-    await page.getByRole("button", { name: "Masuk", exact: true }).click();
+    await page.getByLabel("Password", { exact: true }).fill(password);
+    await page.getByRole("button", { name: "Sign in", exact: true }).click();
     await expect(
-      page.getByRole("heading", { name: "Ruang kerja Anda" }),
+      page.getByRole("heading", { name: "Your workspaces" }),
     ).toBeVisible();
     await page
-      .getByRole("combobox", { name: "Organisasi", exact: true })
+      .getByRole("combobox", { name: "Organization", exact: true })
       .selectOption(identity.organization_id);
     await expect(async () => {
       const session = await context.request.get("/api/gateway/auth/session");
@@ -75,10 +75,10 @@ test("normal account login and organization selection persist, then logout revok
       }),
     ).toBeVisible();
     await expect(
-      page.getByText("Penggunaan & paket · team", { exact: true }),
+      page.getByText("Usage & plans · team", { exact: true }),
     ).toBeVisible();
     await page
-      .getByRole("combobox", { name: "Organisasi", exact: true })
+      .getByRole("combobox", { name: "Organization", exact: true })
       .selectOption(identity.second_organization_id);
     await expect(async () => {
       const session = await context.request.get("/api/gateway/auth/session");
@@ -93,11 +93,11 @@ test("normal account login and organization selection persist, then logout revok
       }),
     ).toHaveCount(0);
     await expect(
-      page.getByText("Penggunaan & paket · free_sandbox", { exact: true }),
+      page.getByText("Usage & plans · free_sandbox", { exact: true }),
     ).toBeVisible();
     await page.reload();
     await expect(
-      page.getByRole("combobox", { name: "Organisasi", exact: true }),
+      page.getByRole("combobox", { name: "Organization", exact: true }),
     ).toHaveValue(identity.second_organization_id);
     const session = (await context.cookies()).find(
       (cookie) => cookie.name === "fincathon_session",
@@ -106,9 +106,9 @@ test("normal account login and organization selection persist, then logout revok
     expect(await page.evaluate(() => document.cookie)).not.toContain(
       session.value,
     );
-    await page.getByRole("button", { name: "Keluar", exact: true }).click();
+    await page.getByRole("button", { name: "Sign out", exact: true }).click();
     await expect(
-      page.getByRole("heading", { name: "Masuk ke organisasi" }),
+      page.getByRole("heading", { name: "Sign in to your organization" }),
     ).toBeVisible();
     expect(
       (await context.cookies()).some((cookie) => cookie.name === session.name),

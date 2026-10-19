@@ -18,7 +18,7 @@ Linux shell:
 ./dev up
 ```
 
-Open **http://127.0.0.1:3000/** and choose **Masuk demo**. This is a seeded synthetic offline demo; its application network has no outbound access. Startup creates only missing local configuration and preserves existing data. Stop with `.\dev.ps1 stop` or `./dev stop`; diagnose with `doctor` in place of `stop`.
+Open **http://127.0.0.1:3000/** and choose **Enter demo**. The interface uses English and a minimal green design system; original evidence retains its source language. This is a seeded synthetic offline demo; its application network has no outbound access. Startup creates only missing local configuration and preserves existing data. Stop with `.\dev.ps1 stop` or `./dev stop`; diagnose with `doctor` in place of `stop`.
 
 See [developer onboarding](docs/developer-onboarding.md) for prerequisites, recovery, explicit normal mode and hidden-password account setup. Follow the [demo walkthrough](docs/demo-walkthrough.md), or use the advanced [native toolchain and managed-cloud commands](docs/local-runtime.md). Optional live-provider credentials belong in the ignored `.env`; [environment configuration](docs/local-runtime.md#environment-configuration) explains precedence and restart behavior. Calendar writes remain disabled initially.
 

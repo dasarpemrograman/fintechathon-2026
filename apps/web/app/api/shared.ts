@@ -46,7 +46,7 @@ export function originError(request: NextRequest) {
     request.headers.get("sec-fetch-site") === "cross-site"
   )
     return NextResponse.json(
-      { message: "Permintaan dari asal lain ditolak." },
+      { message: "Cross-origin requests are not allowed." },
       { status: 403 },
     );
   return null;

@@ -127,6 +127,61 @@ class HttpFoundationTests(unittest.TestCase):
                 [],
             )
 
+    def test_workspace_history_pages_and_scoped_audit_preserve_originals(self):
+        def create(description):
+            response = self.client.post(
+                "/v2/workspaces", json={**self.body(), "product": {"description": description}},
+                headers={**self.headers, "Idempotency-Key": store.uid("history")},
+            )
+            self.assertEqual(response.status_code, 201, response.text)
+            return response.json()["result"]
+
+        original = create("Historical mango")
+        other = create("Unrelated workspace")
+        root = "/v2/workspaces/" + original["id"]
+        current = original
+        for number in range(12):
+            response = self.client.patch(root + "/facts", json={
+                "expected_revision": current["revision"],
+                "patches": [{"op": "replace", "path": "/product", "value": {"description": f"Mango revision {number}"},
+                             "reason": "Source correction", "evidence_ids": [], "agreement_required_from": []}],
+            }, headers={**self.headers, "Idempotency-Key": store.uid("patch")})
+            self.assertEqual(response.status_code, 200, response.text)
+            current = response.json()["result"]
+        rows = []
+        cursor = None
+        while True:
+            response = self.client.get(root + "/revisions", params={"limit": 2, **({"cursor": cursor} if cursor else {})}, headers=self.headers)
+            self.assertEqual(response.status_code, 200, response.text)
+            page = response.json()["result"]
+            self.assertLessEqual(len(page["items"]), 2)
+            rows += page["items"]
+            cursor = page["next_cursor"]
+            if not cursor:
+                break
+            self.assertLess(len(rows), 14, "Revision cursor failed to advance")
+        self.assertEqual([row["revision"] for row in rows], list(range(1, 14)))
+        self.assertEqual(rows[0], original)
+        self.assertEqual(self.client.get(root + "/revisions/1", headers=self.headers).json()["result"], original)
+        for query in [{"limit": "no"}, {"limit": 0}, {"limit": 101}, {"cursor": "bad"}, {"cursor": "revision_-1"}]:
+            self.assertEqual(self.client.get(root + "/revisions", params=query, headers=self.headers).status_code, 400)
+        audit = self.client.get("/v2/audit", params={"workspace_id": original["id"], "limit": 100}, headers=self.headers)
+        self.assertEqual(audit.status_code, 200, audit.text)
+        records = audit.json()["result"]["items"]
+        self.assertEqual(len(records), 13)
+        self.assertEqual(sum(row["action"] == "createWorkspace" for row in records), 1)
+        self.assertEqual(sorted(row["current_revision"] for row in records), list(range(1, 14)))
+        unrelated = self.client.get("/v2/audit", params={"workspace_id": other["id"]}, headers=self.headers).json()["result"]["items"]
+        self.assertEqual(len(unrelated), 1)
+        self.assertTrue({row["id"] for row in records}.isdisjoint(row["id"] for row in unrelated))
+        second = HttpFoundationTests()
+        second.setUp()
+        try:
+            for path in [root + "/revisions", root + "/revisions/1", "/v2/audit?workspace_id=" + original["id"]]:
+                self.assertEqual(second.client.get(path, headers=second.headers).status_code, 404)
+        finally:
+            second.tearDown()
+
     def test_auth_receipts_are_idempotent_and_encrypted(self):
         headers = {"Idempotency-Key": store.uid("login")}
         body = {"email": self.email, "password": self.password}

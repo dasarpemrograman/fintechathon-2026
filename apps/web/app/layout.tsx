@@ -1,12 +1,12 @@
 import "./style.css";
 export const metadata = {
-  title: "Fincathon · Ruang Ekspor",
+  title: "Fincathon · Export workspace",
   description:
-    "Perencanaan ekspor dengan bukti dan arus kas yang dapat ditelusuri.",
+    "Evidence-led export planning with traceable economics and cash flow.",
 };
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id">
+    <html lang="en">
       <body>{children}</body>
     </html>
   );
