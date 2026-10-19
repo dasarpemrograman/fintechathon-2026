@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+# Application runtimes execute in pinned containers; no host Python/Node needed.
+set -euo pipefail
+ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+cd "$ROOT"
+usage() { printf '%s\n' 'Usage: ./dev {up|stop|doctor|account} [--mode demo|normal]' 'up defaults to the seeded offline demo. account requires normal mode and a terminal.'; }
+COMMAND="${1:-help}"; [[ $# -eq 0 ]] || shift
+MODE=demo
+PREPARE_ONLY=0
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --mode) [[ $# -ge 2 ]] || { usage >&2; exit 2; }; MODE="$2"; shift 2;;
+    --prepare-only) PREPARE_ONLY=1; shift;; # Internal Windows ACL boundary.
+    -h|--help) usage; exit 0;;
+    *) usage >&2; exit 2;;
+  esac
+done
+case "$COMMAND" in help|-h|--help) usage; exit 0;; up|stop|doctor|account) ;; *) usage >&2; exit 2;; esac
+[[ "$MODE" == demo || "$MODE" == normal ]] || { usage >&2; exit 2; }
+PROJECT="${COMPOSE_PROJECT_NAME:-fincathon}"
+[[ "$PROJECT" =~ ^[a-z0-9][a-z0-9_-]*$ ]] || { printf '%s\n' 'Invalid COMPOSE_PROJECT_NAME.' >&2; exit 2; }
+WEB_PORT="${FINCATHON_WEB_PORT:-3000}"; API_PORT="${FINCATHON_API_PORT:-8000}"
+for port in "$WEB_PORT" "$API_PORT"; do [[ "$port" =~ ^[0-9]+$ ]] && ((port>=1 && port<=65535)) || { printf '%s\n' 'Invalid explicit loopback port.' >&2; exit 2; }; done
+[[ "$WEB_PORT" != "$API_PORT" ]] || { printf '%s\n' 'Web and API ports must differ.' >&2; exit 2; }
+command -v docker >/dev/null || { printf '%s\n' 'Docker CLI is missing. Install/configure Docker with Compose, then run ./dev doctor.' >&2; exit 1; }
+docker info --format '{{.ServerVersion}}' >/dev/null 2>&1 || { printf '%s\n' 'Docker daemon unavailable. Start Docker or fix daemon access, then run ./dev doctor.' >&2; exit 1; }
+docker compose version >/dev/null 2>&1 || { printf '%s\n' 'Docker Compose plugin missing. Install a compatible Compose plugin.' >&2; exit 1; }
+COMPOSE_UP_HELP="$(docker compose up --help)"
+[[ "$COMPOSE_UP_HELP" == *--wait-timeout* ]] || { printf '%s\n' 'Docker Compose lacks --wait-timeout. Update the Compose plugin, then run ./dev doctor.' >&2; exit 1; }
+read -r _ PY_IMAGE _ < docker/api.Dockerfile
+helper() { docker run --rm --user "$(id -u):$(id -g)" --mount "type=bind,src=$ROOT,dst=/checkout" "$PY_IMAGE" python /checkout/scripts/dev_bootstrap.py "$@"; }
+info_ids="$(docker ps -aq --filter "label=com.docker.compose.project=$PROJECT")"
+if [[ -n "$info_ids" ]]; then inventory="$(docker inspect $info_ids | docker run --rm -i --mount "type=bind,src=$ROOT,dst=/checkout,readonly" "$PY_IMAGE" python /checkout/scripts/dev_bootstrap.py inventory --root-label "$ROOT" $([[ "$COMMAND" == up ]] && printf '%s' "--mode $MODE" || true))"; else inventory='unknown 0 0'; fi
+read -r CURRENT RUNNING TOTAL <<< "$inventory"
+if [[ "$COMMAND" == stop || "$COMMAND" == doctor || "$COMMAND" == account ]]; then
+ [[ "$CURRENT" == unknown ]] || MODE="$CURRENT"
+fi
+COMPOSE=(docker compose -p "$PROJECT" -f "$ROOT/compose.yaml")
+[[ "$MODE" != demo ]] || COMPOSE+=(-f "$ROOT/compose.demo.yaml")
+"${COMPOSE[@]}" config --quiet >/dev/null || { printf '%s\n' 'Compose configuration is incompatible or invalid. Run dev doctor; no application data was changed.' >&2; exit 1; }
+ready() { docker run --rm --network "${PROJECT}_default" --mount "type=bind,src=$ROOT,dst=/checkout,readonly" "$PY_IMAGE" python /checkout/scripts/dev_bootstrap.py ready --mode "$MODE" --timeout "${1:-90}"; }
+if [[ "$COMMAND" == doctor ]]; then
+ printf '%s\n' "Docker/Compose: available; checkout ownership: valid; mode: $CURRENT; running containers: $RUNNING."
+ if ((RUNNING)); then ready 5; else printf '%s\n' 'Project is stopped. Run ./dev up for the offline demo.'; fi
+ exit 0
+fi
+if [[ "$COMMAND" == stop ]]; then
+ if ((TOTAL)); then "${COMPOSE[@]}" stop; fi
+ [[ ! -f "$ROOT/.local/dev/$PROJECT/state.json" ]] || helper state --project "$PROJECT" --mode "$MODE" --ready no
+ printf '%s\n' 'Project stopped; volumes, credentials and unrelated services retained.'
+ exit 0
+fi
+if [[ "$COMMAND" == account ]]; then
+ [[ "$MODE" == normal && "$RUNNING" != 0 ]] || { printf '%s\n' 'Start normal mode first: ./dev up --mode normal' >&2; exit 1; }
+ [[ -t 0 && -t 1 ]] || { printf '%s\n' 'Account setup needs an interactive terminal; passwords are never accepted as arguments.' >&2; exit 1; }
+ read -r -p 'Email: ' email; read -r -p 'Display name: ' display; read -r -p 'Organization: ' organization
+ "${COMPOSE[@]}" exec api python scripts/bootstrap_account.py --email "$email" --name "$display" --organization "$organization"
+ exit $?
+fi
+printf '%s\n' '[preflight] Docker, Compose and project ownership checked.'
+PUBLISHED="$(docker ps --filter "label=com.docker.compose.project=$PROJECT" --format '{{.Ports}}')"
+if ((RUNNING)) && [[ "$PUBLISHED" == *"127.0.0.1:$WEB_PORT->"* && "$PUBLISHED" == *"127.0.0.1:$API_PORT->"* ]] && helper reusable --project "$PROJECT" --mode "$MODE" && ready 5; then
+ printf '%s\n' "Ready: http://127.0.0.1:$WEB_PORT | mode=$MODE | existing healthy instance reused."
+ exit 0
+fi
+for port in "$WEB_PORT" "$API_PORT"; do
+if [[ "$PUBLISHED" != *"127.0.0.1:$port->"* ]]; then docker run --rm --network host "$PY_IMAGE" python -c 'import socket,sys; probes=[]
+try:
+ for value in sys.argv[1:]:
+  s=socket.socket();s.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1);probes.append(s)
+  try:s.bind(("127.0.0.1",int(value)))
+  except OSError:raise SystemExit("Loopback port "+value+" is occupied. Stop its owner explicitly or set FINCATHON_WEB_PORT / FINCATHON_API_PORT; no process was stopped.")
+finally:
+ for s in probes:s.close()' "$port"; fi
+done
+DB=0; RUNTIME=0
+docker volume inspect "${PROJECT}_postgres" >/dev/null 2>&1 && DB=1
+docker volume inspect "${PROJECT}_runtime" >/dev/null 2>&1 && RUNTIME=1
+printf '%s\n' '[prepare] Creating only missing local configuration.'
+helper prepare --project "$PROJECT" --existing-db "$DB" --existing-runtime "$RUNTIME"
+if ((PREPARE_ONLY)); then exit 0; fi
+LOGDIR="$ROOT/.local/dev/$PROJECT"
+stage() { local label="$1"; shift; printf '[%s]\n' "$label"; if ! "$@" >"$LOGDIR/$label.log" 2>&1; then printf '%s\n' "Stage $label failed. Inspect $LOGDIR/$label.log and run ./dev doctor. Existing data was retained." >&2; exit 1; fi; }
+stage build "${COMPOSE[@]}" build
+stage database "${COMPOSE[@]}" up -d --force-recreate --wait --wait-timeout 90 postgres
+stage key-check "${COMPOSE[@]}" run --rm --no-deps -T api python scripts/dev_bootstrap.py key
+stage services "${COMPOSE[@]}" up -d --force-recreate
+if [[ "$MODE" == demo ]]; then stage seed "${COMPOSE[@]}" run --rm -T seed; fi
+stage readiness ready 90
+helper state --project "$PROJECT" --mode "$MODE" --ready yes
+printf '%s\n' "Ready: http://127.0.0.1:$WEB_PORT | mode=$MODE"
+if [[ "$MODE" == demo ]]; then printf '%s\n' 'SYNTHETIC OFFLINE DEMO: use Masuk demo. Provider keys and personal login are unnecessary.'; else printf '%s\n' 'Normal authentication: run ./dev account to provision a local owner.'; fi
+printf '%s\n' 'Stop: ./dev stop | Diagnose: ./dev doctor | Live provider acceptance is separate.'

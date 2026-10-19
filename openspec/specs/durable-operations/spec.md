@@ -43,11 +43,21 @@ Audit records SHALL capture actor, tenant, action, purpose, revisions, hashes, d
 - **THEN** the verifier, reason, superseded record, evidence and balance effect are auditable without rewriting prior history
 
 ### Requirement: Reproducible local lifecycle
-A documented local workflow SHALL migrate storage, start web/API/worker dependencies, seed demo data and verify functional readiness. Restart SHALL preserve non-demo user data; destructive reset SHALL be limited to explicit demo-owned records. Setup SHALL use pinned dependencies and verified downloads.
+A documented single-command local workflow SHALL prepare missing configuration, migrate storage, start web/API/worker dependencies, seed demo data and verify readiness using pinned dependencies and verified downloads. Repeated startup and restart SHALL preserve credentials and non-demo user data. Stop SHALL affect only the selected project runtime without deleting volumes; destructive reset SHALL remain limited to explicit demo-owned records.
 
 #### Scenario: Fresh checkout is prepared
 - **WHEN** documented local setup and startup commands complete on the supported toolchain
 - **THEN** an authenticated representative UI/API journey succeeds and the application remains usable after service restart
+
+#### Scenario: Startup is repeated after developer work
+- **WHEN** the developer runs the same startup command after modifying local application data
+- **THEN** existing credentials, original files and non-demo history survive without an implicit reset
+- **AND** a matching healthy runtime is reused rather than duplicated
+
+#### Scenario: Developer stops the local stack
+- **WHEN** the developer invokes the documented stop command
+- **THEN** only project-owned services and any project-owned runtime helper stop
+- **AND** database/file volumes and unrelated processes remain intact
 
 ### Requirement: Observable readiness and release evidence
 Health/readiness and operational reports SHALL distinguish database/worker readiness, queue lag, provider failures, stale artifacts and live validation state. Releases SHALL report executed tests and failed/skipped live checks separately instead of treating open ports or demo success as proof of integration readiness.
