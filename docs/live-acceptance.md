@@ -20,13 +20,9 @@ The profile setting is global to the current user's OpenSpec configuration; `upd
 
 ## Model account
 
-The Gemini configuration uses the documented compatibility base URL (`https://generativelanguage.googleapis.com/v1beta/openai/`) and model `gemini-flash-lite-latest`. A replacement key has now passed the bounded-model adapter and all three provider connectivity probes. It was applied to the current running services without saving it in repository configuration files. The user-selected credential is now persisted in the protected local .env and loaded by the API/worker; no key value is included in documentation.
+Configure a model key from an eligible project for the selected provider. For Gemini, use the documented compatibility base URL (`https://generativelanguage.googleapis.com/v1beta/openai/`) and a model available to that project. Save credentials only in the protected local `.env` and restart services after changing them.
 
-With the earlier key, both the compatibility API and native Gemini API returned HTTP 402 with `RESOURCE_EXHAUSTED` and a depleted-prepaid-credit message. An additional request for the explicitly free-tier-listed `gemini-3.1-flash-lite` returned the same error. This was the key/project's reported billing state, not evidence that the app requires a paid model or that the base URL is wrong.
-
-For free-tier use, open [AI Studio API Keys](https://aistudio.google.com/api-keys), identify the project owning the configured key, and inspect its Billing Tier. Use a key from an eligible **Free Tier** project and update `FINCATHON_MODEL_API_KEY` through environment settings. A separate Free Tier project avoids changing billing on other existing projects. If the exact key's project already shows Free Tier but still returns the prepaid error, the console/API state disagrees and needs Google-side investigation or another eligible Free Tier project key.
-
-[Google's billing documentation](https://ai.google.dev/gemini-api/docs/billing) states that a depleted paid project does not automatically downgrade to Free Tier. Billing can be disabled on a project to return it to Free Tier, but that is an account configuration action, not an API request option. No billing settings are changed by these probes.
+Use [AI Studio API Keys](https://aistudio.google.com/api-keys) to manage Gemini keys and review the project's eligible tier. Billing and quota behavior depend on the provider account; see [Google's billing documentation](https://ai.google.dev/gemini-api/docs/billing). Acceptance documentation does not retain an operator's account or billing history.
 
 The app reads these settings:
 
@@ -42,7 +38,7 @@ The account owner must perform the Google consent step. An email address and cli
 
 1. In the Google Cloud project for the configured OAuth client, enable **Google Calendar API**. Use an OAuth **Web application** client. While the consent app is in Testing, add the intended Google account as a test user.
 2. Register exactly `http://127.0.0.1:3000/oauth/calendar/callback` as an authorized redirect URI and configure the same `GOOGLE_REDIRECT_URI`. The browser must reach that local app origin; forward cloud port 3000 to local port 3000 if needed. A different origin requires updating both the registered URI and runtime setting.
-3. In that Google account, create an empty calendar named **Fincathon acceptance**. Copy its Calendar ID from **Settings → Integrate calendar**. Provide the calendar ID, not an access token. Keep the main calendar out of acceptance testing.
+3. In that Google account, create a dedicated empty acceptance calendar. Copy its Calendar ID from **Settings → Integrate calendar**. Provide the calendar ID, not an access token. Keep the main calendar out of acceptance testing.
 4. Use the normal app in an isolated acceptance tenant/instance. The offline demo cannot perform real consent or event delivery. Provision its local app login with `scripts/bootstrap_account.py`; its password prompt is hidden. This local login is separate from the Google account. Create a test Deal with generic milestones, then use its optional Calendar panel to connect Google and complete consent in your browser. Tokens remain encrypted server-side.
 5. Select the dedicated Calendar ID. Connection and selection create no events. Keep `FINCATHON_CALENDAR_LIVE_ENABLED` unset during this preparation.
 

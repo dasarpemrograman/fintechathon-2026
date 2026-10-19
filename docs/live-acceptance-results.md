@@ -4,7 +4,7 @@ Tasks **11.5 and 12.3 are complete** for the declared local acceptance scopes. A
 
 ## Calendar lifecycle
 
-The real OAuth callback completed for the configured Google account and its existing **Fincathon acceptance** calendar. A Google Calendar API read verified the calendar name, owner access, and enabled API. The registered callback was `http://127.0.0.1:3000/oauth/calendar/callback`.
+The real OAuth callback completed for the configured Google account and its dedicated acceptance calendar. A Google Calendar API read verified the calendar name, owner access, and enabled API. The registered callback was `http://127.0.0.1:3000/oauth/calendar/callback`.
 
 The user approved the exact event title, dates, changes, and cleanup. Testing used a temporary normal-mode acceptance API with a test-run reference, while the normal API's live-write flag remained false. The regular worker was stopped while the acceptance runner exercised production job/outbox delivery, then restarted.
 
@@ -18,7 +18,7 @@ The user approved the exact event title, dates, changes, and cleanup. Testing us
 | Delete | After explicit conflict resolution and a new deletion approval, the owned event was deleted and its cancelled/absent state verified. |
 | Revoke | Local encrypted credentials were removed, the connection became revoked, and subsequent sync returned HTTP 409. Google's linked-app search showed no Fincathon grant. The built-in timeline remained readable and unchanged by revocation. |
 
-The first run exposed a real retry defect: Google canonicalizes an instant's UTC offset, so direct JSON equality incorrectly reported an external edit. `event_matches` now compares aware instants while preserving named timezone and all-day semantics and the managed privacy fields. A regression rejects actual time changes and re-enabled default reminders. The successful rerun's provider event ID was `36691aef570688345563a13b4bca11a0c8b86653f0c1b9654637ceb84f914d24`.
+The first run exposed a real retry defect: Google canonicalizes an instant's UTC offset, so direct JSON equality incorrectly reported an external edit. `event_matches` now compares aware instants while preserving named timezone and all-day semantics and the managed privacy fields. A regression rejects actual time changes and re-enabled default reminders. Installation-specific provider identifiers are retained only in private receipts.
 
 Google briefly continued to accept an already-issued access token after the revoke request. An extra harness assertion expecting immediate token invalidation therefore failed after event cleanup. Completion was verified separately through Google's grant list, removed local credentials, refused future sync, and preserved timeline. That historical harness result remains in the receipt; it is not represented as an HTTP 401 that never occurred.
 

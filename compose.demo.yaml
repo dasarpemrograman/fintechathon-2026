@@ -14,7 +14,7 @@ services:
     command: [python, /gateway.py]
     volumes: [./scripts/loopback_gateway.py:/gateway.py:ro]
     networks: [default, gateway_access]
-    ports: [127.0.0.1:3000:3000, 127.0.0.1:8000:8000]
+    ports: ["127.0.0.1:${FINCATHON_WEB_PORT:-3000}:3000", "127.0.0.1:${FINCATHON_API_PORT:-8000}:8000"]
     depends_on:
       api: {condition: service_healthy}
       web: {condition: service_started}

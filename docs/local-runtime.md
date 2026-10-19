@@ -1,5 +1,7 @@
 # Local runtime foundation
 
+For a fresh machine, start with the [one-command developer onboarding](developer-onboarding.md). The commands below cover the optional native toolchain and managed-cloud workflows.
+
 See [live acceptance setup](live-acceptance.md) for the installed OpenSpec workflows, model billing requirements, and Google consent/test-calendar preparation.
 
 Run from the existing repository checkout. Toolchain pins are in `.python-version` and `.node-version`; runtime dependencies use `uv.lock` and `package-lock.json`. Do not create a worktree for setup.

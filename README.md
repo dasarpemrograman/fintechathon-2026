@@ -4,20 +4,23 @@ A local export workspace for producer and reseller exporters: evidence, determin
 
 The application uses Next.js, a Python API and worker, PostgreSQL and private content-addressed document storage. [api/openapi.yaml](api/openapi.yaml) is the single source of truth for the wire contract; runtime validators and generated TypeScript types derive from it.
 
-Start with [local setup and lifecycle commands](docs/local-runtime.md), then follow the [synthetic demo walkthrough](docs/demo-walkthrough.md). The demo uses explicit demo mode, isolated tenants and fixed synthetic fixtures. Its internal services run on a Docker network with outbound access disabled.
+Install Docker with a working daemon and compatible Compose plugin, then clone and open this checkout. On Windows the launcher can also use Docker in your default WSL distribution. No host Python, Node, uv, API keys or personal account is needed for the first demo.
 
-For optional live-provider configuration, copy [.env.example](.env.example) to `.env` and fill in your credentials locally. The API, worker and provider probes load it; Compose passes it to backend services. The offline demo needs no provider keys. See [environment configuration](docs/local-runtime.md#environment-configuration) for precedence and restart behavior.
+Windows PowerShell:
 
-```sh
-UV_CACHE_DIR=/workspace/.cache/uv uv sync --frozen
-npm --cache /workspace/.cache/npm ci
-.venv/bin/python scripts/local_prepare.py
-python scripts/compose_cloud.py --demo build
-python scripts/compose_cloud.py --demo up -d
-python scripts/compose_cloud.py --demo run --rm seed
+```powershell
+.\dev.ps1 up
 ```
 
-The managed-cloud wrapper preserves the environment's proxy and CA. On a regular Docker host use `docker compose -f compose.yaml -f compose.demo.yaml` instead. Open http://127.0.0.1:3000. Stop with the same Compose invocation followed by `stop`; retain volumes when removing containers. Never use volume deletion to reset demo data.
+Linux shell:
+
+```sh
+./dev up
+```
+
+Open **http://127.0.0.1:3000/** and choose **Masuk demo**. This is a seeded synthetic offline demo; its application network has no outbound access. Startup creates only missing local configuration and preserves existing data. Stop with `.\dev.ps1 stop` or `./dev stop`; diagnose with `doctor` in place of `stop`.
+
+See [developer onboarding](docs/developer-onboarding.md) for prerequisites, recovery, explicit normal mode and hidden-password account setup. Follow the [demo walkthrough](docs/demo-walkthrough.md), or use the advanced [native toolchain and managed-cloud commands](docs/local-runtime.md). Optional live-provider credentials belong in the ignored `.env`; [environment configuration](docs/local-runtime.md#environment-configuration) explains precedence and restart behavior. Calendar writes remain disabled initially.
 
 ```sh
 .venv/bin/python scripts/validate_contract.py
