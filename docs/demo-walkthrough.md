@@ -12,7 +12,7 @@ For an interactive calculation, open the base green-coffee **Deal** card, inspec
 
 `seed_demo.py` resumes checkpoint phases from audit evidence and does not overwrite user edits once a phase is complete. Rerunning it creates no duplicate completed fixtures. `APP_MODE=demo .venv/bin/python scripts/reset_demo.py --dataset demo-v1` performs a preflight. Add `--apply` for an explicit namespace reset. It scans retained records, immutable history and references; mixed ownership blocks deletion. Database volumes, unrelated user data and content-addressed files remain. Shared files are retained conservatively; this command is not global garbage collection.
 
-The current app and test evidence are recorded in the active OpenSpec tasks. Optional Calendar and live-provider acceptance have separate gates; an offline receipt never counts as live validation.
+The implementation checklist is archived under OpenSpec; current R19 takeover evidence is in [R19 acceptance](roadmap/R19-acceptance.md). Optional Calendar and live-provider acceptance have separate gates; an offline receipt never counts as live validation.
 
 Owner reviews, counterparty acceptance and verified funds are separate records. Review the current analysis and evidence hashes before an owner approval, and bind draft review to its exact artifact hash. Record each required counterparty's acceptance against the currently reviewed revision with supporting evidence. An owner's plan review never counts as the buyer's agreement, an opening-bank verification or a verified advance. Existing acceptance histories remain usable only while their commercial terms and agreed milestone hashes still match. Changed evidence preserves the old artifact/review history and requires a fresh review before new action.
 

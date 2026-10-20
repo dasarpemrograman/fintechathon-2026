@@ -35,6 +35,8 @@ npm run types
 
 `local_prepare.py` starts the project PostgreSQL container on loopback port 15432 and waits for readiness. It generates private database settings under ignored `.local/`; no database password is committed or printed. The container volume persists across restart. Do not delete that volume to reset demonstration data.
 
+The host launcher and extraction sandbox use Linux process and resource-limit interfaces. On macOS, run the application in Compose instead: `docker compose -f compose.yaml -f compose.demo.yaml build api web`, then `docker compose -f compose.yaml -f compose.demo.yaml up -d --no-build`. Building the two distinct images explicitly avoids concurrent builds of the shared API image under several service names. Run `docker compose -f compose.yaml -f compose.demo.yaml run --rm seed`, then `FINCATHON_BROWSER_COMPOSE=1 npx playwright test` on the host after service readiness. The browser helper uses the same Compose services without requiring the managed-cloud proxy wrapper.
+
 The API foundation can run with `.venv/bin/python -m uvicorn services.api.app:app --host 127.0.0.1 --port 8000`. The separate worker entry point is `.venv/bin/python -m services.worker`. Application and demo acceptance are tracked separately in the active OpenSpec tasks; starting these processes alone does not establish that all workflows work.
 
 Bootstrap a normal local account with `.venv/bin/python scripts/bootstrap_account.py --email owner@example.test --name Owner --organization Exporter`; enter the password at its hidden prompt. There is no committed default account password. Demo identity entry requires explicit `APP_MODE=demo` and allowlisted seeded users; an old demo session is invalid in normal mode.
