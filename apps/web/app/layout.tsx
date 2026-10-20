@@ -3,7 +3,7 @@ export const metadata = {
   title: "ALLExport · Export workspace",
   description:
     "Evidence-led export planning with traceable economics and cash flow.",
-  icons: { icon: "/icon.svg" },
+  icons: { icon: "/icon.png" },
 };
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (

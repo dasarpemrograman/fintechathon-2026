@@ -125,7 +125,7 @@ export function Icon({
 export function Brand() {
   return (
     <span className="brand">
-      <img className="brand-mark" src="/icon.svg" width="30" height="30" alt="" />
+      <img className="brand-mark" src="/icon.png" width="30" height="30" alt="" />
       <span className="brand-word"><strong>ALL</strong>Export</span>
     </span>
   );
