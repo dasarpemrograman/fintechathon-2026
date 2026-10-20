@@ -7,10 +7,10 @@ $root = $PSScriptRoot
 function Usage { 'Usage: .\dev.ps1 {up|stop|doctor|account} [-Mode demo|normal]'; 'up defaults to the seeded offline demo; account needs normal mode and an interactive terminal.' }
 if ($Command -in @('help','-h','--help')) { Usage; exit 0 }
 if ($Command -notin @('up','stop','doctor','account')) { Usage; exit 2 }
-$project = if ($env:COMPOSE_PROJECT_NAME) { $env:COMPOSE_PROJECT_NAME } else { 'fincathon' }
+$project = if ($env:COMPOSE_PROJECT_NAME) { $env:COMPOSE_PROJECT_NAME } else { 'allexport' }
 if ($project -notmatch '^[a-z0-9][a-z0-9_-]*$') { Write-Error 'Invalid COMPOSE_PROJECT_NAME.'; exit 2 }
-$webPort = if ($env:FINCATHON_WEB_PORT) { $env:FINCATHON_WEB_PORT } else { '3000' }
-$apiPort = if ($env:FINCATHON_API_PORT) { $env:FINCATHON_API_PORT } else { '8000' }
+$webPort = if ($env:ALLEXPORT_WEB_PORT) { $env:ALLEXPORT_WEB_PORT } else { '3000' }
+$apiPort = if ($env:ALLEXPORT_API_PORT) { $env:ALLEXPORT_API_PORT } else { '8000' }
 foreach ($port in @($webPort,$apiPort)) { if ($port -notmatch '^\d+$' -or [int]$port -lt 1 -or [int]$port -gt 65535) { throw 'Invalid explicit loopback port.' } }
 if ($webPort -eq $apiPort) { throw 'Web and API ports must differ.' }
 $keeperFile = Join-Path $root ".local\dev\$project\wsl-keeper.json"
@@ -32,7 +32,7 @@ function Check-WindowsPorts([string]$Published) {
     foreach ($port in @($webPort,$apiPort)) {
         if ($Published.Contains("127.0.0.1:$port->")) { continue }
         $probe=New-Object Net.Sockets.TcpListener([Net.IPAddress]::Loopback,[int]$port)
-        try { $probe.Start() } catch { throw "Loopback port $port is occupied. Stop its owner explicitly or set FINCATHON_WEB_PORT / FINCATHON_API_PORT." } finally { $probe.Stop() }
+        try { $probe.Start() } catch { throw "Loopback port $port is occupied. Stop its owner explicitly or set ALLEXPORT_WEB_PORT / ALLEXPORT_API_PORT." } finally { $probe.Stop() }
     }
 }
 $native = $false
@@ -51,7 +51,7 @@ if (-not $native) {
         if ($LASTEXITCODE) { throw 'Cannot inspect published ports; no services were changed.' }
         Check-WindowsPorts $published
     }
-    $arguments = @('--exec','env',"COMPOSE_PROJECT_NAME=$project","FINCATHON_WEB_PORT=$webPort","FINCATHON_API_PORT=$apiPort",'bash',"$linuxRoot/dev",$Command,'--mode',$Mode)
+    $arguments = @('--exec','env',"COMPOSE_PROJECT_NAME=$project","ALLEXPORT_WEB_PORT=$webPort","ALLEXPORT_API_PORT=$apiPort",'bash',"$linuxRoot/dev",$Command,'--mode',$Mode)
     $envExisted = Test-Path -LiteralPath (Join-Path $root '.env')
     $passwordExisted = Test-Path -LiteralPath (Join-Path $root '.local\db-password')
     if ($Command -eq 'up') {

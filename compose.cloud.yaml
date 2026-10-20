@@ -2,7 +2,7 @@
 x-cloud-build: &cloud-build
   network: host
   extra_hosts:
-    - proxy:${FINCATHON_PROXY_IP:?Resolve the managed proxy with scripts/compose_cloud.py}
+    - proxy:${ALLEXPORT_PROXY_IP:?Resolve the managed proxy with scripts/compose_cloud.py}
   secrets: [cloud_ca]
   args:
     HTTP_PROXY: ${HTTP_PROXY:-}

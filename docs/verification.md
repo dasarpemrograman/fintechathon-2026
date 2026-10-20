@@ -69,7 +69,7 @@ The app prepares documents and records externally performed trade actions. It do
 | --- | --- |
 | Brave | `BRAVE_SEARCH_API_KEY` is absent. Actual licensed search and attributed source retrieval remain unexecuted. |
 | Frankfurter v2 | Live probe failed with `SOURCE_DNS_UNAVAILABLE`. Resolve the environment's DNS/network allowance and retain a real attributed FX receipt. |
-| Configured model | `FINCATHON_MODEL_BASE_URL`, `FINCATHON_MODEL_ID` and `FINCATHON_MODEL_API_KEY` are absent. Bounded adapter/model-task tests pass; a real provider response has not been accepted. |
+| Configured model | `ALLEXPORT_MODEL_BASE_URL`, `ALLEXPORT_MODEL_ID` and `ALLEXPORT_MODEL_API_KEY` are absent. Bounded adapter/model-task tests pass; a real provider response has not been accepted. |
 | Official, market, logistics and finance coverage | Real jurisdiction/product-specific source acceptance has not run. Configure the required public destinations and retain applicability, freshness, quotation/comparability and publisher evidence. A connectivity probe alone is insufficient. |
 | Google Calendar | No approved test-account OAuth/event lifecycle acceptance was executed. Requires registered client/redirect configuration, consent and actual approved insert/update/delete, retry/conflict and revocation receipts. The normal browser projection remains disabled pending this acceptance. |
 

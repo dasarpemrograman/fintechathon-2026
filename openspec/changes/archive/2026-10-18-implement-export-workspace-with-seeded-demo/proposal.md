@@ -2,7 +2,7 @@
 
 ## Why
 
-Fincathon currently has a validated API contract but no running application. Implement the exporter workflow behind that contract and provide a reproducible seeded demo so users can evaluate real persisted behavior without credentials, while preserving separate evidence for live integrations.
+ALLExport currently has a validated API contract but no running application. Implement the exporter workflow behind that contract and provide a reproducible seeded demo so users can evaluate real persisted behavior without credentials, while preserving separate evidence for live integrations.
 
 ## What Changes
 

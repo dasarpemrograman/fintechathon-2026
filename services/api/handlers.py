@@ -280,7 +280,7 @@ def read_operation(conn, context, operation, parent, request):
             json.dumps(data, ensure_ascii=False).encode(),
             media_type="application/octet-stream",
             headers={
-                "Content-Disposition": 'attachment; filename="fincathon-export.json"'
+                "Content-Disposition": 'attachment; filename="allexport-export.json"'
             },
         )
     if "/content" in path:
@@ -295,7 +295,7 @@ def read_operation(conn, context, operation, parent, request):
             content,
             media_type="application/octet-stream",
             headers={
-                "Content-Disposition": 'attachment; filename="fincathon-'
+                "Content-Disposition": 'attachment; filename="allexport-'
                 + kind
                 + "."
                 + ("md" if kind == "artifact" else "bin")

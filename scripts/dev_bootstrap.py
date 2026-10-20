@@ -127,7 +127,7 @@ def check_ports(ports):
             try:
                 probe.bind(('127.0.0.1', port))
             except OSError:
-                fail('Loopback port '+str(port)+' is occupied. Stop its owner explicitly or configure an explicit FINCATHON_WEB_PORT / FINCATHON_API_PORT; no process was stopped.')
+                fail('Loopback port '+str(port)+' is occupied. Stop its owner explicitly or configure an explicit ALLEXPORT_WEB_PORT / ALLEXPORT_API_PORT; no process was stopped.')
     finally:
         for probe in probes:
             probe.close()
@@ -177,7 +177,7 @@ def main():
     parser.add_argument('command', choices=['inventory', 'prepare', 'ports', 'ready', 'key', 'reusable', 'state'])
     parser.add_argument('--root', type=Path, default=Path('/checkout'))
     parser.add_argument('--root-label')
-    parser.add_argument('--project', type=project_name, default='fincathon')
+    parser.add_argument('--project', type=project_name, default='allexport')
     parser.add_argument('--mode', choices=['demo', 'normal'])
     parser.add_argument('--existing-db', type=int, choices=[0, 1], default=0)
     parser.add_argument('--existing-runtime', type=int, choices=[0, 1], default=0)

@@ -17,9 +17,9 @@ while [[ $# -gt 0 ]]; do
 done
 case "$COMMAND" in help|-h|--help) usage; exit 0;; up|stop|doctor|account) ;; *) usage >&2; exit 2;; esac
 [[ "$MODE" == demo || "$MODE" == normal ]] || { usage >&2; exit 2; }
-PROJECT="${COMPOSE_PROJECT_NAME:-fincathon}"
+PROJECT="${COMPOSE_PROJECT_NAME:-allexport}"
 [[ "$PROJECT" =~ ^[a-z0-9][a-z0-9_-]*$ ]] || { printf '%s\n' 'Invalid COMPOSE_PROJECT_NAME.' >&2; exit 2; }
-WEB_PORT="${FINCATHON_WEB_PORT:-3000}"; API_PORT="${FINCATHON_API_PORT:-8000}"
+WEB_PORT="${ALLEXPORT_WEB_PORT:-3000}"; API_PORT="${ALLEXPORT_API_PORT:-8000}"
 for port in "$WEB_PORT" "$API_PORT"; do [[ "$port" =~ ^[0-9]+$ ]] && ((port>=1 && port<=65535)) || { printf '%s\n' 'Invalid explicit loopback port.' >&2; exit 2; }; done
 [[ "$WEB_PORT" != "$API_PORT" ]] || { printf '%s\n' 'Web and API ports must differ.' >&2; exit 2; }
 command -v docker >/dev/null || { printf '%s\n' 'Docker CLI is missing. Install/configure Docker with Compose, then run ./dev doctor.' >&2; exit 1; }
@@ -69,7 +69,7 @@ try:
  for value in sys.argv[1:]:
   s=socket.socket();s.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1);probes.append(s)
   try:s.bind(("127.0.0.1",int(value)))
-  except OSError:raise SystemExit("Loopback port "+value+" is occupied. Stop its owner explicitly or set FINCATHON_WEB_PORT / FINCATHON_API_PORT; no process was stopped.")
+  except OSError:raise SystemExit("Loopback port "+value+" is occupied. Stop its owner explicitly or set ALLEXPORT_WEB_PORT / ALLEXPORT_API_PORT; no process was stopped.")
 finally:
  for s in probes:s.close()' "$port"; fi
 done

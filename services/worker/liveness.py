@@ -41,4 +41,4 @@ def start():
             threading.Event().wait(5)
             pulse()
 
-    threading.Thread(target=loop, name="fincathon-worker-liveness", daemon=True).start()
+    threading.Thread(target=loop, name="allexport-worker-liveness", daemon=True).start()

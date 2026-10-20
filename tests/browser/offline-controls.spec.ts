@@ -92,7 +92,7 @@ test("offline Calendar shows delivered, conflict resolution and revocation from 
     "--milestone",
     milestone,
   ];
-  if (process.env.FINCATHON_BROWSER_COMPOSE === "1")
+  if (process.env.ALLEXPORT_BROWSER_COMPOSE === "1")
     execFileSync(
       "docker",
       [

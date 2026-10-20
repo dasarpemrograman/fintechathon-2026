@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Give Fincathon consumers one authoritative wire contract for export workflows while keeping behavioral requirements and runtime implementation claims distinct.
+Give ALLExport consumers one authoritative wire contract for export workflows while keeping behavioral requirements and runtime implementation claims distinct.
 
 ## ADDED Requirements
 

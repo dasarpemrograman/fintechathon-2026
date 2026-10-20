@@ -1,4 +1,4 @@
-# Fincathon roadmap: Fithra, Wisa and Faiz
+# ALLExport roadmap: Fithra, Wisa and Faiz
 
 Planning baseline: 18 October 2026, commit `ed437ff`.
 

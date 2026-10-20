@@ -16,7 +16,7 @@ The user approved the exact event title, dates, changes, and cleanup. Testing us
 | Approved update | The same event moved to 10:30–10:45. |
 | External edit and ETag | A test-only external description changed the provider ETag. A stale attempt to move the event to 11:00 was refused; the external description and 10:30 time remained intact. |
 | Delete | After explicit conflict resolution and a new deletion approval, the owned event was deleted and its cancelled/absent state verified. |
-| Revoke | Local encrypted credentials were removed, the connection became revoked, and subsequent sync returned HTTP 409. Google's linked-app search showed no Fincathon grant. The built-in timeline remained readable and unchanged by revocation. |
+| Revoke | Local encrypted credentials were removed, the connection became revoked, and subsequent sync returned HTTP 409. Google's linked-app search showed no ALLExport grant. The built-in timeline remained readable and unchanged by revocation. |
 
 The first run exposed a real retry defect: Google canonicalizes an instant's UTC offset, so direct JSON equality incorrectly reported an external edit. `event_matches` now compares aware instants while preserving named timezone and all-day semantics and the managed privacy fields. A regression rejects actual time changes and re-enabled default reminders. Installation-specific provider identifiers are retained only in private receipts.
 

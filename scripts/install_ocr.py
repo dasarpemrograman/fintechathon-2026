@@ -5,7 +5,7 @@ import hashlib, json, subprocess, tempfile, shutil, os
 
 ROOT = Path(__file__).resolve().parents[1]
 lock = json.loads((ROOT / "fixtures/demo/ocr-assets.lock.json").read_text())
-with tempfile.TemporaryDirectory(prefix="fincathon-ocr-") as tmp:
+with tempfile.TemporaryDirectory(prefix="allexport-ocr-") as tmp:
     cache = Path(tmp) / "source"
     subprocess.run(
         [
@@ -24,7 +24,7 @@ with tempfile.TemporaryDirectory(prefix="fincathon-ocr-") as tmp:
         check=True,
     )
     destination = Path(
-        os.environ.get("FINCATHON_TESSDATA_PATH", str(ROOT / ".local/tessdata"))
+        os.environ.get("ALLEXPORT_TESSDATA_PATH", str(ROOT / ".local/tessdata"))
     )
     destination.mkdir(parents=True, exist_ok=True)
     for name, expected in lock["git_blob_ids"].items():

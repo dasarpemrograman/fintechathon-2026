@@ -3,7 +3,7 @@ WORKDIR /app
 RUN --mount=type=secret,id=cloud_ca if [ -s /run/secrets/cloud_ca ]; then cp /run/secrets/cloud_ca /usr/local/share/ca-certificates/environment-proxy-ca.crt && update-ca-certificates; fi && apt-get update && apt-get install -y --no-install-recommends tesseract-ocr poppler-utils git && rm -rf /var/lib/apt/lists/*
 COPY requirements-runtime.txt ./
 RUN pip install --no-cache-dir -r requirements-runtime.txt
-ENV PYTHONUNBUFFERED=1 FINCATHON_TESSDATA_PATH=/opt/fincathon/tessdata
+ENV PYTHONUNBUFFERED=1 ALLEXPORT_TESSDATA_PATH=/opt/allexport/tessdata
 COPY scripts/install_ocr.py ./scripts/install_ocr.py
 COPY fixtures/demo/ocr-assets.lock.json ./fixtures/demo/ocr-assets.lock.json
 RUN python scripts/install_ocr.py

@@ -1,7 +1,7 @@
 openapi: 3.1.0
 jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
 info:
-  title: Fincathon Export Deal Workspace API
+  title: ALLExport Export Deal Workspace API
   version: 2.2.0
   summary: Canonical contract for the export workspace runtime and scoped synthetic demo.
   description: 'The sole normative API and wire-schema source for this repository. Runtime request/response

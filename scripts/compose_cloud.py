@@ -24,7 +24,7 @@ addresses = sorted(
 )
 if not addresses:
     raise SystemExit("Managed proxy address could not be resolved.")
-env["FINCATHON_PROXY_IP"] = addresses[0]
+env["ALLEXPORT_PROXY_IP"] = addresses[0]
 env["DOCKER_CONFIG"] = str(root / ".local/docker-client")
 Path(env["DOCKER_CONFIG"]).mkdir(parents=True, exist_ok=True)
 command = [

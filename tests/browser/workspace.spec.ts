@@ -106,7 +106,7 @@ test("seeded database journey uses the browser, API and worker", async ({
     page.getByRole("heading", { name: "Your workspaces" }),
   ).toBeVisible();
   const cookies = await context.cookies();
-  const session = cookies.find((c) => c.name === "fincathon_session");
+  const session = cookies.find((c) => c.name === "allexport_session");
   expect(session?.httpOnly).toBe(true);
   expect(await page.evaluate(() => localStorage.length)).toBe(0);
   const card = page
@@ -174,7 +174,7 @@ test("browser logout revokes its server token before clearing the HttpOnly cooki
     page.getByRole("heading", { name: "Your workspaces" }),
   ).toBeVisible();
   const session = (await context.cookies()).find(
-    (c) => c.name === "fincathon_session",
+    (c) => c.name === "allexport_session",
   )!;
   expect(session.httpOnly).toBe(true);
   expect(session.sameSite).toBe("Strict");

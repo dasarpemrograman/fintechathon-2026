@@ -7,8 +7,8 @@ from services.api.store import DomainError
 
 def live_sync_ready():
     return bool(
-        os.environ.get("FINCATHON_CALENDAR_LIVE_ENABLED") == "true"
-        and os.environ.get("FINCATHON_CALENDAR_ACCEPTANCE_REFERENCE", "").strip()
+        os.environ.get("ALLEXPORT_CALENDAR_LIVE_ENABLED") == "true"
+        and os.environ.get("ALLEXPORT_CALENDAR_ACCEPTANCE_REFERENCE", "").strip()
         and all(
             os.environ.get(name)
             for name in (

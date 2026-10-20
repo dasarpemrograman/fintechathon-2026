@@ -1,6 +1,6 @@
-name: fincathon
+name: allexport
 x-runtime: &runtime
-  image: fincathon-api
+  image: allexport-api
   build:
     context: .
     dockerfile: docker/api.Dockerfile
@@ -8,7 +8,7 @@ x-runtime: &runtime
     - path: .env
       required: false
   environment: &runtime-env
-    DATABASE_URL: postgresql+psycopg://fincathon@postgres:5432/fincathon
+    DATABASE_URL: postgresql+psycopg://allexport@postgres:5432/allexport
     DATABASE_PASSWORD_FILE: /run/secrets/db_password
     APP_MODE: normal
     STORAGE_PATH: /app/.local/files
@@ -22,13 +22,13 @@ services:
   postgres:
     image: postgres:17-bookworm@sha256:3645570cccdfa447589da9f57dd740faa29b30938e861289a5574b6ca6b03826
     environment:
-      POSTGRES_USER: fincathon
-      POSTGRES_DB: fincathon
+      POSTGRES_USER: allexport
+      POSTGRES_DB: allexport
       POSTGRES_PASSWORD_FILE: /run/secrets/db_password
     secrets: [db_password]
     volumes: [postgres:/var/lib/postgresql/data]
     healthcheck:
-      test: [CMD-SHELL, pg_isready -U fincathon -d fincathon]
+      test: [CMD-SHELL, pg_isready -U allexport -d allexport]
       interval: 2s
       timeout: 2s
       retries: 30
@@ -37,7 +37,7 @@ services:
     command: [python, -m, alembic, upgrade, head]
   api:
     <<: *runtime
-    ports: ["127.0.0.1:${FINCATHON_API_PORT:-8000}:8000"]
+    ports: ["127.0.0.1:${ALLEXPORT_API_PORT:-8000}:8000"]
     depends_on:
       migrate: {condition: service_completed_successfully}
     healthcheck:
@@ -56,8 +56,8 @@ services:
       dockerfile: docker/web.Dockerfile
     environment:
       API_BASE_URL: http://api:8000
-      WEB_ORIGIN: "http://127.0.0.1:${FINCATHON_WEB_PORT:-3000}"
-    ports: ["127.0.0.1:${FINCATHON_WEB_PORT:-3000}:3000"]
+      WEB_ORIGIN: "http://127.0.0.1:${ALLEXPORT_WEB_PORT:-3000}"
+    ports: ["127.0.0.1:${ALLEXPORT_WEB_PORT:-3000}:3000"]
     depends_on:
       api: {condition: service_healthy}
 secrets:

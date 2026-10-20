@@ -142,9 +142,9 @@ class ProviderAdapterTests(unittest.TestCase):
             patch.dict(
                 "os.environ",
                 {
-                    "FINCATHON_MODEL_BASE_URL": "https://model.example.org/v1",
-                    "FINCATHON_MODEL_API_KEY": "fixture-only-key",
-                    "FINCATHON_MODEL_ID": "fixture-only-model",
+                    "ALLEXPORT_MODEL_BASE_URL": "https://model.example.org/v1",
+                    "ALLEXPORT_MODEL_API_KEY": "fixture-only-key",
+                    "ALLEXPORT_MODEL_ID": "fixture-only-model",
                 },
             ),
             patch.object(providers, "public_url"),

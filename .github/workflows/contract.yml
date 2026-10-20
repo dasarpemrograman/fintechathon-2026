@@ -40,7 +40,7 @@ jobs:
           name: offline-browser-traces
           path: test-results/
   live-provider-probes:
-    if: github.event_name == 'workflow_dispatch' && vars.FINCATHON_LIVE_PROBES == 'enabled'
+    if: github.event_name == 'workflow_dispatch' && vars.ALLEXPORT_LIVE_PROBES == 'enabled'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     environment: live-provider-validation
@@ -56,9 +56,9 @@ jobs:
       - run: .venv/bin/python scripts/probe_live_providers.py
         env:
           BRAVE_SEARCH_API_KEY: ${{ secrets.BRAVE_SEARCH_API_KEY }}
-          FINCATHON_MODEL_API_KEY: ${{ secrets.FINCATHON_MODEL_API_KEY }}
-          FINCATHON_MODEL_BASE_URL: ${{ vars.FINCATHON_MODEL_BASE_URL }}
-          FINCATHON_MODEL_ID: ${{ vars.FINCATHON_MODEL_ID }}
+          ALLEXPORT_MODEL_API_KEY: ${{ secrets.ALLEXPORT_MODEL_API_KEY }}
+          ALLEXPORT_MODEL_BASE_URL: ${{ vars.ALLEXPORT_MODEL_BASE_URL }}
+          ALLEXPORT_MODEL_ID: ${{ vars.ALLEXPORT_MODEL_ID }}
       - if: always()
         uses: actions/upload-artifact@v4
         with:

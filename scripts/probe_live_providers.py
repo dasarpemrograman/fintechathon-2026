@@ -63,7 +63,7 @@ probe(
 probe("frankfurter", [], lambda: fx_rates("USD", ["EUR"]))
 probe(
     "configured-model",
-    ["FINCATHON_MODEL_BASE_URL", "FINCATHON_MODEL_ID", "FINCATHON_MODEL_API_KEY"],
+    ["ALLEXPORT_MODEL_BASE_URL", "ALLEXPORT_MODEL_ID", "ALLEXPORT_MODEL_API_KEY"],
     lambda: explain({"completeness": "partial", "blockers": []}, [], live=True),
 )
 report = {

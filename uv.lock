@@ -248,7 +248,7 @@ wheels = [
 ]
 
 [[package]]
-name = "fincathon"
+name = "allexport"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [

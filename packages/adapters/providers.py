@@ -312,9 +312,9 @@ def fx_rates(base, quotes):
 
 
 def model_task(task, payload):
-    endpoint = os.environ.get("FINCATHON_MODEL_BASE_URL")
-    key = os.environ.get("FINCATHON_MODEL_API_KEY")
-    model = os.environ.get("FINCATHON_MODEL_ID")
+    endpoint = os.environ.get("ALLEXPORT_MODEL_BASE_URL")
+    key = os.environ.get("ALLEXPORT_MODEL_API_KEY")
+    model = os.environ.get("ALLEXPORT_MODEL_ID")
     if not endpoint or not key or not model:
         raise failure(
             "configured-model",

@@ -10,7 +10,7 @@ After the user published the replacement configuration, environment revision **1
 
 The current model configuration uses Google's documented OpenAI compatibility base URL, `https://generativelanguage.googleapis.com/v1beta/openai/`, with `gemini-flash-lite-latest`. A minimal request through that endpoint, a native Gemini `generateContent` request and a request for the explicitly free-tier-listed `gemini-3.1-flash-lite` all returned HTTP 402 with `RESOURCE_EXHAUSTED` and a depleted-prepaid-credit message. This establishes the provider's reported key/project billing-state blocker; it does not establish that a paid model is required or prove the console's actual tier. The console/API state may disagree. No model alias or billing setting was changed.
 
-The user intends to replace the API key. Use an eligible Free Tier project's key in the environment setting `FINCATHON_MODEL_API_KEY`, then restart services and rerun the probes. The base URL is already correct. [Google's billing guidance](https://ai.google.dev/gemini-api/docs/billing) explains that depleted paid projects do not automatically fall back to Free Tier. A key can be selected from a separate Free Tier project without changing billing on other projects.
+The user intends to replace the API key. Use an eligible Free Tier project's key in the environment setting `ALLEXPORT_MODEL_API_KEY`, then restart services and rerun the probes. The base URL is already correct. [Google's billing guidance](https://ai.google.dev/gemini-api/docs/billing) explains that depleted paid projects do not automatically fall back to Free Tier. A key can be selected from a separate Free Tier project without changing billing on other projects.
 
 The application now recognizes Gemini's prepaid-credit response in either object or array form and gives synthesized Free Tier guidance. It retains the provider response hash and safe limitations in failed probe receipts without copying the provider error body. Relevant provider/model checks pass: **11 tests and 2 subtests**.
 
@@ -131,7 +131,7 @@ Reviewed 17 October 2026 (Asia/Jakarta), against commit `aaeb66d`, schema `spec-
 
 3. **Task 12.3 remains incomplete: real source/provider coverage.**
 
-   `tasks.md:111` requires attributed real search, official-source, FX, finance, market/logistics and configured-model acceptance for declared product/jurisdiction coverage. The fresh connectivity probe exits 2: Brave is blocked by missing `BRAVE_SEARCH_API_KEY`; the model is blocked by missing `FINCATHON_MODEL_BASE_URL`, `FINCATHON_MODEL_ID` and `FINCATHON_MODEL_API_KEY`; Frankfurter fails with `SOURCE_DNS_UNAVAILABLE`. Real lane/source coverage has not been accepted.
+   `tasks.md:111` requires attributed real search, official-source, FX, finance, market/logistics and configured-model acceptance for declared product/jurisdiction coverage. The fresh connectivity probe exits 2: Brave is blocked by missing `BRAVE_SEARCH_API_KEY`; the model is blocked by missing `ALLEXPORT_MODEL_BASE_URL`, `ALLEXPORT_MODEL_ID` and `ALLEXPORT_MODEL_API_KEY`; Frankfurter fails with `SOURCE_DNS_UNAVAILABLE`. Real lane/source coverage has not been accepted.
 
    **Action:** supply configuration securely, resolve the FX access failure, and collect the scoped retrieval, applicability, freshness and observation evidence required by Gate B. A successful connectivity probe alone is insufficient. Keep this task unchecked until acceptance completes.
 

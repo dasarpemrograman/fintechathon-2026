@@ -17,8 +17,8 @@ from packages.contracts.runtime import (
 )
 from scripts.validate_contract import resolve
 
-app = FastAPI(title="Fincathon", openapi_url=None, docs_url=None, redoc_url=None)
-logger = logging.getLogger("fincathon.api")
+app = FastAPI(title="ALLExport", openapi_url=None, docs_url=None, redoc_url=None)
+logger = logging.getLogger("allexport.api")
 
 
 @app.get("/openapi.json")

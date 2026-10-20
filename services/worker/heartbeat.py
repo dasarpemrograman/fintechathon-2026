@@ -33,7 +33,7 @@ def heartbeat(job, interval=10):
                     type(error).__name__,
                 )
 
-    thread = threading.Thread(target=pulse, daemon=True, name="fincathon-job-heartbeat")
+    thread = threading.Thread(target=pulse, daemon=True, name="allexport-job-heartbeat")
     thread.start()
     try:
         yield

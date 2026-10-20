@@ -2,7 +2,7 @@
 
 ## Why
 
-Fincathon already has an OpenAPI scaffold, but its assumptions and acceptance criteria have no OpenSpec record, and response payloads are not exercised by examples. Establish the contract baseline and close validation gaps before any service or client implementation relies on it.
+ALLExport already has an OpenAPI scaffold, but its assumptions and acceptance criteria have no OpenSpec record, and response payloads are not exercised by examples. Establish the contract baseline and close validation gaps before any service or client implementation relies on it.
 
 ## What Changes
 

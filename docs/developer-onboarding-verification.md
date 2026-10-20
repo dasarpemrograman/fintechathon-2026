@@ -6,7 +6,7 @@ Observed locally on 18 October 2026 for `simplify-developer-onboarding`.
 
 The host is **Windows 10 IoT Enterprise LTSC**. The PowerShell launcher used Docker in the default Ubuntu WSL distribution; the POSIX launcher was exercised directly in that Linux environment. Docker Engine reported 29.6.1 and Compose 5.3.1. Both source checkout paths contained spaces.
 
-Fresh source-only copies used separate projects `fincathon-onboard-linux` (3012/8012) and `fincathon-onboard-windows` (3013/8013), with new named storage. Neither copy received the original `.env`, `.local`, Git history, host virtual environment or node_modules. The explicit acceptance ports avoided the existing application's 3000/8000 origin. Normal first-use commands retain those default ports.
+Fresh source-only copies used separate projects `allexport-onboard-linux` (3012/8012) and `allexport-onboard-windows` (3013/8013), with new named storage. Neither copy received the original `.env`, `.local`, Git history, host virtual environment or node_modules. The explicit acceptance ports avoided the existing application's 3000/8000 origin. Normal first-use commands retain those default ports.
 
 ## First launch and readiness
 

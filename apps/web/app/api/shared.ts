@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 export const apiBase = process.env.API_BASE_URL || "http://127.0.0.1:8000";
-export const cookieName = "fincathon_session";
+export const cookieName = "allexport_session";
 export async function boundedBody(
   request: NextRequest,
   limit = 16 * 1024 * 1024,

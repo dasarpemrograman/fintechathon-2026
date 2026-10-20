@@ -25,8 +25,8 @@ class CalendarOutboxTests(unittest.TestCase):
         self.acceptance = patch.dict(
             "os.environ",
             {
-                "FINCATHON_CALENDAR_LIVE_ENABLED": "true",
-                "FINCATHON_CALENDAR_ACCEPTANCE_REFERENCE": "synthetic-adapter-test-only",
+                "ALLEXPORT_CALENDAR_LIVE_ENABLED": "true",
+                "ALLEXPORT_CALENDAR_ACCEPTANCE_REFERENCE": "synthetic-adapter-test-only",
                 "GOOGLE_CLIENT_ID": "test-client",
                 "GOOGLE_CLIENT_SECRET": "test-client-secret",
                 "GOOGLE_REDIRECT_URI": "http://127.0.0.1:3000/oauth/calendar/callback",
@@ -116,7 +116,7 @@ class CalendarOutboxTests(unittest.TestCase):
             "request_id": "gate-check",
         }
         with (
-            patch.dict("os.environ", {"FINCATHON_CALENDAR_LIVE_ENABLED": "false"}),
+            patch.dict("os.environ", {"ALLEXPORT_CALENDAR_LIVE_ENABLED": "false"}),
             patch.object(settings, "mode", "normal"),
             patch("packages.adapters.calendar.httpx.Client") as provider,
         ):
@@ -175,7 +175,7 @@ class CalendarOutboxTests(unittest.TestCase):
 
         self.assertTrue(live_sync_ready())
         for name in [
-            "FINCATHON_CALENDAR_ACCEPTANCE_REFERENCE",
+            "ALLEXPORT_CALENDAR_ACCEPTANCE_REFERENCE",
             "GOOGLE_CLIENT_ID",
             "GOOGLE_CLIENT_SECRET",
             "GOOGLE_REDIRECT_URI",

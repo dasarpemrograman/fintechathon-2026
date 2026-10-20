@@ -57,17 +57,17 @@ Enter your email, display name and organization, then a password of at least twe
 
 ## Explicit isolated projects and ports
 
-The default Compose project is `fincathon`. For another checkout or acceptance run, set a distinct `COMPOSE_PROJECT_NAME` and free explicit loopback ports before invoking the launcher:
+The default Compose project is `allexport`. For another checkout or acceptance run, set a distinct `COMPOSE_PROJECT_NAME` and free explicit loopback ports before invoking the launcher:
 
 ```powershell
-$env:COMPOSE_PROJECT_NAME='fincathon-example'
-$env:FINCATHON_WEB_PORT='3002'
-$env:FINCATHON_API_PORT='8002'
+$env:COMPOSE_PROJECT_NAME='allexport-example'
+$env:ALLEXPORT_WEB_PORT='3002'
+$env:ALLEXPORT_API_PORT='8002'
 .\dev.ps1 up
 ```
 
 ```sh
-COMPOSE_PROJECT_NAME=fincathon-example FINCATHON_WEB_PORT=3002 FINCATHON_API_PORT=8002 ./dev up
+COMPOSE_PROJECT_NAME=allexport-example ALLEXPORT_WEB_PORT=3002 ALLEXPORT_API_PORT=8002 ./dev up
 ```
 
 Keep the same project/port environment for later commands. Changing an existing installation's database password file or volume identity is not a port-switch operation. A deliberately different web origin needs matching Google redirect registration before future OAuth; Calendar remains optional and disabled by default.

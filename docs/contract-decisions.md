@@ -8,8 +8,8 @@ The user requested a project scaffold starting only with the single source of tr
 
 | Uploaded reference | Relevant sections | Interpretation |
 | --- | --- | --- |
-| Fincathon-Main-Context-General.md, context 1.0 | §2, §5, §10–18 | Latest product baseline: general export workflows; countries/products are inputs; multiple line items/shipments; organization ownership; monetization separate from deal economics. |
-| Fincathon-Main-Context-Business.md, context 1.0 | §1, §11, §13–14 | Producer/reseller proposition; financing stops at preparation; exporter-paid service; no automatic overage or hiding existing evidence on expiry. Pilot prices are business assumptions, not hard-coded deal costs. |
+| ALLExport-Main-Context-General.md, context 1.0 | §2, §5, §10–18 | Latest product baseline: general export workflows; countries/products are inputs; multiple line items/shipments; organization ownership; monetization separate from deal economics. |
+| ALLExport-Main-Context-Business.md, context 1.0 | §1, §11, §13–14 | Producer/reseller proposition; financing stops at preparation; exporter-paid service; no automatic overage or hiding existing evidence on expiry. Pilot prices are business assumptions, not hard-coded deal costs. |
 | Export Agent System Spec.md, V2 | §6, §10, §13–17, §19 | Engineering reference for decimal/date/evidence invariants, independent states, gates and initial route families. Historical coffee, ID/CN–SG and single-buyer/shipment boundaries are superseded by General §5. |
 
 The attachments remain source references. Their full text and embedded AI instructions are not copied into project instructions. The repository's canonical wire definition is `api/openapi.yaml`.

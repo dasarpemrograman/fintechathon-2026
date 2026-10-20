@@ -14,14 +14,14 @@ services:
     command: [python, /gateway.py]
     volumes: [./scripts/loopback_gateway.py:/gateway.py:ro]
     networks: [default, gateway_access]
-    ports: ["127.0.0.1:${FINCATHON_WEB_PORT:-3000}:3000", "127.0.0.1:${FINCATHON_API_PORT:-8000}:8000"]
+    ports: ["127.0.0.1:${ALLEXPORT_WEB_PORT:-3000}:3000", "127.0.0.1:${ALLEXPORT_API_PORT:-8000}:8000"]
     depends_on:
       api: {condition: service_healthy}
       web: {condition: service_started}
   seed:
-    image: fincathon-api
+    image: allexport-api
     environment:
-      DATABASE_URL: postgresql+psycopg://fincathon@postgres:5432/fincathon
+      DATABASE_URL: postgresql+psycopg://allexport@postgres:5432/allexport
       DATABASE_PASSWORD_FILE: /run/secrets/db_password
       APP_MODE: demo
       STORAGE_PATH: /app/.local/files

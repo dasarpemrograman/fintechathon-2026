@@ -16,7 +16,7 @@ class DeveloperOnboardingTests(unittest.TestCase):
     def test_missing_storage_secret_never_replaces_existing_installation(self):
         with TemporaryDirectory() as temp:
             root = Path(temp)
-            (root/'.env.example').write_text('FINCATHON_CALENDAR_LIVE_ENABLED=false\n')
+            (root/'.env.example').write_text('ALLEXPORT_CALENDAR_LIVE_ENABLED=false\n')
             with self.assertRaises(SystemExit):
                 prepare(root, True, True, 'test')
             self.assertFalse((root/'.local').exists())
@@ -39,7 +39,7 @@ class DeveloperOnboardingTests(unittest.TestCase):
     def test_prepare_preserves_existing_credentials_without_printing_values(self):
         with TemporaryDirectory() as temp:
             root = Path(temp)
-            (root/'.env.example').write_text('FINCATHON_CALENDAR_LIVE_ENABLED=false\n')
+            (root/'.env.example').write_text('ALLEXPORT_CALENDAR_LIVE_ENABLED=false\n')
             output = StringIO()
             with contextlib.redirect_stdout(output):
                 prepare(root, False, False, 'test')
@@ -149,7 +149,7 @@ case "$1 $2" in
  'volume inspect') exit 1;;
 esac
 case " $* " in
- *' prepare '*) mkdir -p .local/dev/fincathon;;
+ *' prepare '*) mkdir -p .local/dev/allexport;;
  *' build '*) echo unexpected-build > build-called;;
  *' reusable '*) exit 1;;
  *' ready '*) [[ "$FAILURE" != worker ]];;
@@ -162,17 +162,17 @@ esac
                 arguments=[shutil.which('bash'),str(root/'dev'),'up']
                 if failure == 'prepare-only':
                     arguments.append('--prepare-only')
-                result=subprocess.run(arguments,env={**os.environ,'PATH':str(root/'bin'),'FAILURE':failure,'COMPOSE_PROJECT_NAME':'fincathon'},capture_output=True,text=True)
+                result=subprocess.run(arguments,env={**os.environ,'PATH':str(root/'bin'),'FAILURE':failure,'COMPOSE_PROJECT_NAME':'allexport'},capture_output=True,text=True)
                 if failure == 'prepare-only':
                     self.assertEqual(result.returncode,0,result.stderr)
-                    self.assertTrue((root/'.local/dev/fincathon').is_dir())
+                    self.assertTrue((root/'.local/dev/allexport').is_dir())
                     self.assertFalse((root/'build-called').exists())
                     self.assertNotIn('Ready:',result.stdout)
                     continue
                 self.assertNotEqual(result.returncode,0)
                 self.assertIn('Stage '+stage+' failed',result.stderr)
                 self.assertNotIn('Ready:',result.stdout)
-                self.assertTrue((root/'.local/dev/fincathon'/f'{stage}.log').is_file())
+                self.assertTrue((root/'.local/dev/allexport'/f'{stage}.log').is_file())
 
 
 if __name__=='__main__':unittest.main()

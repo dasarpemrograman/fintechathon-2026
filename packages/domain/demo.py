@@ -518,7 +518,7 @@ def seed(reference_date=None):
                 values = {
                     "canonical_url": None,
                     "document_id": document["id"],
-                    "publisher": "Fincathon synthetic fixture",
+                    "publisher": "ALLExport synthetic fixture",
                     "title": "Synthetic financial assumptions — " + case["key"],
                     "language": "en",
                     "retrieved_at": store.instant(),

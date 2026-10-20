@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 
 function account(input: object) {
   const command =
-    process.env.FINCATHON_BROWSER_COMPOSE === "1"
+    process.env.ALLEXPORT_BROWSER_COMPOSE === "1"
       ? "docker"
       : ".venv/bin/python";
   const script = "tests/browser/support_account.py";
@@ -100,7 +100,7 @@ test("normal account login and organization selection persist, then logout revok
       page.getByRole("combobox", { name: "Organization", exact: true }),
     ).toHaveValue(identity.second_organization_id);
     const session = (await context.cookies()).find(
-      (cookie) => cookie.name === "fincathon_session",
+      (cookie) => cookie.name === "allexport_session",
     )!;
     expect(session.httpOnly).toBe(true);
     expect(await page.evaluate(() => document.cookie)).not.toContain(

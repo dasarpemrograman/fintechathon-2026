@@ -13,13 +13,13 @@ if not password.exists():
 env = local / "runtime.env"
 if not env.exists():
     env.write_text(
-        "DATABASE_URL=postgresql+psycopg://fincathon:"
+        "DATABASE_URL=postgresql+psycopg://allexport:"
         + password.read_text().strip()
-        + "@127.0.0.1:15432/fincathon\n"
+        + "@127.0.0.1:15432/allexport\n"
     )
     env.chmod(0o600)
 args = ["docker", "--host=unix:///var/run/docker.sock"]
-name = "fincathon-postgres"
+name = "allexport-postgres"
 exists = (
     subprocess.run(
         args + ["container", "inspect", name], capture_output=True
@@ -39,11 +39,11 @@ if not exists:
             "--mount",
             f"type=bind,src={password},dst=/run/secrets/db-password,readonly",
             "--mount",
-            "type=volume,src=fincathon-postgres,dst=/var/lib/postgresql/data",
+            "type=volume,src=allexport-postgres,dst=/var/lib/postgresql/data",
             "-e",
-            "POSTGRES_USER=fincathon",
+            "POSTGRES_USER=allexport",
             "-e",
-            "POSTGRES_DB=fincathon",
+            "POSTGRES_DB=allexport",
             "-e",
             "POSTGRES_PASSWORD_FILE=/run/secrets/db-password",
             "postgres:17-bookworm@sha256:3645570cccdfa447589da9f57dd740faa29b30938e861289a5574b6ca6b03826",
@@ -55,7 +55,7 @@ else:
     subprocess.run(args + ["start", name], check=True, stdout=subprocess.DEVNULL)
 deadline = time.monotonic() + 30
 while subprocess.run(
-    args + ["exec", name, "pg_isready", "-U", "fincathon"], capture_output=True
+    args + ["exec", name, "pg_isready", "-U", "allexport"], capture_output=True
 ).returncode:
     if time.monotonic() > deadline:
         raise SystemExit("PostgreSQL readiness timed out; inspect the container log.")

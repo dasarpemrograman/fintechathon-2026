@@ -523,7 +523,7 @@ def google_event(event, event_id, owned_key):
         "visibility": "private",
         "transparency": "transparent",
         "reminders": {"useDefault": False},
-        "extendedProperties": {"private": {"fincathon_owner": owned_key}},
+        "extendedProperties": {"private": {"allexport_owner": owned_key}},
     }
     if "date" in value:
         from datetime import date, timedelta
@@ -604,7 +604,7 @@ def deliver_effect(conn, row):
     )
     prior = conn.execute(sa.select(calendar_events).where(*where)).mappings().first()
     payload = google_event(event, event_id, owned_key)
-    payload["extendedProperties"]["private"]["fincathon_projection"] = p[
+    payload["extendedProperties"]["private"]["allexport_projection"] = p[
         "projection_hash"
     ]
     state = "delivered"
@@ -615,7 +615,7 @@ def deliver_effect(conn, row):
     }
     if connection["data_mode"] == "live":
         receipt["acceptance_reference"] = os.environ[
-            "FINCATHON_CALENDAR_ACCEPTANCE_REFERENCE"
+            "ALLEXPORT_CALENDAR_ACCEPTANCE_REFERENCE"
         ].strip()
     if event["action"] != "insert" and not prior:
         raise DomainError(
@@ -652,7 +652,7 @@ def deliver_effect(conn, row):
                         and response.json()
                         .get("extendedProperties", {})
                         .get("private", {})
-                        .get("fincathon_owner")
+                        .get("allexport_owner")
                         != owned_key
                     ):
                         raise DomainError(
@@ -672,7 +672,7 @@ def deliver_effect(conn, row):
                         or external.json()
                         .get("extendedProperties", {})
                         .get("private", {})
-                        .get("fincathon_owner")
+                        .get("allexport_owner")
                         != owned_key
                     ):
                         raise DomainError(

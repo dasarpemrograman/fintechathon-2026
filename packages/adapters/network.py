@@ -78,7 +78,7 @@ def fetch(url, *, max_bytes=2 * 1024 * 1024):
                     "GET",
                     pinned,
                     headers={
-                        "User-Agent": "Fincathon-evidence/0.1",
+                        "User-Agent": "ALLExport-evidence/0.1",
                         "Host": parsed.hostname,
                     },
                     extensions={"sni_hostname": parsed.hostname},

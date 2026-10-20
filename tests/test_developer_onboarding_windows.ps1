@@ -23,13 +23,13 @@ function Assert-Private([string]$Path) {
     $sid=[Security.Principal.WindowsIdentity]::GetCurrent().User.Value
     if (-not $acl.AreAccessRulesProtected -or @($acl.Access | Where-Object { $_.IsInherited -or $_.IdentityReference.Translate([Security.Principal.SecurityIdentifier]).Value -ne $sid }).Count) { throw 'New file is not current-user only.' }
 }
-$savedWeb=$env:FINCATHON_WEB_PORT; $savedApi=$env:FINCATHON_API_PORT
+$savedWeb=$env:ALLEXPORT_WEB_PORT; $savedApi=$env:ALLEXPORT_API_PORT
 $listeners=@()
 try {
     # Ask Windows for free explicit ports, then release before the child preflight.
     foreach ($i in 1..2) { $listener=[Net.Sockets.TcpListener]::new([Net.IPAddress]::Loopback,0); $listener.Start(); $listeners+=,$listener }
-    $env:FINCATHON_WEB_PORT=[string]$listeners[0].LocalEndpoint.Port
-    $env:FINCATHON_API_PORT=[string]$listeners[1].LocalEndpoint.Port
+    $env:ALLEXPORT_WEB_PORT=[string]$listeners[0].LocalEndpoint.Port
+    $env:ALLEXPORT_API_PORT=[string]$listeners[1].LocalEndpoint.Port
     foreach ($listener in $listeners) { $listener.Stop() }
     foreach ($failure in @('build-failure','partial-failure')) {
         $root=New-Checkout $failure
@@ -63,5 +63,5 @@ try {
     "Windows private-file regression: $cases launcher cases passed."
 } finally {
     foreach ($listener in $listeners) { $listener.Stop() }
-    $env:FINCATHON_WEB_PORT=$savedWeb; $env:FINCATHON_API_PORT=$savedApi
+    $env:ALLEXPORT_WEB_PORT=$savedWeb; $env:ALLEXPORT_API_PORT=$savedApi
 }

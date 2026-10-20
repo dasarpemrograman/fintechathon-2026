@@ -26,9 +26,9 @@ Use [AI Studio API Keys](https://aistudio.google.com/api-keys) to manage Gemini 
 
 The app reads these settings:
 
-- `FINCATHON_MODEL_BASE_URL`: API base, excluding `/chat/completions`.
-- `FINCATHON_MODEL_ID`: a model available to the account.
-- `FINCATHON_MODEL_API_KEY`: credential binding for that endpoint's domain.
+- `ALLEXPORT_MODEL_BASE_URL`: API base, excluding `/chat/completions`.
+- `ALLEXPORT_MODEL_ID`: a model available to the account.
+- `ALLEXPORT_MODEL_API_KEY`: credential binding for that endpoint's domain.
 
 Do not paste keys into chat or commit them. Restart services after changing environment settings. A successful bounded-model response is still only connectivity evidence; task 12.3 also requires real source applicability, attribution and coverage evidence.
 
@@ -40,7 +40,7 @@ The account owner must perform the Google consent step. An email address and cli
 2. Register exactly `http://127.0.0.1:3000/oauth/calendar/callback` as an authorized redirect URI and configure the same `GOOGLE_REDIRECT_URI`. The browser must reach that local app origin; forward cloud port 3000 to local port 3000 if needed. A different origin requires updating both the registered URI and runtime setting.
 3. In that Google account, create a dedicated empty acceptance calendar. Copy its Calendar ID from **Settings → Integrate calendar**. Provide the calendar ID, not an access token. Keep the main calendar out of acceptance testing.
 4. Use the normal app in an isolated acceptance tenant/instance. The offline demo cannot perform real consent or event delivery. Provision its local app login with `scripts/bootstrap_account.py`; its password prompt is hidden. This local login is separate from the Google account. Create a test Deal with generic milestones, then use its optional Calendar panel to connect Google and complete consent in your browser. Tokens remain encrypted server-side.
-5. Select the dedicated Calendar ID. Connection and selection create no events. Keep `FINCATHON_CALENDAR_LIVE_ENABLED` unset during this preparation.
+5. Select the dedicated Calendar ID. Connection and selection create no events. Keep `ALLEXPORT_CALENDAR_LIVE_ENABLED` unset during this preparation.
 
 Once consent and the dedicated calendar are available, the acceptance run can be prepared with a test-run reference, exact projection preview and current scoped approval. In the isolated test instance, exercise owned-event insert, update, delete, ambiguous retry deduplication, external-edit/ETag conflict and revocation, retaining provider receipts. Enablement for this test instance is not release acceptance. Leave task 11.5 unchecked until the complete lifecycle evidence exists, and keep general live delivery disabled until then.
 

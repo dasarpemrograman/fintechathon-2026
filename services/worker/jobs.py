@@ -235,7 +235,7 @@ class Work:
                 else None
             ),
             "document_id": None,
-            "publisher": "Fincathon synthetic source"
+            "publisher": "ALLExport synthetic source"
             if self.payload["scope"] == "demo"
             else title,
             "title": title,

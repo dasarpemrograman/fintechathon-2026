@@ -24,7 +24,7 @@ def extract(content, media_type):
             "LANG": "C.UTF-8",
             "PYTHONPATH": str(ROOT),
             "TESSDATA_PREFIX": os.environ.get(
-                "FINCATHON_TESSDATA_PATH", str(ROOT / ".local/tessdata")
+                "ALLEXPORT_TESSDATA_PATH", str(ROOT / ".local/tessdata")
             ),
         }
         try:

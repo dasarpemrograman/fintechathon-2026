@@ -11,7 +11,7 @@ load_dotenv(ROOT / ".local/runtime.env", override=False)
 
 class Settings:
     database_url = os.environ.get(
-        "DATABASE_URL", "postgresql+psycopg://fincathon@127.0.0.1:15432/fincathon"
+        "DATABASE_URL", "postgresql+psycopg://allexport@127.0.0.1:15432/allexport"
     )
     if os.environ.get("DATABASE_PASSWORD_FILE"):
         from sqlalchemy.engine import make_url
