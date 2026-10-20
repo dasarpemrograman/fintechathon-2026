@@ -7,14 +7,14 @@ type S = components["schemas"];
 type Input = S["InputRevisionResponse"]["result"];
 
 // Preserve source strings, native units and nulls. Never recalculate in the browser.
-function Values({ value }: { value: unknown }) {
+export function InputValues({ value }: { value: unknown }) {
   if (value === null) return <span>Belum diketahui</span>;
   if (Array.isArray(value))
     return value.length ? (
       <ol>
         {value.map((item, index) => (
           <li key={index}>
-            <Values value={item} />
+            <InputValues value={item} />
           </li>
         ))}
       </ol>
@@ -28,7 +28,7 @@ function Values({ value }: { value: unknown }) {
           <div key={key}>
             <dt>{key.replaceAll("_", " ")}</dt>
             <dd>
-              <Values value={item} />
+              <InputValues value={item} />
             </dd>
           </div>
         ))}
@@ -154,7 +154,7 @@ export function NumericLineage({
           )}
           <details>
             <summary>Nilai masukan dan metadata versi ini</summary>
-            <Values value={source} />
+            <InputValues value={source} />
           </details>
         </aside>
       )}
