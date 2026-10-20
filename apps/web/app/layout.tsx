@@ -1,8 +1,9 @@
 import "./style.css";
 export const metadata = {
-  title: "Fincathon · Export workspace",
+  title: "ALLExport · Export workspace",
   description:
     "Evidence-led export planning with traceable economics and cash flow.",
+  icons: { icon: "/icon.svg" },
 };
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (

@@ -7,7 +7,7 @@ test("English sign-in supports keyboard focus and readable primary actions", asy
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/");
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
-  await expect(page).toHaveTitle("Fincathon · Export workspace");
+  await expect(page).toHaveTitle("ALLExport · Export workspace");
   await expect(
     page.getByRole("heading", { name: "Sign in to your organization" }),
   ).toBeVisible();
@@ -112,17 +112,20 @@ for (const width of [320, 390, 768, 1440]) {
       .getByRole("button", { name: "Open workspace" })
       .click();
     await expect(
-      page.getByRole("navigation", { name: "Workspace sections" }),
+      page.getByRole("navigation", { name: "Main navigation" }),
     ).toBeVisible();
     for (const section of [
-      "Overview",
-      "Economics & cash",
-      "Evidence & documents",
-      "Drafts & approvals",
+      "Deal overview",
+      "Cost & margin",
+      "Cash timeline",
+      "Calendar",
+      "Scenarios",
+      "Documents & terms",
+      "Negotiation brief",
       "History",
     ]) {
       const button = page
-        .getByRole("navigation", { name: "Workspace sections" })
+        .getByRole("navigation", { name: "Main navigation" })
         .getByRole("button", { name: section, exact: true });
       await button.click();
       await expect(button).toHaveAttribute("aria-current", "page");
@@ -131,7 +134,7 @@ for (const width of [320, 390, 768, 1440]) {
           () => document.documentElement.scrollWidth <= innerWidth,
         ),
       ).toBe(true);
-      if (section === "Drafts & approvals")
+      if (section === "Negotiation brief")
         await expect(
           page.getByRole("combobox", { name: "Draft language", exact: true }),
         ).toHaveValue("en");

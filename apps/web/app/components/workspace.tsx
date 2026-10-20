@@ -15,13 +15,21 @@ import {
   Brand,
   Icon,
   type HomeSection,
+  type WorkspaceSection,
 } from "./app-shell";
+import { MilestoneCalendar } from "./milestone-calendar";
+import { CashBalanceChart } from "./cash-balance-chart";
 import { WorkspacePortfolio } from "./workspace-portfolio";
 import type { components } from "../../../../packages/contracts/api";
 type S = components["schemas"];
 type W = S["Workspace"];
 type D = S["Deal"];
 type A = S["Analysis"];
+const sectionNames: Partial<Record<WorkspaceSection, string>> = {
+  Overview: "Deal overview",
+  "Evidence & documents": "Documents & terms",
+  "Drafts & approvals": "Negotiation brief",
+};
 async function api<T>(
   path: string,
   body?: unknown,
@@ -145,6 +153,27 @@ const labels: Record<string, string> = {
   running: "Running",
 };
 const title = (s: string) => labels[s] || s.replaceAll("_", " ");
+function contributionMargin(analysis: A) {
+  if (analysis.owner_comparison?.margin_ratio !== null && analysis.owner_comparison?.margin_ratio !== undefined)
+    return Number(analysis.owner_comparison.margin_ratio);
+  const contribution = analysis.after_financing.contribution;
+  const operatingExpense = analysis.cost_totals.seller_operating_expense;
+  const fundingCost = analysis.after_financing.funding_cost?.amount;
+  if (!contribution || operatingExpense === null || fundingCost === undefined) return null;
+  const revenue = Number(contribution.amount) + Number(operatingExpense) + Number(fundingCost);
+  return revenue > 0 ? Number(contribution.amount) / revenue : null;
+}
+function cashPointLabel(point: S["CashTimelinePoint"], deal: D | null, funding: S["FundingOption"][], receipts: S["Receipt"][]) {
+  const id = point.source_ref?.id;
+  if (funding.some((option) => option.id === id))
+    return point.direction === "in" ? "Simulated loan draw" : "Simulated repayment";
+  const term = deal?.payment_terms.find((row) => row.id === id);
+  if (term?.side === "buyer") return "Buyer payment";
+  if (term?.side === "supplier") return "Supplier payment";
+  if (term?.side === "production_input") return "Production payment";
+  if (receipts.some((receipt) => receipt.id === id)) return "Verified receipt";
+  return point.direction === "in" ? "Cash in" : "Cash out";
+}
 function componentTitle(key: string, deal: D | null) {
   if (key.startsWith("procurement:")) {
     const line = deal?.line_items.find(
@@ -214,6 +243,7 @@ export default function Workspace() {
     [selected, setSelected] = useState<W | null>(null),
     [creating, setCreating] = useState(false),
     [homeSection, setHomeSection] = useState<HomeSection>("workspaces"),
+    [detailSection, setDetailSection] = useState<WorkspaceSection>("Overview"),
     [workspaceCursor, setWorkspaceCursor] = useState<string | null>(null);
   async function load(append = false) {
     const epoch = viewEpoch.current;
@@ -268,6 +298,7 @@ export default function Workspace() {
     setWorkspaceCursor(null);
     setCreating(false);
     setHomeSection("workspaces");
+    setDetailSection("Overview");
   }
   async function login(body: unknown) {
     setError("");
@@ -342,7 +373,7 @@ export default function Workspace() {
       session={session}
       title={
         selected
-          ? selected.product.description
+          ? sectionNames[detailSection] || detailSection
           : homeSection === "usage"
             ? "Usage & plans"
             : homeSection === "team"
@@ -351,6 +382,8 @@ export default function Workspace() {
       }
       demo={demo}
       section={selected ? "workspaces" : homeSection}
+      workspaceSection={selected ? detailSection : undefined}
+      onWorkspaceNavigate={setDetailSection}
       onNavigate={(section) => {
         setSelected(null);
         setHomeSection(section);
@@ -454,6 +487,8 @@ export default function Workspace() {
           key={selected.id}
           workspace={selected}
           session={session}
+          tab={detailSection}
+          setTab={setDetailSection}
           onBack={() => {
             setSelected(null);
             setHomeSection("workspaces");
@@ -472,6 +507,7 @@ export default function Workspace() {
             workspaces={workspaces}
             onOpen={(workspace) => {
               setSelected(workspace);
+              setDetailSection("Overview");
               setHomeSection("workspaces");
             }}
             onNew={() => setCreating(!creating)}
@@ -539,10 +575,7 @@ export default function Workspace() {
         </>
       )}
       <footer className="foot">
-        <span>
-          fincathon<span className="brand-dot">.</span>{" "}
-          <span className="footer-note">Evidence to decisions.</span>
-        </span>
+        <span><Brand /> <span className="footer-note">Evidence to decisions.</span></span>
         <span>Workspace timezones apply · English</span>
       </footer>
     </AppShell>
@@ -621,11 +654,15 @@ function Create({ onCreate }: { onCreate: (w: W) => void }) {
 function Detail({
   workspace,
   session,
+  tab,
+  setTab,
   onBack,
   onWorkspace,
 }: {
   workspace: W;
   session: S["Session"];
+  tab: WorkspaceSection;
+  setTab: (tab: WorkspaceSection) => void;
   onBack: () => void;
   onWorkspace: (w: W) => void;
 }) {
@@ -633,7 +670,6 @@ function Detail({
     [loaded, setLoaded] = useState(false),
     [archiveConfirmed, setArchiveConfirmed] = useState(false),
     [deal, setDeal] = useState<D | null>(null),
-    [tab, setTab] = useState("Overview"),
     [draftKind, setDraftKind] = useState<S["ArtifactKind"]>("agreement"),
     [draftLanguage, setDraftLanguage] = useState("en"),
     [draftRecipient, setDraftRecipient] = useState(""),
@@ -641,6 +677,8 @@ function Detail({
     [busy, setBusy] = useState(false),
     [message, setMessage] = useState(""),
     [analyses, setAnalyses] = useState<A[]>([]),
+    [scenarios, setScenarios] = useState<S["Scenario"][]>([]),
+    [selectedAnalysisId, setSelectedAnalysisId] = useState(""),
     [evidence, setEvidence] = useState<S["Evidence"][]>([]),
     [docs, setDocs] = useState<S["Document"][]>([]),
     [facts, setFacts] = useState<S["FactCandidate"][]>([]),
@@ -678,6 +716,9 @@ function Detail({
   const editor = !archived && canArchive;
   const finance =
     !archived && roles.some((r) => r === "owner" || r === "finance_reviewer");
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }, [tab]);
   useEffect(() => {
     setArchiveConfirmed(false);
   }, [archived]);
@@ -717,6 +758,7 @@ function Detail({
     const r = nd ? "deals/" + nd.id : "workspaces/" + nw.id;
     await Promise.all([
       list<"Analysis">(r + "/analyses").then(setAnalyses),
+      list<"Scenario">(r + "/scenarios").then(setScenarios),
       list<"Evidence">(r + "/evidence").then(setEvidence),
       list<"Document">("workspaces/" + nw.id + "/documents").then(setDocs),
       list<"FactCandidate">(r + "/fact-candidates").then(setFacts),
@@ -811,7 +853,19 @@ function Detail({
       setMessage("Job accepted; waiting for the worker.");
     }
   }
-  const analysis = analyses.at(-1);
+  const analysis = analyses.find((row) => row.id === selectedAnalysisId) || analyses.at(-1);
+  function analysisLabel(row: A) {
+    const scenario = scenarios.find((item) => item.id === row.scenario_id);
+    const kind = !scenario || (!scenario.patches.length && !scenario.funding_option_ids.length)
+      ? "Baseline"
+      : scenario.funding_option_ids.length
+        ? "Financing scenario"
+        : scenario.patches.some((patch) => patch.path === "/payment_terms")
+          ? "Payment terms scenario"
+          : "Cost scenario";
+    return `${kind} · ${date(row.created_at)}${row.current_for_use === false ? " · outdated" : ""}`;
+  }
+  const marginRatio = analysis ? contributionMargin(analysis) : null;
   const confirmed = evidence.filter((e) => e.review_status === "confirmed");
   if (!loaded)
     return (
@@ -880,31 +934,50 @@ function Detail({
           available.
         </p>
       )}
-      <nav className="tabs" aria-label="Workspace sections">
-        {[
-          "Overview",
-          "Evidence & documents",
-          "Economics & cash",
-          "Scenarios & funding",
-          "Drafts & approvals",
-          "Readiness & timeline",
-          "Settlement & closure",
-          "History",
-        ].map((t, index) => (
+      <div className="section-heading workspace-section-heading">
+        <div className="eyebrow">{tab === "Overview" ? "WORKSPACE" : "WORKSPACE VIEW"}</div>
+        <h2>{sectionNames[tab] || tab}</h2>
+        {tab === "Cost & margin" && <p className="muted">What the deal costs and what remains after financing.</p>}
+        {tab === "Cash timeline" && <p className="muted">When money moves and where the balance gets tight.</p>}
+        {tab === "Calendar" && <p className="muted">Milestone dates and what is coming up next.</p>}
+        {tab === "Scenarios" && <p className="muted">Compare changes to terms, funding, margin, and cash.</p>}
+        <div className="actions">
+        {editor && (tab === "Cost & margin" || tab === "Cash timeline") && (
           <button
-            className={tab === t ? "active" : ""}
-            key={t}
-            aria-label={t}
-            aria-current={tab === t ? "page" : undefined}
-            onClick={() => setTab(t)}
+            disabled={busy || processing}
+            onClick={() => run(root + "/analyses", {
+              expected_revision: revision,
+              scenario_id: null,
+              scope: "full",
+              execution: "deterministic",
+            })}
           >
-            <span className="tab-number" aria-hidden="true">
-              {String(index + 1).padStart(2, "0")}
-            </span>
-            {t}
+            Recalculate analysis
           </button>
-        ))}
-      </nav>
+        )}
+        {tab === "Cost & margin" && <button className="secondary" onClick={() => setTab("Cash timeline")}>View cash timeline →</button>}
+        {tab === "Cash timeline" && <button className="secondary" onClick={() => setTab("Calendar")}>Open calendar →</button>}
+        {tab === "Calendar" && <button className="secondary" onClick={() => setTab("Scenarios")}>Compare scenarios →</button>}
+        {tab === "Scenarios" && <button className="secondary" onClick={() => setTab("Drafts & approvals")}>Open negotiation brief →</button>}
+        </div>
+      </div>
+      {["Cost & margin", "Cash timeline", "Calendar", "Scenarios"].includes(tab) && analyses.length > 0 && (
+        <div className="scenario-selection">
+          <div>
+            <strong>{analysis ? analysisLabel(analysis) : "No analysis selected"}</strong>
+            <small>Cost, cash, and calendar use this analysis.</small>
+          </div>
+          <label>
+            <span className="sr-only">Selected analysis and scenario</span>
+            <select value={selectedAnalysisId} onChange={(event) => setSelectedAnalysisId(event.target.value)}>
+              <option value="">Latest analysis</option>
+              {[...analyses].reverse().map((row) => (
+                <option key={row.id} value={row.id}>{analysisLabel(row)}</option>
+              ))}
+            </select>
+          </label>
+        </div>
+      )}
       {tab === "Overview" && !archived && (
         <section className="context-note" aria-label="Workspace guide">
           <div>
@@ -932,7 +1005,7 @@ function Detail({
             onClick={() =>
               setTab(
                 analysis && analysis.current_for_use !== false
-                  ? "Economics & cash"
+                  ? "Cost & margin"
                   : "Evidence & documents",
               )
             }
@@ -1348,8 +1421,15 @@ function Detail({
           </section>
         </>
       )}
-      {tab === "Economics & cash" && (
+      {tab === "Cost & margin" && (
         <>
+          {!analysis && (
+            <section className="card empty-feature">
+              <h2>No analysis yet</h2>
+              <p>Set up your product, costs, and payment dates to see contribution and margin.</p>
+              <button onClick={() => setTab("Overview")}>Open workspace inputs</button>
+            </section>
+          )}
           <section className="card">
             <h2>Declared costs</h2>
             <div className="scroll">
@@ -1407,70 +1487,29 @@ function Detail({
           {analysis && (
             <>
               <section className="card">
-                <h2>Contribution & cash needs</h2>
+                <h2>Cost & margin summary</h2>
                 <div className="grid">
+                  <Metric
+                    label="Seller operating expense"
+                    value={analysis.cost_totals.seller_operating_expense === null ? undefined : `${analysis.cost_totals.reporting_currency} ${analysis.cost_totals.seller_operating_expense}`}
+                  />
+                  <Metric
+                    label="Funding cost"
+                    value={money(analysis.after_financing.funding_cost)}
+                  />
                   <Metric
                     label="Contribution after financing"
                     value={money(analysis.after_financing.contribution)}
                   />
                   <Metric
-                    label="Minimum cash"
-                    value={analysis.cash_metrics?.minimum_cash}
-                  />
-                  <Metric
-                    label="Buffer shortfall"
-                    value={analysis.cash_metrics?.buffer_shortfall}
-                  />
-                  <Metric
-                    label="Closing cash"
-                    value={analysis.cash_metrics?.final_cash}
+                    label="Contribution margin"
+                    value={marginRatio === null ? undefined : `${(marginRatio * 100).toFixed(1)}%`}
                   />
                 </div>
                 <p className="muted">
-                  {analysis.cash_metrics?.reporting_currency} ·{" "}
-                  {title(
-                    analysis.cash_metrics?.calculation_scope ||
-                      "known_items_only",
-                  )}{" "}
-                  · horizon{" "}
-                  {analysis.cash_metrics &&
-                    date(analysis.cash_metrics.horizon_end)}
+                  {title(analysis.completeness)} · {analysis.current_for_use === false ? "Inputs changed; refresh this analysis." : "Based on declared inputs."}
                 </p>
                 <Issues items={[...analysis.blockers, ...analysis.warnings]} />
-                <h3>Server-calculated cash sequence</h3>
-                <div className="scroll">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Time</th>
-                        <th>Direction</th>
-                        <th>Quantity</th>
-                        <th>Balance after event</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {analysis.cash_metrics?.event_balances?.map((p, n) => (
-                        <tr key={n}>
-                          <td>{date(p.at)}</td>
-                          <td>
-                            {p.direction === "in" ? "Sign in" : "Sign out"}
-                          </td>
-                          <td>{money(p.amount)}</td>
-                          <td>{money(p.balance)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                <h3>Negative cash intervals</h3>
-                {analysis.cash_metrics?.negative_intervals.map((i, n) => (
-                  <p key={n}>
-                    {date(i.start)} →{" "}
-                    {i.end
-                      ? date(i.end)
-                      : "Still open at the end of the horizon"}
-                  </p>
-                ))}
                 <h3>Pricing & comparables</h3>
                 <div className="grid">
                   <Metric
@@ -1513,8 +1552,106 @@ function Detail({
           )}
         </>
       )}
-      {tab === "Scenarios & funding" && (
+      {tab === "Cash timeline" && (
         <>
+          {analysis?.cash_metrics ? (
+            <>
+              <section className="card">
+                <h2>Cash position</h2>
+                <div className="grid">
+                  <Metric label="Lowest balance" value={`${analysis.cash_metrics.reporting_currency} ${analysis.cash_metrics.minimum_cash}`} />
+                  <Metric label="Buffer shortfall" value={`${analysis.cash_metrics.reporting_currency} ${analysis.cash_metrics.buffer_shortfall}`} />
+                  <Metric label="Own funds needed" value={`${analysis.cash_metrics.reporting_currency} ${analysis.cash_metrics.required_own_funds}`} />
+                  <Metric label="Closing balance" value={`${analysis.cash_metrics.reporting_currency} ${analysis.cash_metrics.final_cash}`} />
+                </div>
+                <p className="muted">
+                  {title(analysis.cash_metrics.calculation_scope)} · Through {date(analysis.cash_metrics.horizon_end)}
+                  {analysis.current_for_use === false && " · Inputs changed; refresh this analysis."}
+                </p>
+              </section>
+              <section className="card">
+                <h2>Money moving over time</h2>
+                <CashBalanceChart points={analysis.cash_metrics.event_balances || []} currency={analysis.cash_metrics.reporting_currency} />
+                {(analysis.cash_metrics.event_balances || []).length ? (
+                  <ol className="cash-sequence">
+                    {analysis.cash_metrics.event_balances?.map((point, index) => (
+                      <li key={`${point.at}-${index}`} className={Number(point.balance.amount) < 0 ? "cash-negative" : ""}>
+                        <div>
+                          <time dateTime={point.at}>{date(point.at)}</time>
+                          <strong>{cashPointLabel(point, deal, funding, receipts)}</strong>
+                        </div>
+                        <div>
+                          <span>{money(point.amount)}</span>
+                          <small>Balance after: {money(point.balance)}</small>
+                        </div>
+                      </li>
+                    ))}
+                  </ol>
+                ) : <p className="muted">No dated cash events in this analysis yet.</p>}
+                {!!analysis.cash_metrics.negative_intervals.length && (
+                  <div className="cash-warning">
+                    <h3>Periods below zero</h3>
+                    {analysis.cash_metrics.negative_intervals.map((interval, index) => (
+                      <p key={index}>{date(interval.start)} → {interval.end ? date(interval.end) : "End of analysis horizon"}</p>
+                    ))}
+                  </div>
+                )}
+                {!!analysis.cash_metrics.unresolved_obligation_ids.length && (
+                  <p className="notice">{analysis.cash_metrics.unresolved_obligation_ids.length} payment obligation(s) have unresolved dates; the cash sequence covers known items only.</p>
+                )}
+              </section>
+            </>
+          ) : (
+            <section className="card empty-feature">
+              <h2>No cash timeline yet</h2>
+              <p>Add payment dates and run an analysis to see when cash enters and leaves.</p>
+              <button onClick={() => setTab("Overview")}>Open workspace inputs</button>
+            </section>
+          )}
+        </>
+      )}
+      {tab === "Calendar" && (
+        <>
+          <MilestoneCalendar
+            milestones={milestones}
+            paymentTerms={deal?.payment_terms}
+            cashPoints={analysis?.cash_metrics?.event_balances}
+            unresolvedObligationIds={analysis?.cash_metrics?.unresolved_obligation_ids}
+            deal={deal}
+            obligations={obligations}
+            receipts={receipts}
+            funding={funding}
+            timezone={deal?.owner_timezone || w.owner_timezone}
+            onCashTimeline={() => setTab("Cash timeline")}
+          />
+          {deal && roles.includes("owner") && (
+            <CalendarPanel
+              deal={deal}
+              milestones={milestones}
+              demo={w.execution_scope === "demo"}
+              disabled={busy || processing}
+              command={command}
+              run={run}
+            />
+          )}
+        </>
+      )}
+      {tab === "Scenarios" && (
+        <>
+          <section className="card">
+            <h2>Current scenario at a glance</h2>
+            {analysis ? (
+              <>
+                <div className="grid">
+                  <Metric label="Contribution after financing" value={money(analysis.after_financing.contribution)} />
+                  <Metric label="Contribution margin" value={marginRatio === null ? undefined : `${(marginRatio * 100).toFixed(1)}%`} />
+                  <Metric label="Lowest cash balance" value={analysis.cash_metrics ? `${analysis.cash_metrics.reporting_currency} ${analysis.cash_metrics.minimum_cash}` : undefined} />
+                  <Metric label="Buffer shortfall" value={analysis.cash_metrics ? `${analysis.cash_metrics.reporting_currency} ${analysis.cash_metrics.buffer_shortfall}` : undefined} />
+                </div>
+                <p className="muted">{title(analysis.completeness)} · {analysis.current_for_use === false ? "Inputs changed; refresh before comparing." : "Compare proposals below."}</p>
+              </>
+            ) : <p className="muted">Run a baseline analysis to compare how changes affect margin and cash.</p>}
+          </section>
           {deal && editor && (
             <ScenarioEditor
               deal={deal}
@@ -1602,41 +1739,34 @@ function Detail({
           </section>
           <section className="card">
             <h2>Scenario comparison</h2>
-            {analyses.map((a) => (
-              <p key={a.id}>
-                <code>{a.scenario_id}</code>
-                <br />
-                {money(a.after_financing.contribution)} · minimum cash{" "}
-                {a.cash_metrics?.minimum_cash} · {title(a.completeness)}
-                {a.owner_comparison && (
-                  <>
-                    <br />
-                    Relative rank: {a.owner_comparison.rank ||
-                      "not available"}{" "}
-                    · preference{" "}
-                    {a.owner_comparison.ranking_preference || "not selected"}
-                    <br />
-                    {a.owner_comparison.checks.map((check) => (
-                      <span className="tag" key={check.code}>
-                        {check.code}: {title(check.status)}
-                      </span>
-                    ))}
-                    <br />
-                    Parties whose acceptance is required:{" "}
-                    {a.owner_comparison.required_counterparty_ids
-                      .map(
-                        (id) =>
-                          deal?.parties.find((p) => p.id === id)
-                            ?.display_name || id,
-                      )
-                      .join(", ") ||
-                      "according to applicable contractual acceptance"}
-                    <br />
-                    <small>{a.owner_comparison.basis}</small>
-                  </>
-                )}
-              </p>
-            ))}
+            <p className="muted">Select an analysis to inspect the same result in Cost & margin, Cash timeline, and Calendar.</p>
+            {analyses.length ? (
+              <div className="scenario-cards">
+                {[...analyses].reverse().map((row) => {
+                  const ratio = contributionMargin(row);
+                  return (
+                    <article key={row.id} className={analysis?.id === row.id ? "selected" : ""}>
+                      <div className="row">
+                        <strong>{analysisLabel(row)}</strong>
+                        <span className="tag">{title(row.completeness)}</span>
+                      </div>
+                      <dl>
+                        <div><dt>Contribution</dt><dd>{money(row.after_financing.contribution)}</dd></div>
+                        <div><dt>Margin</dt><dd>{ratio === null ? "Unknown" : `${(ratio * 100).toFixed(1)}%`}</dd></div>
+                        <div><dt>Lowest cash</dt><dd>{row.cash_metrics ? `${row.cash_metrics.reporting_currency} ${row.cash_metrics.minimum_cash}` : "Unknown"}</dd></div>
+                        <div><dt>Buffer shortfall</dt><dd>{row.cash_metrics ? `${row.cash_metrics.reporting_currency} ${row.cash_metrics.buffer_shortfall}` : "Unknown"}</dd></div>
+                      </dl>
+                      {row.owner_comparison && (
+                        <p className="muted">Required agreement: {row.owner_comparison.required_counterparty_ids.map((id) => deal?.parties.find((party) => party.id === id)?.display_name || id).join(", ") || "Check proposed terms"}</p>
+                      )}
+                      <button className="secondary" onClick={() => setSelectedAnalysisId(row.id)} aria-pressed={analysis?.id === row.id}>
+                        {analysis?.id === row.id ? "Selected analysis" : "Inspect this scenario"}
+                      </button>
+                    </article>
+                  );
+                })}
+              </div>
+            ) : <p className="muted">No scenarios have been calculated yet.</p>}
           </section>
         </>
       )}
@@ -1810,16 +1940,6 @@ function Detail({
               <p className="muted">Available after conversion to a deal.</p>
             )}
           </section>
-          {deal && roles.includes("owner") && (
-            <CalendarPanel
-              deal={deal}
-              milestones={milestones}
-              demo={w.execution_scope === "demo"}
-              disabled={busy || processing}
-              command={command}
-              run={run}
-            />
-          )}
           <section className="card">
             <h2>Requirements</h2>
             {requirements.map((r) => (
@@ -2029,7 +2149,7 @@ function Detail({
             <RuleEntry deal={deal} evidence={confirmed} command={command} />
           </fieldset>
         )}
-      {deal && finance && tab === "Scenarios & funding" && (
+      {deal && finance && tab === "Scenarios" && (
         <fieldset disabled={busy || processing}>
           <FinanceEntry
             deal={deal}
@@ -2044,7 +2164,7 @@ function Detail({
         </fieldset>
       )}
       {deal &&
-        (tab === "Economics & cash" ||
+        (tab === "Cost & margin" ||
           (finance && tab === "Settlement & closure")) && (
           <fieldset disabled={busy || processing}>
             <FinancialEntry
@@ -2054,7 +2174,7 @@ function Detail({
               costs={costs}
               fx={fx}
               finance={finance && tab === "Settlement & closure"}
-              showCosts={tab === "Economics & cash"}
+              showCosts={tab === "Cost & margin"}
               command={command}
             />
           </fieldset>

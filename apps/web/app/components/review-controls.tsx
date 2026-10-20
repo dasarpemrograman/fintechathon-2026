@@ -345,7 +345,7 @@ export function ReviewControls({
           )}
         </>
       )}
-      {tab === "Economics & cash" && finance && (
+      {tab === "Cost & margin" && finance && (
         <section className="card">
           <h2>Finalize actual costs</h2>
           <p className="muted">

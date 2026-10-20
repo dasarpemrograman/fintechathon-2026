@@ -139,7 +139,7 @@ test("public-source demo preview and discovery retain synthetic provider receipt
 }) => {
   await enter(page, "Synthetic coffee · negotiation");
   await page
-    .getByRole("button", { name: "Evidence & documents", exact: true })
+    .getByRole("button", { name: "Documents & terms", exact: true })
     .click();
   const panel = page.locator("details").filter({
     has: page.locator("summary", {
@@ -287,7 +287,7 @@ test("keyboard navigation works on a narrow screen and labels remain readable", 
     page.getByRole("button", { name: "Recalculate analysis" }),
   ).toBeVisible();
   const economics = page.getByRole("button", {
-    name: "Economics & cash",
+    name: "Cost & margin",
     exact: true,
   });
   await economics.focus();

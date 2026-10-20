@@ -68,7 +68,7 @@ test("funding dates preserve local dates and declared timezones", async ({
     .getByRole("button", { name: "Open workspace" })
     .click();
   await page
-    .getByRole("button", { name: "Scenarios & funding", exact: true })
+    .getByRole("button", { name: "Scenarios", exact: true })
     .click();
   const option = page.locator("article").filter({ hasText: marker });
   await expect(option).toHaveCount(1);
@@ -127,19 +127,20 @@ test("seeded database journey uses the browser, API and worker", async ({
     },
   );
   await page
-    .getByRole("button", { name: "Economics & cash", exact: true })
+    .getByRole("button", { name: "Cost & margin", exact: true })
     .click();
   await expect(
     page.getByText("IDR 26000000.00", { exact: true }),
   ).toBeVisible();
-  await expect(page.getByText("-52000000.00", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Cash timeline", exact: true }).click();
+  await expect(page.getByText("IDR -52000000.00", { exact: true }).first()).toBeVisible();
   await page
-    .getByRole("button", { name: "Evidence & documents", exact: true })
+    .getByRole("button", { name: "Documents & terms", exact: true })
     .click();
   await expect(
     page.getByRole("heading", { name: "Sources & excerpts" }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "Overview", exact: true }).click();
+  await page.getByRole("button", { name: "Deal overview", exact: true }).click();
   await page.getByRole("button", { name: "Recalculate analysis" }).click();
   await expect(page.getByTestId("job-state")).toHaveAttribute(
     "data-status",
@@ -219,7 +220,7 @@ test("funding comparison and analysis-bound draft use real worker outputs", asyn
     },
   );
   await page
-    .getByRole("button", { name: "Scenarios & funding", exact: true })
+    .getByRole("button", { name: "Scenarios", exact: true })
     .click();
   await page.getByRole("button", { name: "Find funding options" }).click();
   await expect(
@@ -239,14 +240,15 @@ test("funding comparison and analysis-bound draft use real worker outputs", asyn
     },
   );
   await page
-    .getByRole("button", { name: "Economics & cash", exact: true })
+    .getByRole("button", { name: "Cost & margin", exact: true })
     .click();
   await expect(
     page.getByText("IDR 23800000.00", { exact: true }),
   ).toBeVisible();
-  await expect(page.getByText("7000000.00", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Cash timeline", exact: true }).click();
+  await expect(page.getByText("IDR 7000000.00", { exact: true }).first()).toBeVisible();
   await page
-    .getByRole("button", { name: "Drafts & approvals", exact: true })
+    .getByRole("button", { name: "Negotiation brief", exact: true })
     .click();
   await page
     .getByRole("button", { name: "Create a draft from analysis" })

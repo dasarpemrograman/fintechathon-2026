@@ -5,6 +5,17 @@ import type { components } from "../../../../packages/contracts/api";
 
 type Session = components["schemas"]["Session"];
 export type HomeSection = "workspaces" | "usage" | "team";
+export type WorkspaceSection =
+  | "Cost & margin"
+  | "Cash timeline"
+  | "Calendar"
+  | "Scenarios"
+  | "Overview"
+  | "Evidence & documents"
+  | "Drafts & approvals"
+  | "Readiness & timeline"
+  | "Settlement & closure"
+  | "History";
 export function Icon({
   name,
   size = 20,
@@ -18,7 +29,10 @@ export function Icon({
     | "team"
     | "exit"
     | "globe"
-    | "check";
+    | "check"
+    | "calendar"
+    | "clock"
+    | "layers";
   size?: number;
 }) {
   const paths = {
@@ -74,6 +88,23 @@ export function Icon({
         <path d="m5 12 4 4L19 6" />
       </>
     ),
+    calendar: (
+      <>
+        <rect x="3" y="5" width="18" height="16" rx="2" />
+        <path d="M7 3v4M17 3v4M3 10h18" />
+      </>
+    ),
+    clock: (
+      <>
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 7v5l3 2" />
+      </>
+    ),
+    layers: (
+      <>
+        <path d="m12 3 9 5-9 5-9-5 9-5ZM3 12l9 5 9-5M3 16l9 5 9-5" />
+      </>
+    ),
   };
   return (
     <svg
@@ -94,15 +125,8 @@ export function Icon({
 export function Brand() {
   return (
     <span className="brand">
-      <span className="brand-mark" aria-hidden="true">
-        <i />
-        <i />
-        <i />
-        <i />
-      </span>
-      <span>
-        fincathon<span className="brand-dot">.</span>
-      </span>
+      <img className="brand-mark" src="/icon.svg" width="30" height="30" alt="" />
+      <span className="brand-word"><strong>ALL</strong>Export</span>
     </span>
   );
 }
@@ -111,7 +135,9 @@ export function AppShell({
   title,
   demo,
   section,
+  workspaceSection,
   onNavigate,
+  onWorkspaceNavigate,
   onLogout,
   onOrganization,
   children,
@@ -120,7 +146,9 @@ export function AppShell({
   title?: string;
   demo: boolean;
   section: HomeSection;
+  workspaceSection?: WorkspaceSection;
   onNavigate: (section: HomeSection) => void;
+  onWorkspaceNavigate?: (section: WorkspaceSection) => void;
   onLogout: () => void;
   onOrganization: (id: string) => void;
   children: ReactNode;
@@ -140,23 +168,62 @@ export function AppShell({
         Skip to content
       </a>
       {session && (
-        <aside className="sidebar" aria-label="Application sidebar">
+        <aside className={workspaceSection ? "sidebar workspace-sidebar" : "sidebar"} aria-label="Application sidebar">
           <button
             className="brand-button"
             onClick={() => onNavigate("workspaces")}
-            aria-label="Fincathon workspaces"
+            aria-label="ALLExport workspaces"
           >
             <Brand />
           </button>
           <div className="sidebar-label">YOUR WORKSPACE</div>
           <nav aria-label="Main navigation" className="sidebar-nav">
             <button
-              aria-current={section === "workspaces" ? "page" : undefined}
+              aria-current={section === "workspaces" && !workspaceSection ? "page" : undefined}
               onClick={() => onNavigate("workspaces")}
             >
               <Icon name="grid" />
               Workspaces
             </button>
+            {workspaceSection && onWorkspaceNavigate && (
+              <>
+                <span className="sidebar-group-label">DEAL WORKSPACE</span>
+                {([
+                  ["Overview", "Deal overview", "grid"],
+                  ["Evidence & documents", "Documents & terms", "box"],
+                  ["Cost & margin", "Cost & margin", "chart"],
+                  ["Cash timeline", "Cash timeline", "clock"],
+                  ["Calendar", "Calendar", "calendar"],
+                  ["Scenarios", "Scenarios", "layers"],
+                  ["Drafts & approvals", "Negotiation brief", "check"],
+                ] as const).map(([page, label, icon]) => (
+                  <button
+                    key={page}
+                    aria-current={workspaceSection === page ? "page" : undefined}
+                    onClick={() => onWorkspaceNavigate(page)}
+                  >
+                    <Icon name={icon} />
+                    {label}
+                  </button>
+                ))}
+                <span className="sidebar-group-label">OPERATIONS</span>
+                {([
+                  ["Readiness & timeline", "clock"],
+                  ["Settlement & closure", "globe"],
+                  ["History", "layers"],
+                ] as const).map(([page, icon]) => (
+                  <button
+                    key={page}
+                    aria-current={workspaceSection === page ? "page" : undefined}
+                    onClick={() => onWorkspaceNavigate(page)}
+                  >
+                    <Icon name={icon} />
+                    {page}
+                  </button>
+                ))}
+              </>
+            )}
+            <span className="sidebar-group-label">ORGANIZATION</span>
             <button
               aria-current={section === "usage" ? "page" : undefined}
               onClick={() => onNavigate("usage")}

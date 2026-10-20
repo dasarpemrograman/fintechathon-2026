@@ -88,7 +88,7 @@ export function CalendarPanel({
   const active = connections.find((c) => c.id === connection);
   return (
     <details className="card">
-      <summary>Optional calendar</summary>
+      <summary>External calendar sync (optional)</summary>
       <p>
         Your internal timeline works independently of external calendars.
         Projections include only selected milestone titles and dates, without
